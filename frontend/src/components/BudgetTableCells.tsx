@@ -98,6 +98,15 @@ export const CodigoCell = ({ initialValue, item, onUpdate, onOpenDetails }: Codi
                 onBlur={() => {
                     setIsEditing(false);
                     onUpdate(val);
+                    if (val !== initialValue) {
+                        import('@/store/useBudgetStore').then(module => {
+                            module.useBudgetStore.getState().memorizeHumanFeedback(
+                                item.descricao, 
+                                val, 
+                                "Código editado manualmente pelo usuário na célula."
+                            );
+                        });
+                    }
                 }}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === 'Escape') {
@@ -240,6 +249,17 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
             ai_status: "SUBSTITUIDO",
             ai_parecer_tecnico: "Item substituído manualmente pelo usuário."
         });
+
+        // Engatilha RLHF
+        if (initialValue && item.codigo) {
+            import('@/store/useBudgetStore').then(module => {
+                module.useBudgetStore.getState().memorizeHumanFeedback(
+                    initialValue, 
+                    item.codigo, 
+                    "Substituído manualmente via Autocomplete de sugestões."
+                );
+            });
+        }
     };
 
     return (

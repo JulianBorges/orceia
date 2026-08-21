@@ -15,14 +15,21 @@ async def verify_proxy_secret(x_api_secret: str = Header(...)):
         raise HTTPException(status_code=403, detail="Acesso não autorizado")
     return x_api_secret
 
+async def get_current_tenant(x_tenant_id: str = Header(None)):
+    if not x_tenant_id:
+        raise HTTPException(status_code=401, detail="Sessão Expirada ou Tenant Não Encontrado")
+    return x_tenant_id
+
 @router.post("/feedback", dependencies=[Depends(verify_proxy_secret)])
-async def save_rlhf_feedback(feedback: FeedbackRLHF):
+async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(get_current_tenant)):
     """Guarda a decisão humana no banco (Memória Organizacional B2B)"""
+    # Blindagem: Ignora o que o cliente mandou no JSON e força o uso do Tenant Autenticado no Cookie
+    feedback.tenant_id = tenant_id
     query = """
         INSERT INTO memoria_organizacional (tenant_id, termo_original, codigo_escolhido, parecer)
         VALUES ($1, $2, $3, $4)
         ON CONFLICT (tenant_id, termo_original) 
-        DO UPDATE SET codigo_escolhido = $3, parecer = $4
+        DO UPDATE SET codigo_escolhido = $3, parecer = $4, updated_at = CURRENT_TIMESTAMP
     """
     try:
         pool = get_db_pool()
@@ -30,25 +37,42 @@ async def save_rlhf_feedback(feedback: FeedbackRLHF):
             await conn.execute(query, feedback.tenant_id, feedback.termo_original.strip().lower(), feedback.codigo_escolhido, feedback.parecer)
         return {"status": "success", "message": "Feedback memorizado para o Tenant"}
     except Exception as e:
-        print(f"Erro salvando RLHF (talvez a tabela não exista ainda): {e}")
-        return {"status": "error", "message": str(e)}
+        print(f"[ERRO RLHF] Falha ao salvar feedback: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro salvando RLHF: {str(e)}")
 
 @router.post("/upsert-linhas", dependencies=[Depends(verify_proxy_secret)])
-async def upsert_linhas(lote: LoteUpsertRequest, background_tasks: BackgroundTasks):
+async def upsert_linhas(lote: LoteUpsertRequest, background_tasks: BackgroundTasks, tenant_id: str = Depends(get_current_tenant)):
     if not lote.linhas:
         return {"status": "success"}
     
     planilha_id = lote.linhas[0].id_planilha
+    # Força a marcação B2B (Segurança Server-Side)
+    for linha in lote.linhas:
+        linha.tenant_id = tenant_id
+        
     # Despacha a bomba para o background. O Frontend fica livre instantaneamente (0 latência)
     background_tasks.add_task(iniciar_processamento_lote_em_background, lote.linhas, planilha_id)
     
     return {"status": "processing_started", "linhas": len(lote.linhas)}
 
-@router.get("/stream/{id_planilha}")
-async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0")):
+@router.post("/save-linhas", dependencies=[Depends(verify_proxy_secret)])
+async def save_linhas(lote: LoteUpsertRequest, tenant_id: str = Depends(get_current_tenant)):
+    """
+    Stub para a Fase 4 (Multi-Tenancy).
+    Recebe as linhas editadas no Frontend e as gravará no Supabase (planilhas_linhas),
+    sem engatilhar o motor da OpenAI.
+    """
+    if not lote.linhas:
+        return {"status": "success"}
+    
+    # O código de persistência no Supabase entrará aqui na futura Fase 4.
+    return {"status": "success", "linhas_salvas": len(lote.linhas), "message": "Persistência simulada no backend."}
+
+@router.get("/stream/{id_planilha}", dependencies=[Depends(verify_proxy_secret)])
+async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(get_current_tenant)):
     """Canal de Eventos (SSE). O frontend escuta aqui e atualiza a UI instantaneamente"""
     async def event_generator():
-        stream_key = f"stream:planilha:{id_planilha}"
+        stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
         
         try:

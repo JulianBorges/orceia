@@ -3,7 +3,7 @@ from typing import Optional, List, Literal
 
 class LinhaOrcamentoBase(BaseModel):
     id_planilha: str
-    tenant_id: str = Field(default="construtora_padrao", description="Isolamento B2B multi-tenant")
+    tenant_id: Optional[str] = Field(default=None, description="Injetado pelo Header de Auth Server-Side")
     codigo: Optional[str] = None
     descricao: str
     unidade: str
@@ -17,7 +17,7 @@ class LoteUpsertRequest(BaseModel):
     linhas: List[LinhaOrcamentoUpsert]
 
 class FeedbackRLHF(BaseModel):
-    tenant_id: str
+    tenant_id: Optional[str] = None
     termo_original: str
     codigo_escolhido: str
     parecer: str = "Aprendizado forçado via UX (RLHF)"

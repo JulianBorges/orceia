@@ -61,7 +61,7 @@ export default function Home() {
                 <div className="flex items-center justify-between px-2 shrink-0">
                     <div className="flex items-center gap-3">
                         <button 
-                            onClick={() => processarOrcamentoIA('tenant_alfa')}
+                            onClick={() => processarOrcamentoIA()}
                             disabled={isProcessing}
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold shadow-md transition-all ${isProcessing ? 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800 cursor-not-allowed' : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white'}`}
                         >

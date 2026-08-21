@@ -185,17 +185,17 @@ export function BudgetTable({
             let tooltipLabel = label;
             
             if (status.includes("ACEITO COM") || status.includes("RESSALVA") || status.includes("PREMISSA")) {
-                color = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
+                color = "bg-[#fdf2e3] text-[#ffaa00] border-[#f9d8b0] dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
                 label = "RESSALVA";
                 tooltipLabel = "ACEITO COM RESSALVA";
             } else if (status === "ACEITO" || status.includes("APROVADO")) {
-                color = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20";
+                color = "bg-[#e6f7ef] text-[#00cc88] border-[#b7e6d2] dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20";
                 label = "ACEITO";
                 tooltipLabel = "ACEITO";
-            } else if (status === "SUBSTITUIDO") {
-                color = "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20";
-                label = "SUBSTITUÍDO";
-                tooltipLabel = "SUBSTITUÍDO";
+            } else if (status === "SUBSTITUIDO" || status === "MEMÓRIA HUMANA") {
+                color = "bg-[#EBF3FF] text-[#4287F5] border-[#B8D4FF] dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20";
+                label = status === "MEMÓRIA HUMANA" ? "MEMÓRIA" : "SUBSTITUÍDO";
+                tooltipLabel = status === "MEMÓRIA HUMANA" ? "RECUPERADO DA MEMÓRIA ORGANIZACIONAL (IA IGNORADA)" : "SUBSTITUÍDO";
             } else if (status.includes("REJEITADO") || status.includes("ERRO") || status.includes("VAZIO")) {
                 color = "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
                 if (status === "REJEITADO_FILTRO_MATEMATICO") {

@@ -26,6 +26,15 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
     const headers = new Headers(request.headers);
     // Mascara a chave e adiciona no proxy (segurança edge)
     headers.set("x-api-secret", process.env.API_SECRET_KEY || "sk-orcamento-123xyz");
+    
+    // Repassa o x-tenant-id injetado pelo middleware, se existir. 
+    // Como o usuário não consegue falsificar cookies assinados/HttpOnly facilmente no middleware,
+    // o Backend pode confiar plenamente neste Header
+    const tenantId = request.headers.get("x-tenant-id");
+    if (tenantId) {
+        headers.set("x-tenant-id", tenantId);
+    }
+    
     headers.delete("host"); 
     
     let body = undefined;

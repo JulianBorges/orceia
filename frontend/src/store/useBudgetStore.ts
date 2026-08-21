@@ -32,7 +32,7 @@ interface BudgetState {
   // Novos métodos de Integração Funcional e Upload
   planilhaId: string | null;
   setPlanilhaId: (id: string | null) => void;
-  processarOrcamentoIA: (tenantId: string) => Promise<void>;
+  processarOrcamentoIA: () => Promise<void>;
 }
 
 export const useBudgetStore = create<BudgetState>()(
@@ -186,7 +186,6 @@ export const useBudgetStore = create<BudgetState>()(
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    tenant_id: 'tenant_alfa',
                     termo_original: termoOriginal,
                     codigo_escolhido: codigoEscolhido,
                     parecer: parecer
@@ -198,7 +197,7 @@ export const useBudgetStore = create<BudgetState>()(
         }
       },
 
-      processarOrcamentoIA: async (tenantId: string) => {
+      processarOrcamentoIA: async () => {
         const { tableData, planilhaId } = get();
         if (!planilhaId) return;
 
@@ -213,8 +212,7 @@ export const useBudgetStore = create<BudgetState>()(
             descricao: row.descricao,
             unidade: row.und,
             quantidade: row.quant,
-            preco_unitario: row.valorUnit,
-            tenant_id: tenantId
+            preco_unitario: row.valorUnit
           }));
 
         if (linhasParaProcessar.length === 0) {

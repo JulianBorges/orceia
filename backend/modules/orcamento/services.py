@@ -12,23 +12,20 @@ semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
 async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
     """Consulta o banco de memórias do Cliente (Engenharia Humana)"""
-    try:
-        from core.db import get_db_pool
-        query = "SELECT codigo_escolhido, parecer FROM memoria_organizacional WHERE tenant_id = $1 AND termo_original = $2 LIMIT 1"
-        pool = get_db_pool()
-        async with pool.acquire() as conn:
-            record = await asyncio.wait_for(conn.fetchrow(query, tenant_id, termo.strip().lower()), timeout=5.0)
-            
-        if record:
-            return {
-                "codigo_novo": record["codigo_escolhido"],
-                "status_ia": "ACEITO_POR_FEEDBACK_HUMANO",
-                "parecer": record["parecer"],
-                "rigor": "ALTO",
-                "origem": "RLHF_DATABASE"
-            }
-    except Exception:
-        pass # Se a tabela ainda não existir, apenas ignora suavemente.
+    from core.db import get_db_pool
+    query = "SELECT codigo_escolhido, parecer FROM memoria_organizacional WHERE tenant_id = $1 AND termo_original = $2 LIMIT 1"
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        record = await asyncio.wait_for(conn.fetchrow(query, tenant_id, termo.strip().lower()), timeout=5.0)
+        
+    if record:
+        return {
+            "codigo_novo": record["codigo_escolhido"],
+            "status_ia": "MEMÓRIA HUMANA",
+            "parecer": record["parecer"],
+            "rigor": "BAIXO",
+            "origem": "RLHF_DATABASE"
+        }
     return None
 
 # Essa função engloba o RRF + OpenAI e usa Tenacity para refazer a consulta se a rede cair
@@ -104,7 +101,7 @@ async def processar_linha_com_semaforo(linha: LinhaOrcamentoUpsert, id_planilha:
             }
         
         # Joga a resposta de volta no barramento (Redis) para o Frontend capturar
-        stream_key = f"stream:planilha:{id_planilha}"
+        stream_key = f"stream:{linha.tenant_id}:planilha:{id_planilha}"
         await publish_sse_event(stream_key, evento_sse)
 
 async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUpsert], id_planilha: str):

@@ -30,7 +30,7 @@ export function useAutoSave() {
       };
 
       try {
-        const res = await fetch('/api/proxy/orcamento/upsert-linhas', {
+        const res = await fetch('/api/proxy/orcamento/save-linhas', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
