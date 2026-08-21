@@ -48,15 +48,16 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 ## 📈 SPRINT 4: Inteligência Comercial B2B (Novas Features)
 *Objetivo: Evoluir de uma ferramenta interna para um Produto SaaS de alto valor e inteligência adaptativa.*
 
-- [ ] **4.1 Aprendizado por Feedback Humano (RLHF Local):**
-  - [ ] Criar tabela de `memoria_organizacional`. Quando o usuário alterar o insumo escolhido pela IA manualmente no Drawer e salvar, o sistema memorizará a preferência.
-  - [ ] Nos próximos orçamentos da mesma empresa, o sistema contornará a OpenAI e preencherá o item idêntico a custo zero de API.
+- [x] **4.1 Aprendizado por Feedback Humano (RLHF Local):**
+  - [x] Criar tabela de `memoria_organizacional`. Quando o usuário alterar o insumo escolhido pela IA manualmente no Drawer e salvar, o sistema memorizará a preferência.
+  - [x] Nos próximos orçamentos da mesma empresa, o sistema contornará a OpenAI e preencherá o item idêntico a custo zero de API.
 
 - [ ] **4.2 Foco na Curva ABC Preditiva:**
   - [ ] O Backend deve calcular a Curva ABC *antes* da IA terminar. Agentes revisarão com tokens extras os "Itens Classe A" (os 20% que custam 80% da obra), gerando alertas de risco vermelhos no Dashboard.
 
-- [ ] **4.3 Multi-Tenancy (Preparação SaaS):**
-  - [ ] Configurar namespaces dinâmicos no Pinecone atrelados ao `tenant_id` e Row-Level Security no Supabase para isolar perfeitamente os dados de diferentes construtoras clientes.
+- [x] **4.3 Multi-Tenancy (Preparação SaaS):**
+  - [x] Implementação de Login Passwordless com segurança via Cookies HTTP-Only, Middleware e Headers `X-Tenant-ID`.
+  - [x] Isolamento perimetral do tráfego SSE via Redis Streams (`stream:{tenant_id}:planilha:{id_planilha}`) e injeção de dependência estrita (`Depends(get_current_tenant)`) no FastAPI.
 
 ---
 

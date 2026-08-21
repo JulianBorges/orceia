@@ -15,11 +15,11 @@ O **OrceIA** é um Copiloto de Orçamento de Engenharia de alta performance. Ele
 
 ## 3. Pilares Arquiteturais Críticos (NÃO QUEBRE)
 
-### 3.1. Performance do Frontend (60 FPS)
+### 3.1. Performance do Frontend (60 FPS) e Segurança (Middleware)
 A tabela principal (`BudgetTable.tsx`) renderiza milhares de linhas. Para isso, ela utiliza:
 - **DOM Virtualization** (`@tanstack/react-virtual`): Apenas os itens na tela (viewport) existem no DOM. Alterações de CSS devem respeitar `transform: translateY` e `position: absolute`.
-- **Drag-n-Drop** (`@dnd-kit`): Integrado diretamente com a virtualização.
-- **Debounced Auto-Save O(1):** O hook `useAutoSave.ts` utiliza uma flag booleana super-rápida (`isDirty`) acoplada ao Zustand, eliminando a lentidão do `JSON.stringify`. Ele faz um debounce estrito nativo de 3000ms antes de disparar o `upsert` no Supabase. O UI state não engatilha salvamentos.
+- **Debounced Auto-Save O(1):** O hook `useAutoSave.ts` utiliza uma flag booleana super-rápida (`isDirty`) acoplada ao Zustand, eliminando a lentidão do `JSON.stringify`. Ele faz um debounce nativo e atinge a rota `/save-linhas` (que é apenas persistência). JAMAIS direcione o autosave para `/upsert-linhas` (isso reativaria a IA acidentalmente).
+- **Segurança Multi-Tenant:** O Next.js possui um `middleware.ts` na raiz do `src/` que intercepta requisições, verifica o Cookie de Sessão e injeta o header `X-Tenant-ID`. Nunca trafegue IDs de tenant abertos em payloads JSON no Frontend. O backend FastAPI (via `get_current_tenant`) extrai o `X-Tenant-ID` verificado pelo Next.js Proxy para isolar RLS no banco e SSE.
 
 ### 3.2. Infraestrutura Backend e SSE Resiliente
 O ambiente de hospedagem (Vercel / Cloud Run) impõe timeouts rigorosos (ex: 60 segundos). O backend burla essa limitação através de uma arquitetura tolerante a falhas:
