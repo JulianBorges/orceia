@@ -161,7 +161,7 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                     </div>
                 </div>
                 {row.getVisibleCells().map((cell: any) => (
-                    <div key={cell.id} style={{ width: cell.column.getSize() }} className="px-3 shrink-0 flex items-center py-2">
+                    <div key={cell.id} style={{ width: cell.column.getSize(), flexGrow: cell.column.id === 'descricao' ? 1 : 0 }} className="px-3 shrink-0 flex items-center py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                 ))}

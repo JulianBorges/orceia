@@ -350,7 +350,7 @@ export function BudgetTable({
                   {headerGroup.headers.map((header) => (
                     <div 
                         key={header.id} 
-                        style={{ width: header.getSize() }} 
+                        style={{ width: header.getSize(), flexGrow: header.column.id === 'descricao' ? 1 : 0 }} 
                         className={`px-3 py-2 font-medium flex items-center gap-1 shrink-0 relative group hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer ${header.column.id === 'descricao' ? 'justify-start' : 'justify-center text-center'}`}
                         onClick={header.column.getToggleSortingHandler()}
                     >
