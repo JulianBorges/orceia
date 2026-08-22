@@ -203,9 +203,9 @@ export const useBudgetStore = create<BudgetState>()(
 
         set({ isProcessing: true, processedItemsCount: 0, processingStatusText: 'Iniciando inteligência...' });
 
-        // Extrai apenas os itens folha (não-macro) que têm descrição para a IA orçar
+        // Extrai apenas os itens folha (não-macro) que têm descrição para a IA orçar e que ainda não foram processados
         const linhasParaProcessar = tableData
-          .filter(row => !row.is_macro_item && row.descricao && row.descricao.trim() !== '')
+          .filter(row => !row.is_macro_item && row.descricao && row.descricao.trim() !== '' && (!row.ai_status || row.ai_status === 'PENDENTE' || row.ai_status === 'PROCESSANDO'))
           .map(row => ({
             id: row.id,
             id_planilha: planilhaId,

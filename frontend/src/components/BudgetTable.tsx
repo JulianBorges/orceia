@@ -203,7 +203,7 @@ export function BudgetTable({
                     tooltipLabel = "REJEITADO";
                 }
             } else if (status === "PROCESSANDO") {
-                color = "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 animate-pulse";
+                color = "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20 animate-pulse";
             }
             
             return (
@@ -332,9 +332,7 @@ export function BudgetTable({
 
   return (
     <div className="flex flex-col gap-4 w-full h-full">
-        <div className="flex items-center justify-between text-sm text-zinc-400 dark:text-zinc-500 dark:text-zinc-400">
-            <span>Orçamento com {data.length} itens</span>
-        </div>
+        {/* Item count moved to page.tsx */}
 
         <div 
             ref={tableContainerRef}
@@ -342,7 +340,7 @@ export function BudgetTable({
         >
           <div className="w-full text-sm text-left flex flex-col min-w-max">
             {/* Header */}
-            <div className="text-xs uppercase bg-background/80 backdrop-blur-md text-zinc-400 dark:text-zinc-500 border-b border-zinc-200 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none">
+            <div className="text-[11px] uppercase tracking-wider font-semibold bg-zinc-50 dark:bg-[#09090b] text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none py-2">
               {table.getHeaderGroups().map((headerGroup) => (
                 <div key={headerGroup.id} className="flex flex-1">
                   {headerGroup.headers.map((header) => (

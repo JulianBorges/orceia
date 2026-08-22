@@ -1,12 +1,18 @@
 import React, { useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '@/store/useBudgetStore';
-import { Upload } from 'lucide-react';
+import { CloudUpload } from 'lucide-react';
 import { BudgetItem } from '@/utils/budgetUtils';
 
-export function UploadPlanilha() {
+interface UploadPlanilhaProps {
+    children?: React.ReactNode;
+    className?: string;
+    append?: boolean;
+}
+
+export function UploadPlanilha({ children, className, append = false }: UploadPlanilhaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { setTableData, setPlanilhaId } = useBudgetStore();
+    const { tableData, setTableData, setPlanilhaId, processarOrcamentoIA } = useBudgetStore();
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -82,9 +88,18 @@ export function UploadPlanilha() {
                 });
             }
 
-            const newPlanilhaId = crypto.randomUUID();
-            setPlanilhaId(newPlanilhaId);
-            setTableData(parsedData);
+            if (append) {
+                setTableData([...tableData, ...parsedData]);
+            } else {
+                const newPlanilhaId = crypto.randomUUID();
+                setPlanilhaId(newPlanilhaId);
+                setTableData(parsedData);
+            }
+            
+            // Inicia a inteligência artificial automaticamente
+            setTimeout(() => {
+                processarOrcamentoIA();
+            }, 100);
             
             // Reseta o input para permitir carregar o mesmo arquivo novamente se precisar
             if (fileInputRef.current) {
@@ -93,6 +108,8 @@ export function UploadPlanilha() {
         };
         reader.readAsBinaryString(file);
     };
+
+    const defaultClassName = "flex items-center gap-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm";
 
     return (
         <div>
@@ -105,10 +122,14 @@ export function UploadPlanilha() {
             />
             <button 
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md font-medium shadow-sm transition-colors text-sm"
+                className={className || defaultClassName}
             >
-                <Upload className="w-4 h-4" />
-                Subir Planilha
+                {children || (
+                    <>
+                        <CloudUpload className="w-4 h-4" />
+                        Importar Excel
+                    </>
+                )}
             </button>
         </div>
     );
