@@ -131,3 +131,42 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
         # Ao final de tudo, aconteça o que acontecer, joga um evento de conclusão para a UI destravar
         tenant_id = linhas[0].tenant_id if linhas else "default"
         await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
+
+async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str):
+    """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""
+    from core.db import get_db_pool
+    
+    query = """
+        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id) 
+        DO UPDATE SET 
+            codigo = EXCLUDED.codigo,
+            descricao = EXCLUDED.descricao,
+            unidade = EXCLUDED.unidade,
+            quantidade = EXCLUDED.quantidade,
+            preco_unitario = EXCLUDED.preco_unitario,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE planilhas_linhas.tenant_id = EXCLUDED.tenant_id; 
+    """
+    
+    # Prepara a matriz de dados para a inserção binária do asyncpg
+    dados = [
+        (
+            linha.id, 
+            linha.id_planilha, 
+            tenant_id,
+            linha.codigo, 
+            linha.descricao, 
+            linha.unidade, 
+            linha.quantidade, 
+            linha.preco_unitario
+        )
+        for linha in linhas
+    ]
+
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            # executemany processa os milhares de registros numa pancada só (Custo O(1) de rede)
+            await conn.executemany(query, dados)
