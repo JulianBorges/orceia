@@ -109,3 +109,8 @@ Durante a construção iterativa da V1 e V2, enfrentamos problemas arquiteturais
    - **Sintoma:** Qualquer pessoa sabendo o ID da planilha poderia engatar no EventSource `/stream/123` e escutar a IA processando orçamentos alheios.
    - **Causa:** A chave de barramento do Redis Streams era pública por planilha (`stream:planilha:{id}`).
    - **Solução Definitiva (Multi-Tenancy SaaS):** Implementação de **Middleware Next.js**. Um *Cookie HttpOnly* valida a sessão, o Next.js injeta um *Header Seguro* `X-Tenant-ID`, e o FastAPI altera a chave do barramento para `stream:{tenant_id}:planilha:{id}`, fechando a interceptação hermeticamente.
+
+8. **Armadilhas Clássicas de Deploy (V3 Production Gotchas):**
+   - **Sintoma 1 (Erro 404 / Sem Conexão):** O Frontend na Vercel não encontra o Backend. **Causa:** A variável `BACKEND_API_URL` foi copiada como `localhost` do `.env.local` ou inserida com sufixo `/api`. **Solução:** Usar apenas a URL base pública do Cloud Run sem sufixos (o Proxy do Next já monta a rota dinamicamente).
+   - **Sintoma 2 (Prepared Statement Error no DB):** O backend dispara "prepared statement does not exist". **Causa:** Uso do pooler do Supabase (porta 6543 / PgBouncer transacional) combinado com o cache nativo do `asyncpg`. **Solução:** Adicionar `statement_cache_size=0` no `asyncpg.create_pool`.
+   - **Sintoma 3 (SSE / BackgroundTasks Morrendo):** O Cloud Run desliga o processamento no meio da planilha. **Causa:** Opção de CPU baseada em solicitações ativada. **Solução:** Mudar o faturamento para **"Com base em instâncias"** (CPU Always Allocated).
