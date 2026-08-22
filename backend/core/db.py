@@ -13,6 +13,7 @@ async def init_db_pool():
                 min_size=2,
                 max_size=20,
                 command_timeout=60,
+                statement_cache_size=0,
             )
             print("PostgreSQL connection pool via asyncpg initialized.")
         except Exception as e:
