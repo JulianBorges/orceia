@@ -31,7 +31,7 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                 rowVirtualizer.measureElement(node);
             }}
             data-index={virtualRow.index}
-            className={`group transition-colors duration-150 absolute top-0 left-0 w-full flex items-center py-2 z-10 hover:z-[30] hover:bg-zinc-100 dark:hover:bg-zinc-800/60 focus-within:z-[30] ${row.original.is_macro_item ? 'bg-zinc-100/80 dark:bg-zinc-800/50 border-y border-zinc-200 dark:border-zinc-700/50' : ''}`}
+            className={`group transition-colors duration-150 absolute top-0 left-0 w-full flex items-stretch z-10 hover:z-[30] hover:bg-zinc-100 dark:hover:bg-zinc-800/60 focus-within:z-[30] ${row.original.is_macro_item ? 'bg-zinc-100/80 dark:bg-zinc-800/50 border-y border-zinc-200 dark:border-zinc-700/50' : ''}`}
             style={style}
             onFocus={(e) => {
                 // Ignore focus se for no botão do menu
@@ -161,7 +161,7 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                     </div>
                 </div>
                 {row.getVisibleCells().map((cell: any) => (
-                    <div key={cell.id} style={{ width: cell.column.getSize(), flexGrow: cell.column.id === 'descricao' ? 1 : 0 }} className="px-3 shrink-0 flex items-center">
+                    <div key={cell.id} style={{ width: cell.column.getSize() }} className="px-3 shrink-0 flex items-center py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                 ))}

@@ -133,25 +133,31 @@ export function BudgetTable({
         cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'base', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
     }),
     columnHelper.accessor("descricao", { 
-        header: "Descrição do Serviço",
-        size: 600,
+        header: "Descrição do Serviço", 
+        size: 500,
         cell: info => {
-            const lvl = info.row.original.level ?? (info.row.original.is_macro_item ? 0 : 1);
-            // O nível 0 e 1 de serviços já são razoáveis sem margem. Usar margin left apenas se > 0 e for serviço, ou > 0 para macros.
-            // Para ficar super elegante, indentamos 1rem por level.
-            const indentStyle = { paddingLeft: `${lvl * 1.5}rem` };
-
+            const indentStyle = { paddingLeft: `${(info.row.original.level || 0) * 20}px` };
             if (info.row.original.is_macro_item) {
                 return (
-                    <div className="w-full px-2" style={indentStyle}>
-                        <CellInput initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateRow(info.row.original.id, {descricao: v})} className="w-full bg-transparent font-bold text-zinc-900 dark:text-zinc-100 truncate outline-none" />
+                    <div className="flex items-center w-full h-full" style={indentStyle}>
+                        <div className="flex-1 w-full flex items-center pr-2">
+                            <span className="text-zinc-400 mr-2 opacity-50 shrink-0">
+                                <div className="w-5" />
+                            </span>
+                            <input 
+                                type="text"
+                                value={info.getValue()}
+                                onChange={e => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'descricao', e.target.value)}
+                                className="w-full bg-transparent text-zinc-700 dark:text-zinc-200 font-bold outline-none"
+                            />
+                        </div>
                     </div>
                 );
             }
             const hasMemory = info.row.original.memoria_calculo && info.row.original.memoria_calculo.length > 0;
             return (
                 <div className="flex items-center gap-2 w-full h-full group/desc" style={indentStyle}>
-                    <div className="flex-1">
+                    <div className="flex-1 w-full min-w-0">
                         <AutocompleteDescricaoCell 
                             initialValue={info.getValue()} 
                             rowIndex={info.row.index}
@@ -174,7 +180,7 @@ export function BudgetTable({
     }),
     columnHelper.accessor("ai_status", {
         header: "Parecer IA",
-        size: 110,
+        size: 150,
         cell: info => {
             if (info.row.original.is_macro_item) return <div className="text-center"></div>;
             const status = info.getValue() || 'PENDENTE';
@@ -203,16 +209,16 @@ export function BudgetTable({
                     tooltipLabel = "REJEITADO";
                 }
             } else if (status === "PROCESSANDO") {
-                color = "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20 animate-pulse";
+                color = "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 animate-pulse";
             }
             
             return (
-                <div className="relative group/tooltip flex items-center h-full">
+                <div className="relative group/tooltip flex justify-center items-center h-full w-full">
                     <div className={`px-2 py-0.5 rounded-full text-[10px] font-semibold w-max border cursor-help truncate max-w-full ${color}`}>
                         {label}
                     </div>
                     {just && (
-                        <div className="absolute left-full ml-3 top-0 w-80 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-100 z-[9999] text-xs text-zinc-700 dark:text-zinc-300 font-normal whitespace-normal leading-relaxed pointer-events-none">
+                        <div className="absolute left-full ml-3 top-0 w-80 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-100 z-[9999] text-xs text-zinc-700 dark:text-zinc-300 font-normal whitespace-normal leading-relaxed pointer-events-none text-left">
                             <div className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">{tooltipLabel}</div>
                             {just}
                             <div className="absolute top-2 -left-1.5 w-3 h-3 bg-white dark:bg-zinc-900 border-l border-t border-zinc-200 dark:border-zinc-800 -rotate-45"></div>
@@ -332,21 +338,19 @@ export function BudgetTable({
 
   return (
     <div className="flex flex-col gap-4 w-full h-full">
-        {/* Item count moved to page.tsx */}
-
         <div 
             ref={tableContainerRef}
             className="w-full h-full overflow-auto custom-scrollbar"
         >
           <div className="w-full text-sm text-left flex flex-col min-w-max">
             {/* Header */}
-            <div className="text-[11px] uppercase tracking-wider font-semibold bg-zinc-50 dark:bg-[#09090b] text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none py-2">
+            <div className="text-[11px] uppercase tracking-wider font-semibold bg-zinc-50 dark:bg-[#09090b] text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none py-3 whitespace-nowrap">
               {table.getHeaderGroups().map((headerGroup) => (
                 <div key={headerGroup.id} className="flex flex-1">
                   {headerGroup.headers.map((header) => (
                     <div 
                         key={header.id} 
-                        style={{ width: header.getSize(), flexGrow: header.column.id === 'descricao' ? 1 : 0 }} 
+                        style={{ width: header.getSize() }} 
                         className={`px-3 py-2 font-medium flex items-center gap-1 shrink-0 relative group hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer ${header.column.id === 'descricao' ? 'justify-start' : 'justify-center text-center'}`}
                         onClick={header.column.getToggleSortingHandler()}
                     >
