@@ -52,7 +52,16 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     cache = await get_ai_cache(linha.descricao)
     if cache:
         codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
-        if cache.get("codigo_novo") in codigos_validos_rrf:
+        if cache.get("codigo_novo") in codigos_validos_rrf or not cache.get("codigo_novo"):
+            # Migração de dados em tempo real (patch para o cache legado da V2)
+            if cache.get("status_ia") == "PROCESSADO":
+                if not cache.get("codigo_novo"):
+                    cache["status_ia"] = "REJEITADO"
+                elif cache.get("rigor") == "ALTO":
+                    cache["status_ia"] = "RESSALVA"
+                else:
+                    cache["status_ia"] = "ACEITO"
+                    
             cache["origem"] = "CACHE_REDIS"
             cache["id"] = linha.id # Sobrescreve a ID velha do cache com a ID atual da requisição!
             return cache
@@ -65,10 +74,16 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     analise = await consultar_agente_engenheiro(linha.descricao, opcoes_rrf, valor_financeiro_total)
     
     # 4. Formata resultado final empacotando a Memória de Cálculo
+    status_ia = "ACEITO"
+    if not analise.codigo_selecionado:
+        status_ia = "REJEITADO"
+    elif analise.categoria_rigor == "ALTO":
+        status_ia = "RESSALVA"
+
     resultado = {
         "id": linha.id,
         "codigo_novo": analise.codigo_selecionado,
-        "status_ia": "PROCESSADO",
+        "status_ia": status_ia,
         "parecer": analise.parecer_tecnico,
         "rigor": analise.categoria_rigor,
         "memoria_calculo": [op.model_dump() for op in analise.composicoes_analisadas]
@@ -114,4 +129,5 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
         await asyncio.gather(*tasks, return_exceptions=True)
     finally:
         # Ao final de tudo, aconteça o que acontecer, joga um evento de conclusão para a UI destravar
-        await publish_sse_event(f"stream:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
+        tenant_id = linhas[0].tenant_id if linhas else "default"
+        await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})

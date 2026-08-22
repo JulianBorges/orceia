@@ -6,6 +6,7 @@ from core.config import settings
 from core.db import init_db_pool, close_db_pool
 from core.redis_client import init_redis, close_redis
 from modules.orcamento import routes as orcamento_routes
+from modules.sinapi import routes as sinapi_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,6 +33,9 @@ app.add_middleware(
 
 # Adicionando o roteador de orçamento
 app.include_router(orcamento_routes.router)
+
+# Adicionando o roteador de SINAPI
+app.include_router(sinapi_routes.router)
 
 @app.get("/")
 async def root():

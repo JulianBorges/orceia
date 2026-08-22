@@ -183,7 +183,10 @@ export function BudgetTable({
         size: 150,
         cell: info => {
             if (info.row.original.is_macro_item) return <div className="text-center"></div>;
-            const status = info.getValue() || 'PENDENTE';
+            let status = info.getValue() || 'PROCESSANDO';
+            if (status === 'PENDENTE' || status === 'PROCESSADO') {
+                status = 'PROCESSANDO';
+            }
             const just = info.row.original.ai_parecer_tecnico || '';
             
             let color = "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 dark:text-zinc-400";
@@ -209,7 +212,7 @@ export function BudgetTable({
                     tooltipLabel = "REJEITADO";
                 }
             } else if (status === "PROCESSANDO") {
-                color = "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 animate-pulse";
+                color = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30 animate-pulse";
             }
             
             return (

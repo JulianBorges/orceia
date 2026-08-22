@@ -21,13 +21,9 @@ export function useSseListener(planilhaId: string) {
             const { id, status_ia, parecer, codigo_novo, memoria_calculo, rigor } = payload.dados_ia;
             console.log(`[SSE] ✨ Linha processada pela IA (ID: ${id})`);
             
-            // Adiciona Risco no status_ia
-            let finalStatus = status_ia;
-            if (rigor === "ALTO") finalStatus = "ALTO RISCO / RESSALVA";
-
             // Atualiza a tabela na tela do usuário instantaneamente (60FPS)
             updateRowById(id, {
-                ai_status: finalStatus,
+                ai_status: status_ia,
                 ai_parecer_tecnico: parecer,
                 codigo: codigo_novo,
                 memoria_calculo: memoria_calculo || []

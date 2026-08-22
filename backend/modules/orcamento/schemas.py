@@ -30,7 +30,6 @@ class ComposicaoEscolhida(BaseModel):
     unidade: str
     preco: float
     score: float = Field(description="Percentual de precisão/match.")
-    justificativa: str = Field(description="Por que essa composição atende ou não ao item da planilha original?")
 
 class AnaliseIA(BaseModel):
     categoria_rigor: Literal["BAIXO", "ALTO"] = Field(
