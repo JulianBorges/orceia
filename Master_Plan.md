@@ -17,6 +17,7 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 - [x] **1.2 Cherry-Picking da Interface Matemática:**
   - [x] Portar os arquivos `utils/budgetUtils.ts` (lógica de macroitens) e `store/useBudgetStore.ts` (Zustand com flag `isDirty` O(1)). *(Setup base do Zustand recém-criado)*
   - [x] Portar a pasta de componentes `components/BudgetTable` (Virtualização de DOM a 60 FPS) e o `globals.css` intactos.
+  - [x] Restabelecimento do módulo `/sinapi` isolado (DDD) no backend para suportar a busca manual (Autocomplete) do usuário.
 
 ---
 
