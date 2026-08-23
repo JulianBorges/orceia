@@ -21,13 +21,29 @@ export function useSseListener(planilhaId: string) {
             const { id, status_ia, parecer, codigo_novo, memoria_calculo, rigor } = payload.dados_ia;
             console.log(`[SSE] ✨ Linha processada pela IA (ID: ${id})`);
             
-            // Atualiza a tabela na tela do usuário instantaneamente (60FPS)
-            updateRowById(id, {
+            const updatePayload: any = {
                 ai_status: status_ia,
                 ai_parecer_tecnico: parecer,
                 codigo: codigo_novo,
                 memoria_calculo: memoria_calculo || []
-            });
+            };
+
+            // Extrai o preço da resposta da IA para ligar o Motor Matemático
+            if (codigo_novo && memoria_calculo) {
+                const match = memoria_calculo.find((m: any) => m.codigo === codigo_novo);
+                if (match) {
+                    updatePayload.valorUnit = Number(match.preco) || 0;
+                    updatePayload.und = match.unidade || "-";
+                    // Atualiza a descrição apenas se o match tiver nome
+                    if (match.descricao) {
+                        updatePayload.descricao = match.descricao;
+                    }
+                    updatePayload.base = "SINAPI";
+                }
+            }
+
+            // Atualiza a tabela na tela do usuário instantaneamente (60FPS)
+            updateRowById(id, updatePayload);
         } else if (payload.status === 'erro') {
             console.error(`[SSE] Erro no item ${payload.id}: ${payload.mensagem}`);
             updateRowById(payload.id, {
