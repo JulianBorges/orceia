@@ -60,7 +60,7 @@ export function BudgetTable({
 }: { 
     onOpenCreatorModal?: (query: string, rowIndex?: number) => void
 }) {
-  const { tableData: data, setTableData: setData, bdi, updateData, updateRow, updateItemPosition, memorizeHumanFeedback } = useBudgetStore();
+  const { tableData: data, setTableData: setData, bdi, updateData, updateRow, updateItemPosition, memorizeHumanFeedback, addRow, deleteRow } = useBudgetStore();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [memoryModalData, setMemoryModalData] = useState<{ matches: any[], rowIndex: number, legado: string, codigoSelecionado?: string | null } | null>(null);
   const [detailsItem, setDetailsItem] = useState<BudgetItem | null>(null);
@@ -318,7 +318,7 @@ export function BudgetTable({
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 44, // Altura reduzida
+    estimateSize: () => 52, // Altura exata da SortableRow para evitar Jittering de scroll
     overscan: 10,
   });
 
@@ -361,6 +361,9 @@ export function BudgetTable({
         <div 
             ref={tableContainerRef}
             className="w-full h-full overflow-auto custom-scrollbar"
+            onScroll={() => {
+                window.dispatchEvent(new Event('budget-table-scroll'));
+            }}
         >
           <div className="w-full text-sm text-left flex flex-col min-w-max">
             {/* Header */}
@@ -412,7 +415,9 @@ export function BudgetTable({
                             row={row}
                             virtualRow={virtualRow}
                             data={data}
-                            setData={setData}
+                            addRow={addRow}
+                            deleteRow={deleteRow}
+                            updateRow={updateRow}
                             onOpenCreatorModal={onOpenCreatorModal}
                             rowVirtualizer={rowVirtualizer}
                             activeAutocompleteRowId={activeAutocompleteRowId}

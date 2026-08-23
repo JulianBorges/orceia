@@ -4,7 +4,7 @@ import { flexRender } from "@tanstack/react-table";
 import { List, Box, Wand2, Trash2, ChevronUp, GripVertical, ChevronDown } from "lucide-react";
 import { recalculateNumbers } from '@/utils/budgetUtils';
 
-export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpenCreatorModal, rowVirtualizer, activeAutocompleteRowId }: any) => {
+export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteRow, updateRow, onOpenCreatorModal, rowVirtualizer, activeAutocompleteRowId }: any) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.original.id });
     
     const isAutocompleteOpen = activeAutocompleteRowId === row.original.id;
@@ -56,13 +56,14 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                     className="absolute left-8 top-[80%] z-[70] hidden group-hover:flex justify-center items-center pointer-events-auto shadow-lg rounded-full border border-zinc-200/60 dark:border-zinc-700/60 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md px-1"
                 >
                     <div className="flex flex-row items-center p-0.5 gap-0.5 h-8">
-                    
                     <button 
                         onClick={() => {
                             const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
-                            const newData = [...data];
-                            newData.splice(originalIdx + 1, 0, {id: `macro_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, item: "-", codigo: "", base: "", descricao: "Novo Item", und: "-", quant: 0, valorUnit: 0, total: 0, is_macro_item: true, level: row.original.level});
-                            setData(recalculateNumbers(newData));
+                            addRow(originalIdx + 1, {
+                                id: `macro_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, 
+                                item: "-", codigo: "", base: "", descricao: "Novo Item", und: "-", quant: 0, valorUnit: 0, total: 0, is_macro_item: true, 
+                                level: row.original.level
+                            });
                         }}
                         className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
                         <List className="w-3 h-3" />
@@ -72,9 +73,11 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                     <button 
                         onClick={() => {
                             const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
-                            const newData = [...data];
-                            newData.splice(originalIdx + 1, 0, {id: `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, item: "-", codigo: "", base: "SINAPI", descricao: "Novo Serviço", und: "-", quant: 1, valorUnit: 0, total: 0, is_macro_item: false, level: (row.original.level || 0) + (row.original.is_macro_item ? 1 : 0)});
-                            setData(recalculateNumbers(newData));
+                            addRow(originalIdx + 1, {
+                                id: `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, 
+                                item: "-", codigo: "", base: "SINAPI", descricao: "Novo Serviço", und: "-", quant: 1, valorUnit: 0, total: 0, is_macro_item: false, 
+                                level: (row.original.level || 0) + (row.original.is_macro_item ? 1 : 0)
+                            });
                         }}
                         className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
                         <Box className="w-3 h-3" />
@@ -88,11 +91,9 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                             <button 
                                 onClick={() => {
                                     const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
-                                    const newData = [...data];
-                                    const currentLvl = newData[originalIdx].level || 0;
+                                    const currentLvl = data[originalIdx].level || 0;
                                     if (currentLvl > 0) {
-                                        newData[originalIdx] = { ...newData[originalIdx], level: currentLvl - 1 };
-                                        setData(recalculateNumbers(newData));
+                                        updateRow(originalIdx, { level: currentLvl - 1 });
                                     }
                                 }}
                                 className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
@@ -104,11 +105,9 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
                             <button 
                                 onClick={() => {
                                     const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
-                                    const newData = [...data];
-                                    const currentLvl = newData[originalIdx].level || 0;
+                                    const currentLvl = data[originalIdx].level || 0;
                                     if (currentLvl < 5) {
-                                        newData[originalIdx] = { ...newData[originalIdx], level: currentLvl + 1 };
-                                        setData(recalculateNumbers(newData));
+                                        updateRow(originalIdx, { level: currentLvl + 1 });
                                     }
                                 }}
                                 className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
@@ -136,8 +135,7 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, setData, onOpen
 
                     <button 
                         onClick={() => {
-                            const newData = data.filter((item:any) => item.id !== row.original.id);
-                            setData(recalculateNumbers(newData));
+                            deleteRow(row.original.id);
                         }}
                         className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors gap-1.5 h-full">
                         <Trash2 className="w-3 h-3" />

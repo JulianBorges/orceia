@@ -109,7 +109,7 @@ export default function Home() {
                                      <span className="text-zinc-400 text-[13px] md:text-[15px] font-medium">%</span>
                                  </div>
                              </div>
-                             <div className="flex flex-col px-4 md:px-6 py-2.5 min-w-[200px] md:min-w-[280px]">
+                             <div className="flex flex-col px-4 md:px-6 py-2.5 min-w-[200px] md:min-w-[260px]">
                                  <span className="text-[9px] md:text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Total do Orçamento (c/ BDI)</span>
                                  <span className="text-[22px] md:text-[28px] font-bold text-[#00cc88] dark:text-[#00cc88] leading-none mt-0.5">
                                      {totalSomado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

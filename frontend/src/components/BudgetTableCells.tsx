@@ -189,9 +189,16 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
                 onUpdateRow({ descricao: val });
             }
         };
+        const handleScroll = () => {
+            if (isOpen) setIsOpen(false);
+        };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [wrapperRef, val, onUpdateRow]);
+        window.addEventListener("budget-table-scroll", handleScroll);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("budget-table-scroll", handleScroll);
+        };
+    }, [wrapperRef, val, onUpdateRow, isOpen]);
 
     const onOpenChangeRef = useRef(onOpenChange);
     useEffect(() => {

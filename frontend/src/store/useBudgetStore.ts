@@ -26,6 +26,8 @@ interface BudgetState {
   updateRow: (rowIndex: number, newRowData: Partial<BudgetItem>) => void;
   updateRowById: (id: string, newRowData: Partial<BudgetItem>) => void;
   updateItemPosition: (oldIndex: number, newNumberText: string) => void;
+  addRow: (index: number, newRow: BudgetItem) => void;
+  deleteRow: (id: string) => void;
   clearBudget: () => void;
   memorizeHumanFeedback: (termoOriginal: string, codigoEscolhido: string, parecer: string) => Promise<void>;
   
@@ -183,6 +185,34 @@ export const useBudgetStore = create<BudgetState>()(
             .map(row => row.id);
         const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));
         return { tableData: movedData, dirtyRowIds: newDirty, isDirty: true };
+      }),
+
+      addRow: (index, newRow) => set((state) => {
+        const newData = [...state.tableData];
+        newData.splice(index, 0, newRow);
+        const recalculatedData = recalculateNumbers(newData);
+        
+        const newlyModifiedIds = recalculatedData
+            .filter((row, idx) => row !== state.tableData[idx] || row.id === newRow.id)
+            .map(row => row.id);
+            
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));
+        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: true };
+      }),
+
+      deleteRow: (id) => set((state) => {
+        const newData = state.tableData.filter(row => row.id !== id);
+        const recalculatedData = recalculateNumbers(newData);
+        
+        const newlyModifiedIds = recalculatedData
+            .filter(row => {
+                const oldRow = state.tableData.find(r => r.id === row.id);
+                return !oldRow || row !== oldRow;
+            })
+            .map(row => row.id);
+            
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds, id]));
+        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: true };
       }),
 
       clearBudget: () => set({ tableData: [], title: 'Orçamento Base', bdi: 25.0, dirtyRowIds: [], isDirty: true }),
