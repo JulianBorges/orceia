@@ -74,10 +74,8 @@ export const useBudgetStore = create<BudgetState>()(
       setProcessedItemsCount: (processedItemsCount) => set({ processedItemsCount }),
 
       updateData: (rowIndex, columnId, value) => set((state) => {
-        let modifiedId = "";
         const newData = state.tableData.map((row, index) => {
           if (index === rowIndex) {
-            modifiedId = row.id;
             const newRow = { ...row, [columnId]: value };
             if (columnId === 'quant' || columnId === 'valorUnit') {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
@@ -86,15 +84,17 @@ export const useBudgetStore = create<BudgetState>()(
           }
           return row;
         });
-        const newDirty = modifiedId && !state.dirtyRowIds.includes(modifiedId) ? [...state.dirtyRowIds, modifiedId] : state.dirtyRowIds;
-        return { tableData: recalculateNumbers(newData), dirtyRowIds: newDirty, isDirty: true };
+        const recalculatedData = recalculateNumbers(newData);
+        const newlyModifiedIds = recalculatedData
+            .filter((row, idx) => row !== state.tableData[idx])
+            .map(row => row.id);
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));
+        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: true };
       }),
 
       updateRow: (rowIndex, newRowData) => set((state) => {
-        let modifiedId = "";
         const newData = state.tableData.map((row, index) => {
           if (index === rowIndex) {
-            modifiedId = row.id;
             const newRow = { ...row, ...newRowData };
             if ('quant' in newRowData || 'valorUnit' in newRowData) {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
@@ -107,8 +107,12 @@ export const useBudgetStore = create<BudgetState>()(
           }
           return row;
         });
-        const newDirty = modifiedId && !state.dirtyRowIds.includes(modifiedId) ? [...state.dirtyRowIds, modifiedId] : state.dirtyRowIds;
-        return { tableData: recalculateNumbers(newData), dirtyRowIds: newDirty, isDirty: true };
+        const recalculatedData = recalculateNumbers(newData);
+        const newlyModifiedIds = recalculatedData
+            .filter((row, idx) => row !== state.tableData[idx])
+            .map(row => row.id);
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));
+        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: true };
       }),
 
       updateRowById: (id, newRowData) => set((state) => {
@@ -174,7 +178,10 @@ export const useBudgetStore = create<BudgetState>()(
         }
         
         const movedData = moveRowOrBlock(newData, oldIndex, targetIndex);
-        const newDirty = !state.dirtyRowIds.includes(movedData[targetIndex].id) ? [...state.dirtyRowIds, movedData[targetIndex].id] : state.dirtyRowIds;
+        const newlyModifiedIds = movedData
+            .filter((row, idx) => row !== state.tableData[idx])
+            .map(row => row.id);
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));
         return { tableData: movedData, dirtyRowIds: newDirty, isDirty: true };
       }),
 

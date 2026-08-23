@@ -7,11 +7,27 @@ import {
   flexRender,
   createColumnHelper,
   SortingState,
+  RowData
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { 
     Plus, Trash2, Wand2, Box, Layers, Loader2, ArrowUpDown, Brain, X, GripVertical, List, ChevronDown, ChevronRight, ChevronUp
 } from "lucide-react";
+
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData extends RowData> {
+    updateRow: (rowIndex: number, newRowData: Partial<TData>) => void;
+    handleUpdateData: (id: string, columnId: keyof TData, value: any) => void;
+    handleUpdateRow: (id: string, newRowData: Partial<TData>) => void;
+    updateItemPosition: (oldIndex: number, newNumberText: string) => void;
+    collapsedRows: Set<string>;
+    toggleCollapse: (id: string) => void;
+    handleOpenDetails: (item: TData) => void;
+    setMemoryModalData: (data: any) => void;
+    setAutocompleteOpen: (id: string | null) => void;
+  }
+}
+
 import {
     DndContext,
     closestCenter,
@@ -35,6 +51,7 @@ import { CellInput, CodigoCell, AutocompleteDescricaoCell } from './BudgetTableC
 import { SortableRow } from './SortableRow';
 
 import { CompositionDetailsModal } from "./CompositionDetailsModal";
+import { MemoryModal } from "./MemoryModal";
 
 const columnHelper = createColumnHelper<BudgetItem>();
 
@@ -104,8 +121,8 @@ export function BudgetTable({
         size: 90,
         cell: info => {
             const isMacro = info.row.original.is_macro_item;
-            const isCollapsed = (info.table.options.meta as any)?.collapsedRows?.has(info.row.original.id);
-            const toggle = (info.table.options.meta as any)?.toggleCollapse;
+            const isCollapsed = info.table.options.meta?.collapsedRows?.has(info.row.original.id);
+            const toggle = info.table.options.meta?.toggleCollapse;
             
             return (
                 <div 
@@ -125,12 +142,12 @@ export function BudgetTable({
     columnHelper.accessor("codigo", { 
         header: "Código", 
         size: 100,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CodigoCell initialValue={info.getValue()} item={info.row.original} onOpenDetails={(info.table.options.meta as any)?.handleOpenDetails} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'codigo', v)} />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CodigoCell initialValue={info.getValue()} item={info.row.original} onOpenDetails={info.table.options.meta?.handleOpenDetails} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'codigo', v)} />
     }),
     columnHelper.accessor("base", { 
         header: "Base", 
         size: 80,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'base', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput initialValue={info.getValue()} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'base', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
     }),
     columnHelper.accessor("descricao", { 
         header: "Descrição do Serviço", 
@@ -147,7 +164,7 @@ export function BudgetTable({
                             <input 
                                 type="text"
                                 value={info.getValue()}
-                                onChange={e => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'descricao', e.target.value)}
+                                onChange={e => info.table.options.meta?.handleUpdateData(info.row.original.id, 'descricao', e.target.value)}
                                 className="w-full bg-transparent text-zinc-700 dark:text-zinc-200 font-bold outline-none"
                             />
                         </div>
@@ -161,13 +178,13 @@ export function BudgetTable({
                         <AutocompleteDescricaoCell 
                             initialValue={info.getValue()} 
                             rowIndex={info.row.index}
-                            onUpdateRow={(newRowData: any) => (info.table.options.meta as any)?.handleUpdateRow(info.row.original.id, newRowData)}
-                            onOpenChange={(info.table.options.meta as any)?.setAutocompleteOpen ? (isOpen: boolean) => (info.table.options.meta as any)?.setAutocompleteOpen(isOpen ? info.row.original.id : null) : undefined}
+                            onUpdateRow={(newRowData: any) => info.table.options.meta?.handleUpdateRow(info.row.original.id, newRowData)}
+                            onOpenChange={info.table.options.meta?.setAutocompleteOpen ? (isOpen: boolean) => info.table.options.meta?.setAutocompleteOpen(isOpen ? info.row.original.id : null) : undefined}
                         />
                     </div>
                     {hasMemory && (
                         <button 
-                            onClick={() => (info.table.options.meta as any)?.setMemoryModalData({ matches: info.row.original.memoria_calculo!, rowIndex: info.row.index, legado: info.row.original.descricao_legada || info.row.original.descricao, codigoSelecionado: info.row.original.codigo })}
+                            onClick={() => info.table.options.meta?.setMemoryModalData({ matches: info.row.original.memoria_calculo!, rowIndex: info.row.index, legado: info.row.original.descricao_legada || info.row.original.descricao, codigoSelecionado: info.row.original.codigo })}
                             className="p-1.5 rounded-md text-indigo-400/50 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors opacity-0 group-hover/desc:opacity-100 flex-shrink-0"
                             title="Ver Memória de Cálculo da IA"
                         >
@@ -234,17 +251,17 @@ export function BudgetTable({
     columnHelper.accessor("und", { 
         header: "Und", 
         size: 60,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'und', v)} className="w-full bg-transparent text-zinc-400 dark:text-zinc-500 outline-none px-1 rounded text-center" />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput initialValue={info.getValue()} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'und', v)} className="w-full bg-transparent text-zinc-400 dark:text-zinc-500 outline-none px-1 rounded text-center" />
     }),
     columnHelper.accessor("quant", { 
         header: "Quant.", 
         size: 90,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput type="number" step="0.01" initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'quant', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput type="number" step="0.01" initialValue={info.getValue()} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'quant', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
     }),
     columnHelper.accessor("valorUnit", { 
         header: "Valor Unit", 
         size: 110,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput type="number" step="0.01" initialValue={info.getValue()} onUpdate={(v:any) => (info.table.options.meta as any)?.handleUpdateData(info.row.original.id, 'valorUnit', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CellInput type="number" step="0.01" initialValue={info.getValue()} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'valorUnit', v)} className="w-full bg-transparent text-zinc-700 dark:text-zinc-300 outline-none px-1 rounded text-center" />
     }),
     columnHelper.display({
         id: "valorUnitBdi",
@@ -408,98 +425,13 @@ export function BudgetTable({
           </div>
         </div>
 
-        {/* Modal de Memória de Cálculo (Explainability) */}
-        {memoryModalData && (
-            <div 
-                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                onClick={() => setMemoryModalData(null)}
-            >
-                <div 
-                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col"
-                    onClick={e => e.stopPropagation()}
-                >
-                    <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <div className="flex items-center gap-2 text-indigo-400">
-                            <Brain className="w-5 h-5" />
-                            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Memória de Cálculo da IA</h2>
-                        </div>
-                        <button 
-                            onClick={() => setMemoryModalData(null)}
-                            className="p-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-                    
-                    <div className="p-4 overflow-y-auto custom-scrollbar flex flex-col gap-3">
-                        <div className="bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 mb-2 flex flex-col gap-2 shrink-0">
-                            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                                A IA analisou o banco de dados do SINAPI e selecionou as {memoryModalData.matches.length} opções mais prováveis antes de tomar a decisão final para o item:
-                            </p>
-                            <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-3 py-2 rounded-md border border-indigo-500/20 break-words whitespace-normal">
-                                {memoryModalData.legado}
-                            </p>
-                        </div>
-                        
-                        {memoryModalData.matches.map((match: any, idx: number) => (
-                            <div key={idx} className="bg-white dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden group/match hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors shrink-0">
-                                {match.codigo === memoryModalData.codigoSelecionado && (
-                                    <div className="absolute top-0 right-0 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg border-l border-b border-emerald-500/20">
-                                        Vencedor
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-2 flex-wrap pr-16">
-                                    <span className="text-xs font-mono text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded border border-blue-400/20">{match.codigo}</span>
-                                    <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-400/20">R$ {Number(match.preco || 0).toFixed(2)}</span>
-                                    <span className="text-xs font-medium text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">{match.unidade}</span>
-                                    <span className="text-xs font-medium text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">Match: {match.score}%</span>
-                                </div>
-                                <div className="flex items-start justify-between gap-4">
-                                    <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed flex-1 break-words whitespace-normal">
-                                        {match.descricao}
-                                    </p>
-                                    <button 
-                                        onClick={() => {
-                                            if (window.confirm("Deseja substituir o item atual por esta composição do SINAPI?")) {
-                                                const originalTerm = data[memoryModalData.rowIndex].descricao;
-                                                const parecerText = 'Composição substituída manualmente pelo usuário via Memória de Cálculo.';
-                                                
-                                                updateRow(memoryModalData.rowIndex, {
-                                                    codigo: match.codigo,
-                                                    descricao: match.descricao,
-                                                    valorUnit: Number(match.preco) || 0,
-                                                    und: match.unidade,
-                                                    ai_status: 'SUBSTITUIDO',
-                                                    ai_parecer_tecnico: parecerText,
-                                                    base: 'SINAPI'
-                                                });
-                                                
-                                                // Engatilha o RLHF em background para a Inteligência B2B
-                                                memorizeHumanFeedback(originalTerm, match.codigo, parecerText);
-                                                
-                                                setMemoryModalData(null);
-                                            }
-                                        }}
-                                        className="opacity-0 group-hover/match:opacity-100 transition-opacity bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3 py-1.5 rounded shrink-0"
-                                    >
-                                        Substituir
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    
-                    <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
-                        <button 
-                            onClick={() => setMemoryModalData(null)}
-                            className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium text-zinc-900 dark:text-zinc-100 rounded-md transition-colors"
-                        >
-                            Fechar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
+        <MemoryModal 
+            memoryModalData={memoryModalData}
+            setMemoryModalData={setMemoryModalData}
+            data={data}
+            updateRow={updateRow}
+            memorizeHumanFeedback={memorizeHumanFeedback}
+        />
 
         {detailsItem && (
             <CompositionDetailsModal 

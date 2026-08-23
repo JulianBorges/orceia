@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from 'react-dom';
 import { Loader2, Wand2 } from "lucide-react";
 import { BudgetItem } from '@/utils/budgetUtils';
 
@@ -203,6 +204,8 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
 
 
 
+    const [portalPos, setPortalPos] = useState({ top: 0, left: 0, width: 0 });
+
     const handleSearch = async (query: string) => {
         if (!query || query.length < 3) {
             setResults([]);
@@ -215,6 +218,14 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
             if (res.ok) {
                 const data = await res.json();
                 setResults(data.results || []);
+                if (wrapperRef.current) {
+                    const rect = wrapperRef.current.getBoundingClientRect();
+                    setPortalPos({
+                        top: rect.bottom + window.scrollY,
+                        left: rect.left + window.scrollX,
+                        width: rect.width
+                    });
+                }
                 setIsOpen(true);
             }
         } catch (e) {
@@ -288,10 +299,11 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
                 {isLoading && <Loader2 className="absolute right-2 top-2 w-3 h-3 text-indigo-400 animate-spin" />}
             </div>
             
-            {isOpen && results.length > 0 && (
+            {isOpen && results.length > 0 && typeof document !== 'undefined' && createPortal(
                 <div 
                     onMouseLeave={() => setIsOpen(false)}
-                    className="absolute left-0 top-full mt-1 w-[600px] z-[999] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl overflow-hidden flex flex-col transform origin-top-left transition-all"
+                    className="absolute z-[99999] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl overflow-hidden flex flex-col transform origin-top-left transition-all"
+                    style={{ top: `${portalPos.top + 4}px`, left: `${portalPos.left}px`, width: '600px' }}
                 >
                     <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-3 py-1.5 flex justify-between items-center">
                         <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 dark:text-zinc-400 flex items-center gap-1"><Wand2 className="w-3 h-3"/> Sugestões da Inteligência</span>
@@ -316,7 +328,8 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
                             </div>
                         ))}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
