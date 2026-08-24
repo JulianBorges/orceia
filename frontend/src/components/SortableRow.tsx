@@ -53,9 +53,9 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
             {/* Menu de Contexto */}
             {!activeAutocompleteRowId && !isFocused && !isProcessing && (
                 <div 
-                    className="absolute left-8 top-[80%] z-[70] hidden group-hover:flex justify-center items-center pointer-events-auto shadow-lg rounded-full border border-zinc-200/60 dark:border-zinc-700/60 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md px-1"
+                    className="absolute left-8 top-[80%] z-[70] hidden group-hover:flex justify-center items-center pointer-events-auto shadow-lg rounded-lg border border-zinc-200/60 dark:border-zinc-700/60 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md px-1.5"
                 >
-                    <div className="flex flex-row items-center p-0.5 gap-0.5 h-8">
+                    <div className="flex flex-row items-center p-1 gap-1 h-10">
                     <button 
                         onClick={() => {
                             const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
@@ -65,9 +65,9 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
                                 level: row.original.level
                             });
                         }}
-                        className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
-                        <List className="w-3 h-3" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Item</span>
+                        className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
+                        <List className="w-4 h-4" />
+                        <span className="text-xs font-medium whitespace-nowrap">Item</span>
                     </button>
 
                     <button 
@@ -79,12 +79,12 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
                                 level: (row.original.level || 0) + (row.original.is_macro_item ? 1 : 0)
                             });
                         }}
-                        className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
-                        <Box className="w-3 h-3" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Serviço</span>
+                        className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors gap-1.5 h-full">
+                        <Box className="w-4 h-4" />
+                        <span className="text-xs font-medium whitespace-nowrap">Serviço</span>
                     </button>
                     
-                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700 mx-0.5"></div>
+                    <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1"></div>
 
                     {row.original.is_macro_item && (
                         <>
@@ -96,10 +96,10 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
                                         updateRow(originalIdx, { level: currentLvl - 1 });
                                     }
                                 }}
-                                className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
+                                className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
                                 title="Recuar Nível do Bloco"
                             >
-                                <span className="text-[12px] font-bold">{"<"}</span>
+                                <span className="text-sm font-bold">{"<"}</span>
                             </button>
 
                             <button 
@@ -110,12 +110,12 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
                                         updateRow(originalIdx, { level: currentLvl + 1 });
                                     }
                                 }}
-                                className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
+                                className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors h-full"
                                 title="Avançar Nível do Bloco"
                             >
-                                <span className="text-[12px] font-bold">{">"}</span>
+                                <span className="text-sm font-bold">{">"}</span>
                             </button>
-                            <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700 mx-0.5"></div>
+                            <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1"></div>
                         </>
                     )}
 
@@ -124,22 +124,22 @@ export const SortableRow = React.memo( ({ row, virtualRow, data, addRow, deleteR
                             const originalIdx = data.findIndex((d: any) => d.id === row.original.id);
                             if (onOpenCreatorModal) onOpenCreatorModal(row.original.descricao, originalIdx);
                         }}
-                        className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors gap-1.5 h-full"
+                        className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-md text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors gap-1.5 h-full"
                         title="Criar Composição Inédita baseada nesta linha"
                     >
-                        <Wand2 className="w-3 h-3" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Auto IA</span>
+                        <Wand2 className="w-4 h-4" />
+                        <span className="text-xs font-medium whitespace-nowrap">Auto IA</span>
                     </button>
                     
-                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700 mx-0.5"></div>
+                    <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1"></div>
 
                     <button 
                         onClick={() => {
                             deleteRow(row.original.id);
                         }}
-                        className="row-menu-btn flex flex-row items-center justify-center px-2 py-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors gap-1.5 h-full">
-                        <Trash2 className="w-3 h-3" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Excluir</span>
+                        className="row-menu-btn flex flex-row items-center justify-center px-3 py-1.5 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors gap-1.5 h-full">
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-xs font-medium whitespace-nowrap">Excluir</span>
                     </button>
                     </div>
                 </div>
