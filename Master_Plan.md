@@ -32,8 +32,8 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Escrever o fluxo de Server-Sent Events (SSE) amparado por Redis Streams (`XADD`/`XREAD`) e controle de `Last-Event-ID` para reconexões resilientes de usuários com internet oscilante.
   - [x] Reestabelecer o `/api/proxy` (Next.js Server-Side) mascarando 100% das chaves (`API_SECRET_KEY`) contra o Client-Side.
 
-- [ ] **2.3 Persistência de Planilhas:**
-  - [ ] Criar Migração SQL (DDL) para instanciar a tabela física `planilhas_linhas` no Supabase para suportar o Auto-Save B2B da rota `/save-linhas`.
+- [x] **2.3 Persistência de Planilhas:**
+  - [x] Criar Migração SQL (DDL) para instanciar a tabela física `planilhas_linhas` e tabela mãe `planilhas` (Integridade Referencial) no Supabase para suportar o Auto-Save B2B da rota `/save-linhas`.
 
 ---
 

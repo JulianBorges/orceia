@@ -129,7 +129,18 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""
     from core.db import get_db_pool
     
-    query = """
+    if not linhas:
+        return
+        
+    id_planilha = linhas[0].id_planilha
+
+    query_mae = """
+        INSERT INTO planilhas (id, tenant_id) 
+        VALUES ($1, $2)
+        ON CONFLICT (id) DO NOTHING;
+    """
+    
+    query_filhas = """
         INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (id) 
@@ -161,5 +172,7 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     pool = get_db_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
+            # Assegura a integridade referencial: cria a planilha se ela não existir
+            await conn.execute(query_mae, id_planilha, tenant_id)
             # executemany processa os milhares de registros numa pancada só (Custo O(1) de rede)
-            await conn.executemany(query, dados)
+            await conn.executemany(query_filhas, dados)

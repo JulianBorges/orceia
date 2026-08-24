@@ -14,7 +14,7 @@ interface BudgetState {
   dirtyRowIds: string[];
   setIsDirty: (val: boolean) => void;
   addDirtyRow: (id: string) => void;
-  clearDirtyRows: () => void;
+  clearDirtyRows: (idsToClear: string[]) => void;
   setTableData: (data: BudgetItem[] | ((prev: BudgetItem[]) => BudgetItem[])) => void;
   setBdi: (bdi: number) => void;
   setTitle: (title: string) => void;
@@ -57,7 +57,10 @@ export const useBudgetStore = create<BudgetState>()(
           dirtyRowIds: state.dirtyRowIds.includes(id) ? state.dirtyRowIds : [...state.dirtyRowIds, id],
           isDirty: true
       })),
-      clearDirtyRows: () => set({ dirtyRowIds: [], isDirty: false }),
+      clearDirtyRows: (idsToClear) => set((state) => {
+        const remainingIds = state.dirtyRowIds.filter(id => !idsToClear.includes(id));
+        return { dirtyRowIds: remainingIds, isDirty: remainingIds.length > 0 };
+      }),
 
       setTableData: (data) => set((state) => {
         const newData = typeof data === 'function' ? data(state.tableData) : data;
