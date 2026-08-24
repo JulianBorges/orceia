@@ -53,15 +53,6 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     if cache:
         codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
         if cache.get("codigo_novo") in codigos_validos_rrf or not cache.get("codigo_novo"):
-            # Migração de dados em tempo real (patch para o cache legado da V2)
-            if cache.get("status_ia") == "PROCESSADO":
-                if not cache.get("codigo_novo"):
-                    cache["status_ia"] = "REJEITADO"
-                elif cache.get("rigor") == "ALTO":
-                    cache["status_ia"] = "RESSALVA"
-                else:
-                    cache["status_ia"] = "ACEITO"
-                    
             cache["origem"] = "CACHE_REDIS"
             cache["id"] = linha.id # Sobrescreve a ID velha do cache com a ID atual da requisição!
             return cache
@@ -73,7 +64,9 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     valor_financeiro_total = linha.quantidade * linha.preco_unitario
     analise = await consultar_agente_engenheiro(linha.descricao, opcoes_rrf, valor_financeiro_total)
     
-    # 4. Formata resultado final empacotando a Memória de Cálculo
+    # 4. Observabilidade do CoT e Formatação do resultado final
+    print(f"[CoT] Raciocínio (ID {linha.id}): {analise.raciocinio_step_by_step}")
+    
     status_ia = "ACEITO"
     if not analise.codigo_selecionado:
         status_ia = "REJEITADO"

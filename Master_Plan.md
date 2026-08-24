@@ -32,6 +32,9 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Escrever o fluxo de Server-Sent Events (SSE) amparado por Redis Streams (`XADD`/`XREAD`) e controle de `Last-Event-ID` para reconexões resilientes de usuários com internet oscilante.
   - [x] Reestabelecer o `/api/proxy` (Next.js Server-Side) mascarando 100% das chaves (`API_SECRET_KEY`) contra o Client-Side.
 
+- [ ] **2.3 Persistência de Planilhas:**
+  - [ ] Criar Migração SQL (DDL) para instanciar a tabela física `planilhas_linhas` no Supabase para suportar o Auto-Save B2B da rota `/save-linhas`.
+
 ---
 
 ## 🧠 SPRINT 3: Inteligência Determinística e Multi-Agentes (IA Core)
@@ -41,8 +44,9 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Recodificar a busca RRF (Pinecone Embeddings + Postgres Trigramas) com boost matemático de consenso de 20%.
   - [x] Substituir o `TTLCache` local por um Cluster de Cache Centralizado no Redis (usando Hash SHA-256 das strings originais) para escala horizontal sem custos repetidos na OpenAI.
 
-- [x] **3.2 Adoção Estrita de Structured Outputs:**
+- [x] **3.2 Adoção Estrita de Structured Outputs & CoT:**
   - [x] Eliminar parse de Markdown/Regex. Toda comunicação com a OpenAI na V3 deve usar `beta.chat.completions.parse` mapeada diretamente nos schemas do Pydantic (`categoria_rigor`).
+  - [x] Incorporar o *Zero-Shot Chain of Thought* (`raciocinio_step_by_step`) como primeiro campo do schema para curar alucinações, limitando o log ao backend para isolar o peso do payload SSE.
 
 ---
 

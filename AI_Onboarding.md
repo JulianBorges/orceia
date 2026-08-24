@@ -37,7 +37,7 @@ O ambiente de hospedagem (Vercel / Cloud Run) impõe timeouts rigorosos (ex: 60 
 A IA não "chuta" preços. O processo no `ai_service.py` funciona assim:
 1. **RRF (Reciprocal Rank Fusion):** O backend realiza uma busca lexical ultrarrápida (PostgreSQL via Trigramas) e uma vetorial (Pinecone). As posições são fundidas matematicamente para criar um Ranking final perfeito.
 2. **Isolamento por Namespaces:** A segregação de Insumos e Composições é garantida via infraestrutura através dos Namespaces do Pinecone (`composicoes_sinapi` e `insumos_sinapi`).
-3. O Top 10 vai para o LLM da OpenAI, que atua através de um sistema sofisticado de **Multi-Agentes (Pesquisador, Engenheiro e Revisor)** para eleger a melhor opção ou criar novas composições usando `Structured Outputs` (JSON Schema rigoroso).
+3. O Top 10 vai para o LLM da OpenAI, que atua através de **Structured Outputs** (JSON Schema rigoroso). O modelo aplica obrigatoriamente **Zero-Shot Chain of Thought (Schema Engineering)**, sendo forçado a gerar seu raciocínio lógico no campo `raciocinio_step_by_step` *antes* de tentar eleger a melhor opção, erradicando alucinações cognitivas e classificando o peso da decisão na `categoria_rigor`.
 4. **Custo Zero em Detalhes:** A "Memória de Cálculo" com os scores de similaridade já é empacotada durante o RAG inicial de Upload (SSE) e salva no `Zustand`. O clique em uma composição para ver seus detalhes apenas lê da memória do navegador, sem engatilhar nenhuma nova requisição para o backend ou para a OpenAI.
 
 ## 4. Como Navegar no Código

@@ -32,6 +32,9 @@ class ComposicaoEscolhida(BaseModel):
     score: float = Field(description="Percentual de precisão/match.")
 
 class AnaliseIA(BaseModel):
+    raciocinio_step_by_step: str = Field(
+        description="PENSE ANTES DE AGIR: Analise a família do item original, compare restrições físicas (dimensões, tipo de serviço) com as opções, e justifique os prós/contras antes de emitir qualquer classificação."
+    )
     categoria_rigor: Literal["BAIXO", "ALTO"] = Field(
         description="ALTO para itens estruturais/críticos (elétrica, hidráulica). BAIXO para provisórios/comuns."
     )

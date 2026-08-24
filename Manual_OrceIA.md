@@ -114,3 +114,13 @@ Durante a construção iterativa da V1 e V2, enfrentamos problemas arquiteturais
    - **Sintoma 1 (Erro 404 / Sem Conexão):** O Frontend na Vercel não encontra o Backend. **Causa:** A variável `BACKEND_API_URL` foi copiada como `localhost` do `.env.local` ou inserida com sufixo `/api`. **Solução:** Usar apenas a URL base pública do Cloud Run sem sufixos (o Proxy do Next já monta a rota dinamicamente).
    - **Sintoma 2 (Prepared Statement Error no DB):** O backend dispara "prepared statement does not exist". **Causa:** Uso do pooler do Supabase (porta 6543 / PgBouncer transacional) combinado com o cache nativo do `asyncpg`. **Solução:** Adicionar `statement_cache_size=0` no `asyncpg.create_pool`.
    - **Sintoma 3 (SSE / BackgroundTasks Morrendo):** O Cloud Run desliga o processamento no meio da planilha. **Causa:** Opção de CPU baseada em solicitações ativada. **Solução:** Mudar o faturamento para **"Com base em instâncias"** (CPU Always Allocated).
+
+9. **Bug do Storage Bloat (Peso do Chain of Thought):**
+   - **Sintoma:** O envio de pacotes SSE ficou absurdamente lento e a tabela no Supabase cresceu gigabytes em poucas semanas.
+   - **Causa:** Injeção do texto massivo de raciocínio lógico (CoT) da OpenAI dentro do JSON que viajava para o Frontend e era persistido na tabela.
+   - **Solução Definitiva:** O `raciocinio_step_by_step` do Pydantic DEVE ser extraído antes de empacotar a resposta (DTO). Ele vive exclusivamente nos logs efêmeros do Cloud Run (para auditoria técnica via console) e temporariamente no Cache do Redis, mantendo o tráfego O(1).
+
+10. **A Maldição do "Processando" Infinito (Cache Zumbi da V2):**
+   - **Sintoma:** A UI travava permanentemente com a tag `"PROCESSANDO"`, mesmo após o backend ter entregado todos os dados do item com sucesso via SSE.
+   - **Causa:** O Frontend possuía uma trava que convertia o status `"PROCESSADO"` (herdado do cache legado da V2) para a animação `"PROCESSANDO"`. Com a remoção da gambiarra no backend que mascarava esse erro em runtime, os status zumbis voltaram à tona.
+   - **Solução Definitiva:** Sempre que mudar a arquitetura ou o Schema de dados do backend que afete status finais (`"ACEITO"`, `"RESSALVA"`), NUNCA use código para remendar o cache antigo. Aplique Imutabilidade: Dê um `Flush DB` (limpeza total) no Redis e force o sistema a recalcular os dados de cache do zero sob o novo modelo.
