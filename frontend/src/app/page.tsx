@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useSseListener } from '../hooks/useSseListener';
 import { BudgetTable } from '../components/BudgetTable';
-import { ThemeProvider } from '../components/ThemeProvider';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { UploadPlanilha } from '../components/UploadPlanilha';
 import * as XLSX from 'xlsx';
@@ -70,12 +69,11 @@ export default function Home() {
   };
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="orceia-theme">
-      <main className="min-h-screen bg-[#f4f5f7] dark:bg-[#0a0a0c] flex flex-col items-center">
+      <main className="h-screen overflow-hidden bg-[#f4f5f7] dark:bg-[#0a0a0c] flex flex-col items-center relative">
         
-        <div className="w-full max-w-[96vw] md:max-w-[92vw] 2xl:max-w-[1800px] flex flex-col flex-1 pt-6 md:pt-12 pb-16 gap-6 md:gap-10">
+        <div className="w-full max-w-[96vw] md:max-w-[92vw] 2xl:max-w-[1800px] flex flex-col flex-1 pb-4 md:pb-8 pt-16 md:pt-20 gap-4 md:gap-6 min-h-0">
             {/* Header */}
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0">
+            <header className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-6 shrink-0">
               <div className="flex flex-col gap-1 w-full md:w-auto">
                 <input
                     value={title}
@@ -86,7 +84,11 @@ export default function Home() {
                 <p className="text-zinc-500 dark:text-zinc-400 text-[13px] md:text-[14px]">Gerencie itens, insumos e composições com IA.</p>
               </div>
               
-              <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+              <div className="relative flex flex-col items-end w-full md:w-auto">
+                 <div className="absolute -top-12 right-0 z-50">
+                     <ThemeToggle />
+                 </div>
+                 <div className="flex items-center gap-4 w-full overflow-x-auto pb-2 md:pb-0">
                  {tableData.length === 0 ? (
                      <UploadPlanilha />
                  ) : (
@@ -118,6 +120,7 @@ export default function Home() {
                          </div>
                      )
                  )}
+                 </div>
               </div>
             </header>
 
@@ -134,15 +137,15 @@ export default function Home() {
                     </div>
                 </section>
             ) : (
-                <div className="flex flex-col flex-1 w-full overflow-hidden">
-                    <span className="text-[12px] md:text-[13px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 md:mb-3 px-1">
+                <div className="flex flex-col flex-1 w-full overflow-hidden min-h-0">
+                    <span className="text-[12px] md:text-[13px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 md:mb-3 px-1 shrink-0">
                         Orçamento com {tableData.length} itens
                     </span>
-                    <section className="w-full flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 300px)', minHeight: '400px' }}>
+                    <section className="w-full flex flex-col flex-1 min-h-0 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
                         <BudgetTable />
                     </section>
                     
-                    <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mt-5">
+                    <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mt-5 shrink-0">
                         <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                             <UploadPlanilha append={true} className="flex justify-center items-center gap-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors text-[13px] w-full sm:w-auto">
                                 <Plus className="w-4 h-4 text-zinc-500" />
@@ -167,6 +170,5 @@ export default function Home() {
             )}
         </div>
       </main>
-    </ThemeProvider>
   );
 }

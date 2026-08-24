@@ -348,7 +348,7 @@ export function BudgetTable({
 
   if (data.length === 0) {
       return (
-          <div className="w-full flex flex-col items-center justify-center py-20 bg-zinc-50 dark:bg-[#09090b] rounded-lg border border-zinc-200 dark:border-zinc-800 border-dashed">
+          <div className="w-full flex flex-col items-center justify-center py-20 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 border-dashed">
               <Layers className="w-12 h-12 text-zinc-700 mb-4" />
               <h3 className="text-lg font-medium text-zinc-700 dark:text-zinc-300">Nenhum orçamento carregado</h3>
               <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-1 max-w-sm text-center">Faça o upload da sua planilha Excel para a Inteligência Artificial analisar.</p>
@@ -367,7 +367,7 @@ export function BudgetTable({
         >
           <div className="w-full text-sm text-left flex flex-col min-w-max">
             {/* Header */}
-            <div className="text-[11px] uppercase tracking-wider font-semibold bg-zinc-50 dark:bg-[#09090b] text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none py-3 whitespace-nowrap">
+            <div className="text-[11px] uppercase tracking-wider font-semibold bg-zinc-50 dark:bg-zinc-900 text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/50 sticky top-0 z-20 flex select-none py-3 whitespace-nowrap">
               {table.getHeaderGroups().map((headerGroup) => (
                 <div key={headerGroup.id} className="flex flex-1">
                   {headerGroup.headers.map((header) => (
