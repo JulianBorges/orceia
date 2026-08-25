@@ -1,58 +1,122 @@
-# OrceIA - Guia de Contexto para Inteligência Artificial (System Prompt)
+# OrceIA — Contexto Arquitetural do Projeto
 
-> **Instrução para a IA:** Se você está lendo este arquivo no início de um chat, use-o como base absoluta de contexto arquitetural antes de propor qualquer código ou refatoração.
+> **Nota:** Este arquivo contém o contexto narrativo e as decisões arquiteturais do projeto.
+> As **regras de código ativas** (guidelines, proibições e padrões) agora vivem nos arquivos `GEMINI.md`
+> hierárquicos, lidos automaticamente pela IA:
+> - Regras universais → `/GEMINI.md`
+> - Regras de Frontend → `/frontend/GEMINI.md`
+> - Regras de Backend → `/backend/GEMINI.md`
 
-## 1. Visão Geral do Projeto
-O **OrceIA** é um Copiloto de Orçamento de Engenharia de alta performance. Ele recebe planilhas massivas (5.000+ linhas) do usuário, normaliza os dados, cruza com bancos oficiais (SINAPI) via Busca Semântica Híbrida e devolve o orçamento preenchido em tempo real.
+---
+
+## 1. Visão Geral do Produto
+
+O **OrceIA** é um Copiloto de Orçamento de Engenharia de alta performance. Recebe planilhas massivas (5.000+ linhas) do usuário, normaliza os dados, cruza com bancos oficiais (SINAPI) via Busca Semântica Híbrida (RRF) e devolve o orçamento preenchido em tempo real via SSE.
+
+**Público-alvo:** Engenheiros e gestores de obras em ambientes governamentais e corporativos que precisam orçar insumos e composições com rastreabilidade e conformidade ao SINAPI.
+
+---
 
 ## 2. Stack Tecnológica
-- **Frontend:** Next.js (React), Tailwind CSS, Zustand (Gerenciamento de Estado Reativo).
-- **Backend:** FastAPI (Python, 100% Assíncrono com `asyncio`).
-- **Banco de Dados (Relacional):** Supabase (PostgreSQL) para persistência de orçamentos.
-- **Banco de Dados (Vetorial):** Pinecone (Busca semântica e armazenamento em cache O(1)).
-- **Mensageria / Tempo Real:** Redis Streams (`XADD`/`XREAD`) servindo dados via Server-Sent Events (SSE).
-- **IA:** OpenAI API (Embeddings + Structured Outputs).
 
-## 3. Pilares Arquiteturais Críticos (NÃO QUEBRE)
+| Camada | Tecnologia | Motivo da Escolha |
+|--------|------------|-------------------|
+| Frontend | Next.js 14 + Tailwind CSS | SSR, App Router e ecossistema maduro |
+| Estado | Zustand | Mutações atômicas O(1) sem re-renders globais |
+| Virtualização | `@tanstack/react-virtual` | 60 FPS com 5.000+ linhas no DOM |
+| DnD | `@dnd-kit` | Compatível com listas virtualizadas |
+| Backend | FastAPI + asyncio | 100% assíncrono, ideal para SSE de longa duração |
+| DB Relacional | Supabase (PostgreSQL + `pg_trgm`) | Busca lexical por trigramas sem ElasticSearch |
+| DB Vetorial | Pinecone | Busca semântica por namespace isolado |
+| Cache/Mensageria | Redis Streams | SSE resiliente com `Last-Event-ID` e cache SHA-256 |
+| IA | OpenAI `gpt-4o-mini` + `text-embedding-3-small` | Structured Outputs + custo controlado |
 
-### 3.1. Performance do Frontend (60 FPS) e Segurança (Middleware)
-A tabela principal (`BudgetTable.tsx`) renderiza milhares de linhas. Para isso, ela utiliza:
-- **DOM Virtualization** (`@tanstack/react-virtual`): Apenas os itens na tela (viewport) existem no DOM. Alterações de CSS devem respeitar `transform: translateY` e `position: absolute`.
-- **Debounced Auto-Save O(1):** O hook `useAutoSave.ts` utiliza uma flag booleana super-rápida (`isDirty`) acoplada ao Zustand, eliminando a lentidão do `JSON.stringify`. Ele faz um debounce nativo e atinge a rota `/save-linhas` (que é apenas persistência). JAMAIS direcione o autosave para `/upsert-linhas` (isso reativaria a IA acidentalmente).
-- **Segurança Multi-Tenant:** O Next.js possui um `middleware.ts` na raiz do `src/` que intercepta requisições, verifica o Cookie de Sessão e injeta o header `X-Tenant-ID`. Nunca trafegue IDs de tenant abertos em payloads JSON no Frontend. O backend FastAPI (via `get_current_tenant`) extrai o `X-Tenant-ID` verificado pelo Next.js Proxy para isolar RLS no banco e SSE.
+---
 
-### 3.2. Infraestrutura Backend e SSE Resiliente
-O ambiente de hospedagem (Vercel / Cloud Run) impõe timeouts rigorosos (ex: 60 segundos). O backend burla essa limitação através de uma arquitetura tolerante a falhas:
-- **Processamento em Chunks:** Lotes do Excel são processados de 50 em 50 para evitar thundering herd.
-- **Redis Streams (XADD):** Os resultados da IA são gravados na memória do Redis com um TTL de 1 hora.
-- **Recuperação de SSE (XREAD):** O endpoint SSE (`routes.py`) lê o cabeçalho `Last-Event-ID`. Se a nuvem cortar a conexão, o navegador reconecta passando o último ID e o backend despeja os pacotes perdidos instantaneamente.
-- **Proxy Next.js (Segurança):** Toda comunicação do frontend com a API de IA ou backend (POSTs e SSE) passa obrigatoriamente por uma rota server-side do Next.js (`/api/proxy`). Isso mascara as chaves de API (`x-api-key`) mantendo-as 100% invisíveis no lado do cliente (impedindo vazamentos no F12). A variável de ambiente com a URL do backend **DEVE** ser `BACKEND_API_URL` (sem o prefixo `NEXT_PUBLIC_` para encapsulamento, e **estritamente a URL base**, sem `/api` ou barras finais, para que o roteamento dinâmico do proxy funcione).
-- **Google Cloud Build (Monorepo):** Ao configurar o CI/CD no Cloud Run, o "Build context directory" deve apontar explicitamente para a pasta `/backend/` para que o Dockerfile seja encontrado corretamente.
-- **Configuração Crítica Cloud Run:** O serviço DEVE obrigatoriamente rodar com a CPU sempre ligada (`--no-cpu-throttling`). No painel atual do GCP, isso corresponde à opção de Faturamento **"Com base em instâncias"** (CPU sempre alocada). Se o estrangulamento ("Baseada em solicitações") estiver ativo, o Cloud Run congelará o container prematuramente e matará a entrega dos dados massivos via SSE.
-- **Supabase Connection Pooling (asyncpg):** Para evitar que o auto-scaling do Cloud Run esgote as conexões do Postgres (Erro: *Too Many Clients*), a variável `SUPABASE_DATABASE_URL` deve SEMPRE utilizar o Transaction Pooler (porta `6543`), nunca a conexão direta (5432). **Obrigatório:** O pooler do `asyncpg` deve ser inicializado com `statement_cache_size=0`, caso contrário, o PgBouncer em modo transação falhará com erro de "prepared statement does not exist".
-- **Trava de Cache Seguro:** O cache Semântico do Redis (que memoriza o veredito da IA) valida sempre se o `codigo_selecionado` retornado no cache passado ainda existe no Dossiê (Top 5) devolvido pelo Pinecone na rodada atual. Se não existir, o cache é invalidado. Isso previne "alucinações temporais" de IDs de orçamento antigos.
-- **Concorrência Estrangulada (Proteção Rate Limit):** O processamento assíncrono em lote DEVE obrigatoriamente usar `asyncio.Semaphore` combinado com blocos de retentativa (Exponential Backoff com Jitter), conforme implementado em `upload_service.py`. É ESTRITAMENTE PROIBIDO realizar milhares de requisições de IA soltas com `asyncio.gather`, sob o risco de Timeout no Cloud Run e suspensão da conta da OpenAI (Erro 429).
+## 3. Decisões Arquiteturais e seus Porquês
 
-### 3.3. Motor de Busca (Algoritmo RRF)
-A IA não "chuta" preços. O processo no `ai_service.py` funciona assim:
-1. **RRF (Reciprocal Rank Fusion):** O backend realiza uma busca lexical ultrarrápida (PostgreSQL via Trigramas) e uma vetorial (Pinecone). As posições são fundidas matematicamente para criar um Ranking final perfeito.
-2. **Isolamento por Namespaces:** A segregação de Insumos e Composições é garantida via infraestrutura através dos Namespaces do Pinecone (`composicoes_sinapi` e `insumos_sinapi`).
-3. O Top 10 vai para o LLM da OpenAI, que atua através de **Structured Outputs** (JSON Schema rigoroso). O modelo aplica obrigatoriamente **Zero-Shot Chain of Thought (Schema Engineering)**, sendo forçado a gerar seu raciocínio lógico no campo `raciocinio_step_by_step` *antes* de tentar eleger a melhor opção, erradicando alucinações cognitivas e classificando o peso da decisão na `categoria_rigor`.
-4. **Custo Zero em Detalhes:** A "Memória de Cálculo" com os scores de similaridade já é empacotada durante o RAG inicial de Upload (SSE) e salva no `Zustand`. O clique em uma composição para ver seus detalhes apenas lê da memória do navegador, sem engatilhar nenhuma nova requisição para o backend ou para a OpenAI.
+### 3.1. Por que Não Usamos Serverless para o Backend?
 
-## 4. Como Navegar no Código
-- O plano de voo e as prioridades oficiais de desenvolvimento sempre estarão no arquivo raiz **`Master_Plan.md`**.
-- Sempre confira o `Master_Plan.md` antes de propor criação de novas features.
+A Vercel corta funções serverless em 10–60 segundos. Uma planilha de 5.000 linhas leva vários minutos para ser processada pela OpenAI. Solução: **Google Cloud Run** com CPU Always Allocated (`--no-cpu-throttling`), onde o container persiste durante toda a sessão de processamento.
 
-## 5. Regras de Código (Guidelines)
-- **KISS (Keep It Simple, Stupid):** Prefira funções nativas do React/Python antes de instalar novas dependências (ex: usamos `setTimeout` em vez de `use-debounce`).
-- **No Hallucinations / Semantic Naming:** Nunca invente funções. Além disso, evite limpar formatação da IA via Regex no pós-processamento. Confie no Semantic Naming (ex: renomear variáveis como `justificativa` para `parecer_tecnico` no Pydantic) e num System Prompt claro para induzir o formato nativo da LLM, economizando latência e recursos.
-- **Tratamento Cauteloso de Exceções:** Tasks assíncronas do backend (como `gather`) devem usar `return_exceptions=True` para não quebrarem o Event Loop e interromperem o fluxo de SSE do usuário caso a API da OpenAI caia.
-- **Pragmatismo no TypeScript (Vercel):** Para viabilizar a transição da V2, a compilação tolera erros de tipagem (`any`). O foco é MVP. **Exceção de Ouro:** Para injetar dependências complexas (como métodos na `TableMeta` do TanStack Table), prefira *Module Augmentation* (`declare module`) no topo do arquivo ao invés de usar `(info... as any)`. Isso mantém o IntelliSense intacto.
-- **Mutações O(1) e Auto-Save (Zustand):** Componentes de UI **jamais** devem sobrescrever a tabela inteira (`setTableData`) para fazer exclusões, adições ou indentações, pois isso suja 100% da tabela e derruba o banco no Auto-Save. Use sempre mutations cirúrgicas (`addRow`, `deleteRow`, `updateRow`). Dentro da Store, ao usar `recalculateNumbers`, sempre faça *Shallow Compare* entre a array antiga e a nova para capturar 100% dos IDs alterados (inclusive pais afetados) e adicioná-los cirurgicamente no `dirtyRowIds`.
-- **Portals em Virtualização (TanStack Virtual):** O container do `@tanstack/react-virtual` exige ocultar conteúdo excedente. Nunca renderize componentes flutuantes (como Dropdowns de Autocomplete) diretamente no fluxo da célula. Envolva-os sempre com `createPortal(..., document.body)` para flutuarem por cima da tabela sem serem cortados. E Modais pesados (como Memória de IA) devem sempre ser componentes isolados fora do motor de renderização da tabela.
-- **Função acima da Forma (Anti-Gambiarras Visuais):** Jamais sacrifique a performance da aplicação (60 FPS) para adicionar efeitos visuais desnecessários (animações de entrada lentas, efeitos dominó ou renderizações em cascata). A UI deve ser utilitária, instantânea e suportar 5.000+ itens sem engasgos.
-- **Matemática Offline:** Todo e qualquer recálculo de preço, BDI ou quantidades dentro de uma composição (Modal de Edição) deve rodar 100% no cliente via Zustand. Não crie endpoints no backend para somar ou multiplicar valores de interface.
-- **Tipagem de IDs (Banco de Dados vs Frontend):** O Frontend utiliza strings pseudo-randômicas (ex: `macro_12345`, `serv_67890`) para as chaves primárias. Portanto, **nunca** crie colunas de `id` como `UUID` nas tabelas do Postgres. Use sempre `VARCHAR(255)` para preservar a compatibilidade retroativa e evitar crash fatal de Type Mismatch no `asyncpg`.
-- **Race Conditions em Filas Assíncronas (Zustand):** Ao gerenciar filas de envio em background (como o Auto-Save com `dirtyRowIds`), **nunca limpe a fila inteira de forma cega** após o envio (`set({ fila: [] })`). Filtre sempre cirurgicamente apenas os IDs que o backend confirmou via HTTP 200 OK. Isso preserva as edições que o usuário continuou fazendo na interface enquanto o request original viajava pela rede.
-- **Atue como Tech Lead Sênior:** Ao analisar um problema, não me entregue apenas o código. Explique brevemente o gargalo arquitetural, os riscos da sua abordagem e garanta que a solução proposta escala para ambientes governamentais massivos.
+### 3.2. Por que Redis Streams e Não WebSockets?
+
+WebSockets exigem conexão bidirecional persistente — cara e complexa de escalar horizontalmente. O SSE com Redis Streams (`XADD`/`XREAD`) é unidirecional (servidor → cliente), stateless no servidor e resiliente: o `Last-Event-ID` permite que o cliente reconecte e receba apenas os pacotes perdidos sem reprocessamento.
+
+### 3.3. Por que RRF em Vez de Busca Puramente Vetorial?
+
+Busca vetorial (Pinecone) é excelente para semântica, mas falha em nomes técnicos exatos como `"CONCRETO FCK 30 MPa"`. Busca por trigramas (PostgreSQL `pg_trgm`) é rápida em exatos, mas falha em sinônimos. O **Reciprocal Rank Fusion** une os dois mundos matematicamente, sem precisar de um LLM extra para fazer o merge — economizando latência e custo.
+
+### 3.4. Por que Structured Outputs em Vez de Prompt Engineering Puro?
+
+System Prompts "gentis" falham sob fadiga de contexto e em modelos menores. `beta.chat.completions.parse` com schema Pydantic é determinístico: a OpenAI garante que o JSON retornado será válido e aderente ao schema — eliminando a necessidade de parse por Regex ou tentativas de correção no pós-processamento.
+
+### 3.5. Por que Zero-Shot Chain of Thought no Schema?
+
+Ao forçar o modelo a preencher `raciocinio_step_by_step` *antes* do veredito final, ativamos o raciocínio lógico interno da LLM (como um "rascunho mental") antes de ela "commitar" a resposta. Isso reduz drasticamente alucinações em itens ambíguos como materiais com especificações dimensionais.
+
+### 3.6. Por que o Cache SHA-256 no Redis?
+
+Itens de engenharia se repetem entre planilhas de clientes diferentes (ex: `"ALVENARIA DE TIJOLO CERÂMICO"` aparece em 80%+ das obras). Um hash criptográfico do termo pesquisado permite reutilizar o veredito da IA por 15 dias, reduzindo em 70%+ os custos da OpenAI sem comprometer a qualidade.
+
+### 3.7. Por que Multi-Tenancy via Header e Não via Payload?
+
+Trafegar `tenant_id` no body JSON abre vetor de ataque: qualquer client pode forjar o campo. O `middleware.ts` do Next.js lê o Cookie HttpOnly (não acessível por JavaScript), extrai o tenant e o injeta como header `X-Tenant-ID` — inforjável pelo browser. O FastAPI consome apenas via `Depends(get_current_tenant)`.
+
+---
+
+## 4. Mapa do Código
+
+```
+orceia_v3/
+├── GEMINI.md                   ← Regras universais de IA (auto-injetadas)
+├── Master_Plan.md              ← Roadmap de Sprints (fonte de verdade de produto)
+├── Manual_OrceIA.md            ← Blueprint completo de construção (referência humana)
+├── Plano_AuditorIA.md          ← Spec da Sprint 5 (feature futura de PDFs)
+│
+├── backend/
+│   ├── GEMINI.md               ← Regras de IA para backend (auto-injetadas)
+│   ├── main.py                 ← Entry point FastAPI (lifespan, CORS, routers)
+│   ├── core/
+│   │   ├── config.py           ← Settings via pydantic-settings
+│   │   ├── db.py               ← Pool asyncpg (statement_cache_size=0)
+│   │   └── redis_client.py     ← Cliente Redis (streams + cache)
+│   └── modules/
+│       ├── orcamento/          ← Motor SINAPI: RRF, OpenAI, SSE (NÚCLEO — não mexa)
+│       │   ├── routes.py       ← Endpoints: /upsert-linhas, /save-linhas, /stream
+│       │   ├── services.py     ← Orquestração: chunks, semáforo, SSE
+│       │   ├── search_engine.py← Algoritmo RRF (Pinecone + Supabase)
+│       │   ├── ai_agents.py    ← Structured Outputs com Pydantic
+│       │   └── schemas.py      ← DTOs Pydantic v2
+│       └── sinapi/             ← Busca manual do usuário (autocomplete)
+│           └── routes.py
+│
+└── frontend/
+    ├── GEMINI.md               ← Regras de IA para frontend (auto-injetadas)
+    └── src/
+        ├── middleware.ts       ← Intercepta req, valida cookie, injeta X-Tenant-ID
+        ├── app/
+        │   ├── page.tsx        ← Página principal (tabela + upload)
+        │   └── api/proxy/      ← Proxy server-side (mascara API_SECRET_KEY)
+        ├── components/
+        │   ├── BudgetTable.tsx         ← Tabela virtualizada (60 FPS)
+        │   ├── BudgetTableCells.tsx    ← Células editáveis
+        │   ├── SortableRow.tsx         ← DnD com @dnd-kit
+        │   ├── MemoryModal.tsx         ← Memória de cálculo da IA (0 req extras)
+        │   ├── CompositionDetailsModal.tsx
+        │   └── CompositionCreatorModal.tsx
+        ├── store/
+        │   └── useBudgetStore.ts       ← Zustand: mutações O(1), dirtyRowIds
+        └── hooks/
+            ├── useAutoSave.ts          ← Debounce + /save-linhas (nunca /upsert-linhas)
+            └── useSseListener.ts       ← Consome SSE do backend via EventSource
+```
+
+---
+
+## 5. Como Navegar no Projeto
+
+- **Próxima feature a implementar?** → Consulte `Master_Plan.md` (roadmap de Sprints).
+- **Dúvida de construção do zero?** → Consulte `Manual_OrceIA.md` (blueprint completo).
+- **AuditorIA (PDFs)?** → Consulte `Plano_AuditorIA.md`.
+- **Regra de código específica?** → Os `GEMINI.md` são a fonte de verdade ativa.
