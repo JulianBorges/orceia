@@ -1,0 +1,33 @@
+# OrceIA V3 — Backend Rules (Cursor IDE)
+
+Stack: FastAPI, asyncio, asyncpg, pydantic v2, tenacity, Redis, Supabase, Pinecone
+
+## DDD — Módulos Isolados
+- orcamento/ → CONGELADO. Motor SINAPI. Não adicione lógica sem aprovação.
+- sinapi/ → Busca manual. Usa shared/sinapi_search.py (nunca importa de orcamento/).
+- auth/ → Autenticação multi-tenant.
+- shared/ → Funções públicas compartilhadas entre módulos de negócio.
+- NOVO módulo → sempre em pasta própria, nunca dentro de módulo existente.
+
+## Concorrência
+- semaphore = asyncio.Semaphore(10) — único e compartilhado em services.py
+- uvicorn --workers 1 obrigatório (semáforo Python não é distribuído)
+- asyncio.gather() sempre com return_exceptions=True
+
+## OpenAI — Singleton
+- from core.ai_client import openai_client → NUNCA instanciar AsyncOpenAI diretamente
+- SEMPRE beta.chat.completions.parse (Structured Outputs) → NUNCA regex/markdown parse
+- raciocinio_step_by_step → apenas logs, NUNCA no payload SSE nem no Supabase
+
+## asyncpg
+- statement_cache_size=0 obrigatório (PgBouncer/Supabase)
+- IDs sempre VARCHAR(255) → NUNCA UUID
+- Upsert em lote via executemany (O(1) de viagens ao banco)
+
+## Multi-Tenancy (CRÍTICO)
+- Toda query de dados → WHERE tenant_id = $x obrigatório
+- Chave Redis de dados → stream:{tenant_id}:planilha:{id}
+- Tenant extraído via Depends(get_current_tenant) → NUNCA via payload JSON
+
+## Imports
+- Todos no topo do arquivo (PEP 8) → NUNCA lazy imports dentro de funções

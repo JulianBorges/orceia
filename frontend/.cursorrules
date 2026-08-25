@@ -1,0 +1,26 @@
+# OrceIA V3 — Frontend Rules (Cursor IDE)
+
+Stack: Next.js 14, Tailwind CSS, Zustand, @tanstack/react-virtual, @dnd-kit
+
+## Estado Global — Zustand OBRIGATÓRIO
+- NUNCA React Context para estado global
+- Mutações O(1): addRow, deleteRow, updateRowById, updateData, updateRow
+- Upload usa loadTableData() → NÃO marca dirty, NÃO dispara auto-save
+- setTableData() marca tudo dirty → use só para operações do usuário
+
+## Auto-Save — Regra Crítica
+- Auto-save → /api/proxy/orcamento/save-linhas (DB only, sem IA)
+- NUNCA apontar auto-save para /upsert-linhas (aciona IA) — Bug histórico #5
+- deleteRow NÃO vai para dirtyRowIds → tem canal próprio (DELETE /orcamento/linhas)
+
+## Segurança do Proxy
+- BACKEND_API_URL é server-side APENAS → nunca NEXT_PUBLIC_BACKEND_API_URL
+- API_SECRET_KEY sem fallback hardcoded → falhar com 500 se não configurada
+
+## Tipagem
+- ai_status: AIStatus (union type) — nunca string livre
+- planilhaId em useSseListener: string | null
+
+## Tabela Virtualizada (5000+ linhas)
+- Dropdowns dentro da tabela → createPortal(…, document.body)
+- Nunca renderizar filho complexo dentro da célula virtualizada diretamente
