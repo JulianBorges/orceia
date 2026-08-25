@@ -31,8 +31,3 @@ def get_db_pool():
         raise Exception("Database pool is not initialized. Check lifespan.")
     return _pool
 
-async def get_db_connection():
-    if _pool is None:
-        await init_db_pool()
-    async with _pool.acquire() as connection:
-        yield connection

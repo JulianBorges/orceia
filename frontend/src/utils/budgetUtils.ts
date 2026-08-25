@@ -1,3 +1,14 @@
+export type AIStatus =
+  | 'ACEITO'
+  | 'REJEITADO'
+  | 'RESSALVA'
+  | 'PENDENTE'
+  | 'PROCESSANDO'
+  | 'SUBSTITUIDO'
+  | 'MEMÓRIA HUMANA'
+  | 'CACHE_REDIS'
+  | 'ERRO DE PROCESSAMENTO';
+
 export type BudgetItem = {
   id: string;
   item: string;
@@ -11,11 +22,11 @@ export type BudgetItem = {
   is_macro_item?: boolean;
   level?: number;
   macro_etapa_pai?: string;
-  ai_status?: string;
+  ai_status?: AIStatus;
   ai_parecer_tecnico?: string;
-  memoria_calculo?: any[];
+  memoria_calculo?: Record<string, unknown>[];
   descricao_legada?: string;
-  composicao_detalhada?: any[];
+  composicao_detalhada?: Record<string, unknown>[];
 };
 
 export const recalculateNumbers = (data: BudgetItem[]): BudgetItem[] => {

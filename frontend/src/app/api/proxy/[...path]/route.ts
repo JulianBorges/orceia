@@ -23,9 +23,14 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
   const apiUrl = `${backendUrl}/${path}`;
 
   try {
+    const apiSecret = process.env.API_SECRET_KEY;
+    if (!apiSecret) {
+      console.error("[Proxy] ERRO CRÍTICO: API_SECRET_KEY não configurada no ambiente.");
+      return NextResponse.json({ error: "Configuração de servidor inválida" }, { status: 500 });
+    }
+
     const headers = new Headers(request.headers);
-    // Mascara a chave e adiciona no proxy (segurança edge)
-    headers.set("x-api-secret", process.env.API_SECRET_KEY || "sk-orcamento-123xyz");
+    headers.set("x-api-secret", apiSecret);
     
     // Repassa o x-tenant-id injetado pelo middleware, se existir. 
     // Como o usuário não consegue falsificar cookies assinados/HttpOnly facilmente no middleware,

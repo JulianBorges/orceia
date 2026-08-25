@@ -5,14 +5,16 @@ from modules.orcamento.schemas import LinhaOrcamentoUpsert
 from modules.orcamento.search_engine import realizar_busca_hibrida
 from modules.orcamento.ai_agents import consultar_agente_engenheiro
 from core.redis_client import publish_sse_event, get_ai_cache, set_ai_cache
+from core.db import get_db_pool
 
-# Limite máximo de consultas simultâneas na nuvem (protege a API da OpenAI e o Banco)
+# ATENÇÃO: Este semáforo é por-processo (Python in-memory).
+# O servidor DEVE rodar com 1 worker apenas (uvicorn --workers 1).
+# Para múltiplos workers, migrar para semáforo distribuído via Redis.
 MAX_CONCURRENT_TASKS = 10
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
 async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
     """Consulta o banco de memórias do Cliente (Engenharia Humana)"""
-    from core.db import get_db_pool
     query = "SELECT codigo_escolhido, parecer FROM memoria_organizacional WHERE tenant_id = $1 AND termo_original = $2 LIMIT 1"
     pool = get_db_pool()
     async with pool.acquire() as conn:
@@ -127,7 +129,6 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
 
 async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str):
     """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""
-    from core.db import get_db_pool
     
     if not linhas:
         return
@@ -176,3 +177,32 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             await conn.execute(query_mae, id_planilha, tenant_id)
             # executemany processa os milhares de registros numa pancada só (Custo O(1) de rede)
             await conn.executemany(query_filhas, dados)
+
+
+async def bulk_delete_linhas_orcamento(ids: list[str], id_planilha: str, tenant_id: str):
+    """
+    Remove linhas do banco de forma atômica com proteção cross-tenant.
+    A cláusula WHERE tenant_id = $3 garante que um tenant nunca deleta dados de outro.
+    """
+    from core.db import get_db_pool
+
+    if not ids:
+        return
+
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            # Deleção em lote com proteção de tenant — usa ANY($1) para evitar N queries
+            deleted = await conn.execute(
+                """
+                DELETE FROM planilhas_linhas
+                WHERE id = ANY($1::varchar[])
+                  AND id_planilha = $2
+                  AND tenant_id = $3
+                """,
+                ids,
+                id_planilha,
+                tenant_id,
+            )
+            print(f"[DELETE] {deleted} linhas removidas (planilha: {id_planilha}, tenant: {tenant_id})")
+

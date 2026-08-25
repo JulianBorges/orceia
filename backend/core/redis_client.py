@@ -1,5 +1,6 @@
-import redis.asyncio as redis
+import hashlib
 import json
+import redis.asyncio as redis
 from core.config import settings
 
 # Conexão global
@@ -30,8 +31,6 @@ async def publish_sse_event(stream_key: str, event_data: dict):
         return
     # Grava no stream com limite de tamanho (aprox 10000 mensagens) para evitar estouro de memória
     await redis_client.xadd(stream_key, {"payload": json.dumps(event_data)}, maxlen=10000)
-
-import hashlib
 
 async def get_ai_cache(texto_busca: str) -> dict | None:
     """Procura se a IA já calculou esse item nos últimos 15 dias usando SHA-256."""

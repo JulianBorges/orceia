@@ -1,8 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from core.config import settings
-from modules.orcamento.schemas import LoteUpsertRequest, FeedbackRLHF
-from modules.orcamento.services import iniciar_processamento_lote_em_background
+from modules.orcamento.schemas import LoteUpsertRequest, FeedbackRLHF, DeleteLinhasRequest
+from modules.orcamento.services import (
+    iniciar_processamento_lote_em_background,
+    bulk_upsert_linhas_orcamento,
+    bulk_delete_linhas_orcamento,
+)
 from core.db import get_db_pool
 import core.redis_client as rc
 import asyncio
@@ -63,18 +67,32 @@ async def save_linhas(lote: LoteUpsertRequest, tenant_id: str = Depends(get_curr
     if not lote.linhas:
         return {"status": "success"}
     
-    from modules.orcamento.services import bulk_upsert_linhas_orcamento
-    
     try:
         await bulk_upsert_linhas_orcamento(lote.linhas, tenant_id)
-        
         return {
-            "status": "success", 
+            "status": "success",
             "linhas_salvas": len(lote.linhas)
         }
     except Exception as e:
         print(f"[ERRO DB] Falha no auto-save massivo: {e}")
         raise HTTPException(status_code=500, detail="Falha ao sincronizar o orçamento.")
+
+
+@router.delete("/linhas", dependencies=[Depends(verify_proxy_secret)])
+async def delete_linhas(body: DeleteLinhasRequest, tenant_id: str = Depends(get_current_tenant)):
+    """
+    Remove linhas do banco de forma atômica.
+    Proteção cross-tenant garantida no service layer — um tenant jamais remove dados de outro.
+    """
+    if not body.ids:
+        return {"status": "success", "removidas": 0}
+
+    try:
+        await bulk_delete_linhas_orcamento(body.ids, body.id_planilha, tenant_id)
+        return {"status": "success", "removidas": len(body.ids)}
+    except Exception as e:
+        print(f"[ERRO DB] Falha ao deletar linhas: {e}")
+        raise HTTPException(status_code=500, detail="Falha ao remover as linhas do orçamento.")
 
 @router.get("/stream/{id_planilha}", dependencies=[Depends(verify_proxy_secret)])
 async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(get_current_tenant)):

@@ -1,10 +1,6 @@
 import json
-from openai import AsyncOpenAI
-from core.config import settings
+from core.ai_client import openai_client as client
 from modules.orcamento.schemas import AnaliseIA
-
-# Inicializa o Client Oficial da OpenAI assíncrono
-client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict], valor_total_linha: float = 0.0) -> AnaliseIA:
     """
@@ -29,10 +25,6 @@ Sua saída deve ser estritamente o JSON definido no schema."""
     prompt_usuario = f"Item original da planilha: {termo_busca}\nValor Total Esperado do Item na Obra: R$ {valor_total_linha:.2f}\nOpções extraídas do RRF:\n{contexto}"
 
     try:
-        # MAGIA DA SPRINT 3: Substituímos o prompt engessado pelo beta.chat.completions.parse!
-        import openai
-        print(f"DEBUG: OpenAI Version = {openai.__version__}")
-        print(f"DEBUG: client = {type(client)}, beta = {type(client.beta)}, has_chat = {hasattr(client.beta, 'chat')}")
         completion = await client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=[

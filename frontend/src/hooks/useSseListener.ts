@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useBudgetStore } from '../store/useBudgetStore';
 
-export function useSseListener(planilhaId: string) {
+export function useSseListener(planilhaId: string | null) {
   const updateRowById = useBudgetStore((state) => state.updateRowById);
 
   useEffect(() => {

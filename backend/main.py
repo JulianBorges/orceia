@@ -7,6 +7,7 @@ from core.db import init_db_pool, close_db_pool
 from core.redis_client import init_redis, close_redis
 from modules.orcamento import routes as orcamento_routes
 from modules.sinapi import routes as sinapi_routes
+from modules.auth import routes as auth_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,10 +32,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Adicionando o roteador de orçamento
+# Roteador de autenticação (valida tenants contra o banco)
+app.include_router(auth_routes.router)
+
+# Roteador de orçamento (motor principal + SSE)
 app.include_router(orcamento_routes.router)
 
-# Adicionando o roteador de SINAPI
+# Roteador de SINAPI (busca manual do usuário)
 app.include_router(sinapi_routes.router)
 
 @app.get("/")

@@ -1,32 +1,13 @@
 import asyncio
 from core.db import get_db_pool
-from core.config import settings
-from openai import AsyncOpenAI
+from core.ai_client import openai_client
 from pinecone import Pinecone
+from core.config import settings
+from modules.shared.sinapi_search import search_sinapi_por_trigrama as _postgres_search
 
-openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 index = pc.Index(settings.PINECONE_INDEX_NAME)
 
-async def _postgres_search(termo: str, tipo: str = "composicoes") -> list[dict]:
-    """Busca Lexical (Trigramas) diretamente no PostgreSQL via asyncpg."""
-    tabela = "sinapi_composicoes" if tipo == "composicoes" else "sinapi_insumos"
-    
-    # word_similarity é a mágica do pg_trgm. Quanto mais perto de 1.0, mais parecido.
-    query = f"""
-        SELECT codigo, descricao, preco, unidade, word_similarity(descricao, $1) as score_lexico
-        FROM {tabela}
-        WHERE word_similarity(descricao, $1) > 0.1
-        ORDER BY score_lexico DESC
-        LIMIT 15;
-    """
-    
-    pool = get_db_pool()
-    async with pool.acquire() as conn:
-        records = await conn.fetch(query, termo)
-    
-    # Converte Record do asyncpg para dicionário limpo
-    return [dict(r) for r in records]
 
 async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes") -> list[dict]:
     """Busca Semântica gerando o Embedding e buscando no Pinecone isolado por cliente."""
@@ -110,9 +91,12 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     top_items = []
     for cod, score in ranking[:10]:
         item = master_dict[cod].copy()
-        # Opcional: Converter Numeric do Postgres para Float nativo do Python (necessário pro JSON)
+        # Converte Numeric do Postgres para Float nativo (necessário pro JSON)
         item["preco"] = float(item["preco"]) if item.get("preco") is not None else 0.0
         item["score_rrf_interno"] = round(score * 100, 2)
+        # Garante campos consistentes independente da origem (Postgres ou Pinecone)
+        item.setdefault("score_lexico", None)
+        item.setdefault("score_semantico", None)
         top_items.append(item)
         
     return top_items

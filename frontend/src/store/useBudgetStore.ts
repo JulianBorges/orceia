@@ -16,6 +16,8 @@ interface BudgetState {
   addDirtyRow: (id: string) => void;
   clearDirtyRows: (idsToClear: string[]) => void;
   setTableData: (data: BudgetItem[] | ((prev: BudgetItem[]) => BudgetItem[])) => void;
+  /** Carga inicial (upload). Não marca linhas como dirty — evita auto-save desnecessário. */
+  loadTableData: (data: BudgetItem[]) => void;
   setBdi: (bdi: number) => void;
   setTitle: (title: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
@@ -62,11 +64,17 @@ export const useBudgetStore = create<BudgetState>()(
         return { dirtyRowIds: remainingIds, isDirty: remainingIds.length > 0 };
       }),
 
+      loadTableData: (data) => set({
+        tableData: recalculateNumbers(data),
+        dirtyRowIds: [],
+        isDirty: false,
+      }),
+
       setTableData: (data) => set((state) => {
         const newData = typeof data === 'function' ? data(state.tableData) : data;
         return {
           tableData: newData,
-          dirtyRowIds: newData.map(r => r.id), // Tudo é dirty quando o data inteiro muda
+          dirtyRowIds: newData.map(r => r.id),
           isDirty: true
         };
       }),
@@ -206,16 +214,29 @@ export const useBudgetStore = create<BudgetState>()(
       deleteRow: (id) => set((state) => {
         const newData = state.tableData.filter(row => row.id !== id);
         const recalculatedData = recalculateNumbers(newData);
-        
+
+        // Propaga a deleção ao banco (fire-and-forget com proteção de erro)
+        const { planilhaId } = state;
+        if (planilhaId) {
+          fetch('/api/proxy/orcamento/linhas', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: [id], id_planilha: planilhaId }),
+          }).catch(e => console.error('[DELETE] Falha ao propagar deleção ao banco:', e));
+        }
+
+        // Remove o ID deletado do dirtyRowIds (ele não deve ser salvo via auto-save)
         const newlyModifiedIds = recalculatedData
             .filter(row => {
                 const oldRow = state.tableData.find(r => r.id === row.id);
                 return !oldRow || row !== oldRow;
             })
             .map(row => row.id);
-            
-        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds, id]));
-        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: true };
+
+        // Não inclui o `id` deletado no dirty — tem canal próprio (DELETE endpoint)
+        const remainingDirty = state.dirtyRowIds.filter(d => d !== id);
+        const newDirty = Array.from(new Set([...remainingDirty, ...newlyModifiedIds]));
+        return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: newDirty.length > 0 };
       }),
 
       clearBudget: () => set({ tableData: [], title: 'Orçamento Base', bdi: 25.0, dirtyRowIds: [], isDirty: true }),
@@ -231,7 +252,7 @@ export const useBudgetStore = create<BudgetState>()(
                     parecer: parecer
                 })
             });
-            console.log('[RLHF] Feedback humano (tenant_alfa) salvo com sucesso!');
+            console.log('[RLHF] Feedback humano salvo com sucesso.');
         } catch (e) {
             console.error('[RLHF] Erro ao salvar feedback humano', e);
         }

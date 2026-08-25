@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from core.config import settings
-from modules.orcamento.search_engine import _postgres_search
+from modules.shared.sinapi_search import search_sinapi_por_trigrama
 
 router = APIRouter(prefix="/sinapi", tags=["sinapi"])
 
@@ -17,18 +17,19 @@ async def search_sinapi(q: str):
     """
     if not q or len(q) < 3:
         return {"results": []}
-        
-    # Usamos o Trigramas do PostgreSQL para alta performance
-    records = await _postgres_search(q, tipo="composicoes")
-    
-    results = []
-    for r in records:
-        results.append({
+
+    records = await search_sinapi_por_trigrama(q, tipo="composicoes")
+
+    results = [
+        {
             "codigo": r["codigo"],
             "descricao": r["descricao"],
             "preco": r["preco"],
             "unidade": r["unidade"],
-            "score": r["score_lexico"]
-        })
-        
+            "score": r["score_lexico"],
+        }
+        for r in records
+    ]
+
     return {"results": results}
+

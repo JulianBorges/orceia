@@ -12,7 +12,7 @@ interface UploadPlanilhaProps {
 
 export function UploadPlanilha({ children, className, append = false }: UploadPlanilhaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { tableData, setTableData, setPlanilhaId, processarOrcamentoIA } = useBudgetStore();
+    const { tableData, loadTableData, setTableData, setPlanilhaId, processarOrcamentoIA } = useBudgetStore();
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -89,11 +89,13 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
             }
 
             if (append) {
+                // No modo append, unir ao existente (marca dirty para auto-save sincronizar)
                 setTableData([...tableData, ...parsedData]);
             } else {
                 const newPlanilhaId = crypto.randomUUID();
                 setPlanilhaId(newPlanilhaId);
-                setTableData(parsedData);
+                // loadTableData: não marca dirty — evita auto-save desnecessário no upload inicial
+                loadTableData(parsedData);
             }
             
             // Inicia a inteligência artificial automaticamente
