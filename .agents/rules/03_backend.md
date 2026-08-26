@@ -7,173 +7,86 @@
 
 ## 1. Concorrência e Rate Limiting
 
+Toda chamada à OpenAI deve estar protegida pelo semáforo, e o processo deve rodar com `--workers 1`.
 ```python
 # ✅ CORRETO: Semáforo único e compartilhado — definido em services.py
-# ATENÇÃO: Este semáforo é por-processo (Python in-memory).
-# O servidor DEVE rodar com --workers 1 (uvicorn).
-# Para escalar: adicionar réplicas do container, NÃO adicionar workers.
 MAX_CONCURRENT_TASKS = 10
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
-# ❌ PROIBIDO: criar semáforos independentes por feature (dobraria o limite)
-semaphore_curva_abc = asyncio.Semaphore(10)  # ERRADO — Sprint 4.2 deve reusar o semáforo acima
+# ❌ PROIBIDO: criar semáforos independentes por feature (dobraria o limite OpenAI)
 ```
-
-```python
-# ✅ OBRIGATÓRIO: return_exceptions=True em todo asyncio.gather()
-results = await asyncio.gather(*tasks, return_exceptions=True)
-
-# ❌ PROIBIDO: gather sem proteção interrompe o SSE do usuário se a OpenAI cair
-results = await asyncio.gather(*tasks)
-```
+- `asyncio.gather(*tasks, return_exceptions=True)` — **OBRIGATÓRIO** (nunca sem return_exceptions).
+- Lotes massivos: Processados de **50 em 50 linhas** — nunca a planilha inteira. 
+- Usar `asyncio.create_task()` e publicar via `XADD` (Redis) conforme chegam. Nunca aguardar o fim do lote.
 
 ---
 
-## 2. Cliente OpenAI — Singleton
+## 2. Cliente OpenAI — Singleton e Retry
 
 ```python
-# ✅ CORRETO: importar o singleton de core/ai_client.py
+# ✅ CORRETO: importar o singleton
 from core.ai_client import openai_client
-
-# ❌ PROIBIDO: criar nova instância em cada módulo (gera N pools de conexão HTTP)
-from openai import AsyncOpenAI
-client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 ```
-
-**Sempre usar Structured Outputs — NUNCA parse de Markdown ou Regex:**
+Sempre usar **Structured Outputs**:
 ```python
-# ✅ CORRETO
-completion = await openai_client.beta.chat.completions.parse(
-    model="gpt-4o-mini",
-    response_format=AnaliseIA,  # Schema Pydantic fechado
-    ...
-)
-
-# ❌ PROIBIDO — BUG #1 e #2
-import re
-result = re.findall(r'codigo: (\w+)', completion.choices[0].message.content)
+# ✅ CORRETO (Pydantic estrito)
+completion = await openai_client.beta.chat.completions.parse(..., response_format=AnaliseIA)
+# ❌ PROIBIDO: parse de markdown ou regex
+```
+**Retry com Tenacity (Obrigatório)**:
+- NUNCA usar `time.sleep()`.
+- NUNCA derrubar a requisição por erro 429 sem retentar.
+```python
+from tenacity import retry, wait_exponential_jitter, stop_after_attempt
+@retry(stop=stop_after_attempt(4), wait=wait_exponential_jitter(initial=1, max=30))
+async def chamar_openai(): ...
 ```
 
 ---
 
-## 3. Chain of Thought (CoT) — Onde Vai e Onde Não Vai
+## 3. Chain of Thought (CoT) — Regra de Isolamento
 
 ```python
-# ✅ CORRETO: extrair o raciocínio ANTES de montar o DTO de resposta
 analise: AnaliseIA = completion.choices[0].message.parsed
-raciocinio = analise.raciocinio_step_by_step  # Extraído aqui
-print(f"[CoT] {raciocinio}")  # Apenas em logs efêmeros
+raciocinio = analise.raciocinio_step_by_step  # Extraído aqui (log efêmero)
 
-# Montar o DTO SEM o raciocínio
-dto = {
-    "codigo": analise.codigo_sinapi,
-    "descricao": analise.descricao_oficial,
-    "ai_status": analise.status,
-    # raciocinio_step_by_step NÃO vai aqui
-}
-
-# ❌ PROIBIDO: persistir o CoT no Supabase — BUG #9
-await conn.execute("INSERT INTO planilhas_linhas (..., raciocinio) VALUES (..., $x)", raciocinio)
-
+# ❌ PROIBIDO: persistir o CoT no Supabase (Bug #9 - Storage Bloat)
 # ❌ PROIBIDO: enviar o CoT no payload SSE
-await publish_sse_event({"raciocinio": raciocinio, ...})
 ```
 
 ---
 
-## 4. asyncpg — Configuração Obrigatória
+## 4. Banco de Dados — Supabase / asyncpg
 
-```python
-# ✅ CORRETO: statement_cache_size=0 obrigatório para compatibilidade com PgBouncer/Supabase
-pool = await asyncpg.create_pool(
-    dsn=settings.SUPABASE_DATABASE_URL,
-    min_size=2,
-    max_size=10,
-    statement_cache_size=0,  # ← NUNCA REMOVA
-)
-
-# ✅ CORRETO: Upsert em lote (custo O(1) de viagens ao banco)
-await conn.executemany(query_upsert, list_of_tuples)
-
-# ❌ PROIBIDO: loop com execute individual (custo O(N))
-for linha in linhas:
-    await conn.execute(query_upsert, linha.campo1, linha.campo2, ...)
-```
+- **Porta do Supabase**: Sempre `6543` (Transaction Pooler).
+- **statement_cache_size=0**: Inviolável. Compatibilidade necessária com PgBouncer.
+- **IDs**: Sempre `VARCHAR(255)`. Nunca `UUID` (Bug #11).
+- **Bulk Insert**: Upsert em lote via `executemany` (Custo O(1)). Nunca loop de `execute`.
+- **Multi-Tenant**: Cláusula `WHERE tenant_id = $x` em TODA query de dados do usuário.
 
 ---
 
-## 5. Segurança Multi-Tenant nas Queries
+## 5. Redis Streams — SSE e Cache
 
-```python
-# ✅ CORRETO: cláusula WHERE tenant_id em TODA query de dados do usuário
-await conn.fetch("SELECT * FROM planilhas_linhas WHERE id_planilha = $1 AND tenant_id = $2", id, tenant_id)
+**Namespace Multi-Tenant**:
+- ✅ `stream:{tenant_id}:planilha:{id_planilha}`
+- ❌ `stream:planilha:{id_planilha}` (Bug #7 - Cross-tenant leak)
 
-# ❌ PROIBIDO: query sem filtro de tenant (permite cross-tenant data leak)
-await conn.fetch("SELECT * FROM planilhas_linhas WHERE id_planilha = $1", id)
-
-# ✅ CORRETO: DELETE com proteção tripla (id + planilha + tenant)
-await conn.execute(
-    "DELETE FROM planilhas_linhas WHERE id = ANY($1::varchar[]) AND id_planilha = $2 AND tenant_id = $3",
-    ids, id_planilha, tenant_id
-)
-```
+**Cache Anti-Zumbi (Validação)**:
+Antes de servir um hit do Redis (TTL 15 dias, baseado no hash SHA256 do termo), **valide** se o `codigo_selecionado` retornado ainda faz parte do Top 10 atual do RRF. Se não existir, ignore o cache. Se alterar o schema de status (ex: "ACEITO"), exija um **Flush total do Redis**.
 
 ---
 
-## 6. Redis — Estrutura de Chaves
+## 6. Deploy — Cloud Run (Configurações Críticas)
 
-```python
-# ✅ CORRETO: namespace por tenant em todas as chaves de dados do usuário
-stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
-
-# ✅ CORRETO: cache de IA é global (SINAPI é o mesmo para todos os tenants)
-cache_key = f"cache:ai:{hashlib.sha256(termo.encode()).hexdigest()}"
-
-# ❌ PROIBIDO: chave pública sem tenant — BUG #7
-stream_key = f"stream:planilha:{id_planilha}"
-```
+- **CPU Allocation**: Always Allocated (Baseada em instâncias). Nunca "baseada em solicitações", pois o Cloud Run congela o container e mata a conexão SSE do usuário.
+- **Build Context**: `/backend/` (onde o Dockerfile está).
+- **BACKEND_API_URL**: URL base pura (sem `/api`, sem barra final).
 
 ---
 
-## 7. Imports e Organização
+## 7. Novos Módulos — Checklist DDD
 
-```python
-# ✅ CORRETO: imports no topo do arquivo (PEP 8)
-import asyncio
-import hashlib
-from core.db import get_db_pool
-from core.ai_client import openai_client
-
-# ❌ PROIBIDO: lazy imports dentro de funções (dificulta análise estática)
-async def minha_funcao():
-    from core.db import get_db_pool  # ← Mover para o topo
-```
-
----
-
-## 8. Retry com Tenacity
-
-```python
-# ✅ CORRETO: retry com backoff exponencial para chamadas à OpenAI
-from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
-
-@retry(
-    wait=wait_exponential(multiplier=1, min=4, max=10),
-    stop=stop_after_attempt(3),
-    retry=retry_if_exception_type(Exception)
-)
-async def chamar_openai():
-    ...
-```
-
----
-
-## 9. Novos Módulos — Checklist DDD
-
-Ao criar um novo módulo em `backend/modules/`:
-1. Criar pasta própria com `__init__.py`
-2. Criar `routes.py`, `schemas.py`, `services.py` isolados
-3. Registrar o router em `main.py`
-4. Compartilhar funções via `modules/shared/` — nunca importar de outro módulo de negócio
-5. Usar o singleton `core/ai_client.py` se precisar de OpenAI
-6. Aplicar `Depends(verify_proxy_secret)` e `Depends(get_current_tenant)` em todas as rotas autenticadas
+- `orcamento/` é o núcleo (não altere sem aprovação explícita).
+- `sinapi/` e outras features nunca importam de `orcamento/` diretamente.
+- Use `Depends(verify_proxy_secret)` e `Depends(get_current_tenant)` nas rotas.

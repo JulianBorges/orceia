@@ -26,141 +26,80 @@ loadTableData(data)     // Use este no UploadPlanilha.tsx — não dispara auto-
 // ✅ Para substituição total com dirty tracking
 setTableData(data)      // Marca tudo como dirty — use apenas para operações do usuário
 
-// ❌ NUNCA faça isso
+// ❌ NUNCA faça isso (suja 100% das linhas no Auto-Save)
+setTableData([...tableData, novaLinha])
 setTableData(tableData.map(row => row.id === id ? {...row, campo: valor} : row))
 ```
 
-### Estado de Sincronização (Dirty Tracking)
-```typescript
-isDirty: boolean          // true se há rows para salvar
-dirtyRowIds: string[]     // IDs das linhas modificadas pelo usuário (não pelo upload)
-```
+### Estado de Sincronização (Dirty Tracking) e Race Conditions
+- `isDirty: boolean` (true se há rows para salvar)
+- `dirtyRowIds: string[]` (IDs das linhas modificadas pelo usuário)
+- `deleteRow` **NÃO** adiciona o ID ao `dirtyRowIds` — deleções têm canal próprio.
+- `loadTableData` zera `dirtyRowIds` e `isDirty` — upload não dispara auto-save.
 
-- `deleteRow` **NÃO** adiciona o ID ao `dirtyRowIds` — deleções têm canal próprio (DELETE endpoint)
-- `loadTableData` zera `dirtyRowIds` e `isDirty` — upload não dispara auto-save
+**Race Condition (Fila Cirúrgica):**
+Após receber HTTP 200 do Auto-Save, **nunca limpe a fila inteira**:
+- ❌ `set({ dirtyRowIds: [] })` — apaga edições feitas durante o request.
+- ✅ Filtrar apenas os IDs confirmados: `set({ dirtyRowIds: prev.filter(id => !confirmedIds.includes(id)) })`
 
 ---
 
 ## 2. Auto-Save — Regras Críticas
 
+O auto-save deve ser disparado **somente** pelos métodos que marcam `isDirty = true` (ex: `updateData`, `addRow`, `setTableData`). Nunca pelo `loadTableData` ou `deleteRow`.
+
 ```typescript
 // ✅ CORRETO: Auto-save aponta para /save-linhas (apenas DB, sem IA)
-fetch('/api/proxy/orcamento/save-linhas', { method: 'POST', body: JSON.stringify({ linhas: dirtyRows }) })
+fetch('/api/proxy/orcamento/save-linhas', ...)
 
 // ❌ PROIBIDO: Auto-save NUNCA aponta para /upsert-linhas (aciona IA)
-fetch('/api/proxy/orcamento/upsert-linhas', ...) // BUG #5 — não repita
+fetch('/api/proxy/orcamento/upsert-linhas', ...) // BUG #5
 ```
-
-O auto-save deve ser disparado **somente** pelos métodos que marcam `isDirty = true`:
-- `updateData`, `updateRow`, `updateRowById`, `addRow`, `setTableData`
-
-**Nunca** deve ser disparado por:
-- `loadTableData` (upload inicial)
-- `deleteRow` (tem canal próprio via DELETE endpoint)
-- Atualizações vindas do SSE (que já foram processadas pelo backend)
 
 ---
 
-## 3. Proxy Edge — Segurança
+## 3. DOM Virtualization e UI — Desempenho (60 FPS)
+
+A tabela usa `@tanstack/react-virtual` para 5.000+ linhas.
+- ✅ Use `transform: translateY(${start}px)` e `position: absolute` para posicionar linhas.
+- ❌ Nunca use `margin-top` ou `padding-top` para compensar o scroll.
+
+### Dropdowns, Tooltips e Modais
+O container virtualizado usa `overflow: hidden`.
+- ✅ **Componentes Flutuantes**: Envolva **sempre** com `createPortal(<Dropdown />, document.body)` para flutuar por cima da tabela.
+- ❌ Nunca renderize no fluxo da célula (serão cortados).
+- ✅ **Modais Pesados** (`MemoryModal`, `CompositionDetailsModal`): Devem ficar isolados fora da árvore da tabela. Nunca importe modais dentro de `BudgetTableCells.tsx`.
+
+### Anti-Gambiarras Visuais
+- ❌ Nunca sacrifique 60 FPS por efeitos visuais (sem animações lentas/em cascata).
+- ✅ Matemática (preço, BDI) roda 100% no cliente via Zustand — nenhum request ao backend para somar.
+
+---
+
+## 4. Segurança — Proxy Edge
 
 ```typescript
 // ✅ CORRETO: variável server-side
 const backendUrl = process.env.BACKEND_API_URL
 
-// ❌ PROIBIDO: expõe URL ao browser — BUG #8
+// ❌ PROIBIDO: expõe URL ao browser
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+
+// ❌ PROIBIDO: sufixo /api quebra o roteamento
+const backendUrl = "https://backend.run.app/api" 
 
 // ✅ CORRETO: falha rápida se env não configurada
 const apiSecret = process.env.API_SECRET_KEY
-if (!apiSecret) return NextResponse.json({ error: 'Configuração inválida' }, { status: 500 })
-
-// ❌ PROIBIDO: fallback hardcoded — vulnerabilidade de segurança
-const apiSecret = process.env.API_SECRET_KEY || 'sk-qualquer-coisa'
+if (!apiSecret) return NextResponse.json({ error: 'Config.' }, { status: 500 })
+// ❌ PROIBIDO: fallback hardcoded
+const apiSecret = process.env.API_SECRET_KEY || 'sk-123'
 ```
 
 ---
 
-## 4. Tipagem — Union Types Obrigatórios
+## 5. Tipagem e TypeScript — Pragmatismo
 
-```typescript
-// ✅ CORRETO: ai_status tem valores controlados
-export type AIStatus =
-  | 'ACEITO' | 'REJEITADO' | 'RESSALVA' | 'PENDENTE'
-  | 'PROCESSANDO' | 'SUBSTITUIDO' | 'MEMÓRIA HUMANA'
-  | 'CACHE_REDIS' | 'ERRO DE PROCESSAMENTO';
-
-// ❌ PROIBIDO: string livre permite valores inválidos
-ai_status?: string
-```
-
----
-
-## 5. Virtualização e Dropdowns
-
-A tabela renderiza **5.000+ linhas** via `@tanstack/react-virtual`. Elementos de sobreposição como dropdowns e tooltips **não podem ser filhos DOM** da linha virtualizada (serão recortados pelo `overflow: hidden`).
-
-```typescript
-// ✅ CORRETO para dropdowns dentro da tabela virtualizada
-import { createPortal } from 'react-dom'
-createPortal(<Dropdown />, document.body)
-
-// ❌ INCORRETO: dropdown fica invisível ou cortado dentro da célula
-<TableCell>
-  <Dropdown /> {/* Será cortado pelo container virtualizado */}
-</TableCell>
-```
-
----
-
-## 6. SSE Listener
-
-```typescript
-// ✅ CORRETO: planilhaId pode ser null antes da planilha ser criada
-export function useSseListener(planilhaId: string | null)
-
-// O hook deve verificar antes de abrir o EventSource:
-useEffect(() => {
-  if (!planilhaId) return
-  const es = new EventSource(`/api/proxy/orcamento/stream/${planilhaId}`)
-  // ...
-}, [planilhaId])
-```
-
----
-
-## 7. IDs de Linhas (Frontend)
-
-```typescript
-// ✅ CORRETO: ID gerado no frontend com Date.now()
-const newRow: BudgetItem = {
-  id: `serv_${Date.now()}`,
-  // ...
-}
-
-// ❌ PROIBIDO: crypto.randomUUID() pode gerar conflito com o asyncpg se não for VARCHAR
-// (Use Date.now() para garantir formato de string simples e legível)
-```
-
----
-
-## 8. Estrutura de Arquivos
-
-```
-frontend/src/
-├── app/
-│   ├── api/
-│   │   ├── auth/login/route.ts    ← Valida tenant no backend ANTES de setar cookie
-│   │   └── proxy/[...path]/route.ts ← Edge proxy server-side
-│   ├── login/page.tsx
-│   └── page.tsx                   ← Dashboard principal
-├── components/
-│   ├── BudgetTable.tsx            ← Tabela virtualizada principal
-│   ├── UploadPlanilha.tsx         ← Usa loadTableData() (não setTableData)
-│   └── ...
-├── hooks/
-│   └── useSseListener.ts          ← Escuta SSE, chama updateRowById
-├── store/
-│   └── useBudgetStore.ts          ← Store Zustand (única fonte de verdade)
-└── utils/
-    └── budgetUtils.ts             ← BudgetItem, AIStatus, recalculateNumbers
-```
+- ✅ `AIStatus` deve usar valores controlados (Union Type `ACEITO | REJEITADO | ...`), nunca `string` livre.
+- ✅ `planilhaId` em `useSseListener` deve ser `string | null` e checado no `useEffect`.
+- ✅ **IDs de Linha**: Gerados no frontend via `serv_${Date.now()}`. Nunca `UUID`.
+- ✅ O TS tolera erros de tipagem (`any`) para agilidade, **exceto** na injeção de métodos na `TableMeta` do TanStack Table, onde você deve usar **Module Augmentation** (`declare module`) no topo do arquivo. Nunca use `(info as any)`.
