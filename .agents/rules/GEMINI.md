@@ -1,7 +1,11 @@
+---
+trigger: always_on
+---
+
 # OrceIA V3 — Regras Universais de IA (Workspace Root)
 
 > Lido automaticamente por qualquer agente (Antigravity, Cursor, etc.) antes de qualquer interação neste repositório.
-> Fonte canônica: `GEMINI.md`, `AI_Onboarding.md` e `Manual_OrceIA.md`.
+> Fonte canônica:`AI_Onboarding.md` e `Master_Plan.md`.
 > Para contexto específico de Frontend ou Backend, leia também as regras em `.agents/rules/`.
 
 ---

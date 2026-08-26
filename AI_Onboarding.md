@@ -116,7 +116,8 @@ orceia_v3/
 
 ## 5. Como Navegar no Projeto
 
-- **Próxima feature a implementar?** → Consulte `Master_Plan.md` (roadmap de Sprints).
+- **Próxima feature a implementar?** → Consulte `Master_Plan.md` (roadmap de Sprints 1-5).
+- **Refatoração e correção de bugs auditados?** → Consulte `Refactor_Plan.md` (Sprints 6-9).
 - **Dúvida de construção do zero?** → Consulte `Manual_OrceIA.md` (blueprint completo).
 - **AuditorIA (PDFs)?** → Consulte `Plano_AuditorIA.md`.
-- **Regra de código específica?** → Os `GEMINI.md` são a fonte de verdade ativa.
+- **Regra de código específica?** → Os `GEMINI.md` e `.agents/rules/` são a fonte de verdade ativa.
