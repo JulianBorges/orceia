@@ -49,3 +49,17 @@ async def set_ai_cache(texto_busca: str, payload: dict):
     chave_hash = hashlib.sha256(texto_busca.strip().lower().encode()).hexdigest()
     # TTL de 15 dias (15 * 24 * 60 * 60 = 1296000 segundos)
     await redis_client.setex(f"cache_ia:{chave_hash}", 1296000, json.dumps(payload))
+
+async def delete_ai_cache(texto_busca: str) -> bool:
+    """
+    Invalida o cache da IA para um termo especifico.
+    Chamado pelo endpoint /feedback apos o engenheiro corrigir o veredito (RLHF).
+
+    Returns:
+        True se a chave existia e foi deletada, False caso contrario.
+    """
+    if redis_client is None:
+        return False
+    chave_hash = hashlib.sha256(texto_busca.strip().lower().encode()).hexdigest()
+    deleted = await redis_client.delete(f"cache_ia:{chave_hash}")
+    return deleted > 0

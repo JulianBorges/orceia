@@ -17,8 +17,8 @@
 
 | Sprint | Escopo | Severidade | Status |
 |--------|--------|-----------|--------|
-| [S6] Sprint 6 — Correções Críticas de Motor | Backend Core | 🔴 Crítico | `[ ] Pendente` |
-| [S7] Sprint 7 — Precisão de Engenharia Civil | IA + Schema | 🟡 Alto | `[ ] Pendente` |
+| [S6] Sprint 6 — Correções Críticas de Motor | Backend Core | 🔴 Crítico | `[X] Concluído` |
+| [S7] Sprint 7 — Precisão de Engenharia Civil | IA + Schema | 🟡 Alto | `[X] Concluído` |
 | [S8] Sprint 8 — Resiliência de Estado Frontend | Frontend | 🟡 Alto | `[ ] Pendente` |
 | [S9] Sprint 9 — Hardening e Qualidade | Backend + Frontend | 🟠 Médio | `[ ] Pendente` |
 
@@ -339,15 +339,15 @@ export async function PUT(
 
 ### S6 — Checklist de Verificacao
 
-- `[ ]` `preprocessor.py` criado em `backend/modules/orcamento/`
-- `[ ]` `search_engine.py` retorna `tuple[list[dict], str]`
-- `[ ]` `services.py` desempacota `opcoes_rrf, caracteristicas_extras`
-- `[ ]` Boost RRF usa `score_pc * 1.20` (delta), nao `scores_rrf[cod] *= 1.20` (total)
-- `[ ]` `@retry` usa `retry_if_exception_type((RateLimitError, ...))`
-- `[ ]` SSE generator tem logica de timeout apos `lote_concluido`
-- `[ ]` `route.ts` exporta `DELETE`, `PATCH` e `PUT`
-- `[ ]` Servidor backend inicia sem erros
-- `[ ]` Frontend compila sem erros
+- `[x]` `preprocessor.py` criado em `backend/modules/orcamento/`
+- `[x]` `search_engine.py` retorna `tuple[list[dict], str]`
+- `[x]` `services.py` desempacota `opcoes_rrf, caracteristicas_extras`
+- `[x]` Boost RRF usa `score_pc * 1.20` (delta), nao `scores_rrf[cod] *= 1.20` (total)
+- `[x]` `@retry` usa `retry_if_exception_type((RateLimitError, ...))`
+- `[x]` SSE generator tem logica de timeout apos `lote_concluido`
+- `[x]` `route.ts` exporta `DELETE`, `PATCH` e `PUT`
+- `[x]` Servidor backend inicia sem erros
+- `[x]` Frontend compila sem erros
 
 ---
 
@@ -562,14 +562,14 @@ No endpoint `/feedback`, apos o `conn.execute` e antes do `return`:
 
 ### S7 — Checklist de Verificacao
 
-- `[ ]` `schemas.py` tem campo `aceito_com_tolerancia: bool` em `AnaliseIA`
-- `[ ]` `ai_agents.py` tem Regra 5 (Tolerancia Dimensional) no prompt
-- `[ ]` `services.py` usa `aceito_com_tolerancia` na logica de status
-- `[ ]` Cache Redis salva apenas `resultado_cacheavel` (sem `memoria_calculo`)
-- `[ ]` Cache hit retorna `memoria_calculo` frescos do RRF
-- `[ ]` `redis_client.py` tem `delete_ai_cache`
-- `[ ]` Endpoint `/feedback` chama `delete_ai_cache` apos salvar no banco
-- `[ ]` Servidor backend inicia e `POST /orcamento/feedback` retorna 200
+- `[x]` `schemas.py` tem campo `aceito_com_tolerancia: bool` em `AnaliseIA`
+- `[x]` `ai_agents.py` tem Regra 5 (Tolerancia Dimensional) no prompt
+- `[x]` `services.py` usa `aceito_com_tolerancia` na logica de status
+- `[x]` Cache Redis salva apenas `resultado_cacheavel` (sem `memoria_calculo`)
+- `[x]` Cache hit retorna `memoria_calculo` frescos do RRF
+- `[x]` `redis_client.py` tem `delete_ai_cache`
+- `[x]` Endpoint `/feedback` chama `delete_ai_cache` apos salvar no banco
+- `[x]` Servidor backend inicia e `POST /orcamento/feedback` retorna 200
 
 ---
 

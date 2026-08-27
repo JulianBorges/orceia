@@ -1,5 +1,6 @@
 import asyncio
 from core.db import get_db_pool
+from modules.orcamento.preprocessor import normalizar_termo_busca
 from core.ai_client import openai_client
 from pinecone import Pinecone
 from core.config import settings
@@ -52,14 +53,19 @@ async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes"
         
     return opcoes
 
-async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: str) -> list[dict]:
+async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: str) -> tuple[list[dict], str]:
     """
     Reciprocal Rank Fusion (RRF).
     Funde a nota do PostgreSQL com a nota do Pinecone e retorna o Top 10 Absoluto.
     """
-    # Lança as buscas simultaneamente para cortar o tempo de resposta pela metade
+    # Agente Corretor: normaliza o termo antes do embedding (nao afeta busca lexical)
+    termo_normalizado = normalizar_termo_busca(termo_busca)
+    print(f"[Preprocessor] '{termo_busca}' -> Limpo: '{termo_normalizado.termo_limpo}'")
+
+    # Busca lexical usa o termo ORIGINAL (trigramas funcionam melhor com texto completo)
     pg_task = asyncio.create_task(_postgres_search(termo_busca, "composicoes"))
-    pc_task = asyncio.create_task(_pinecone_search(termo_busca, tenant_id, "composicoes"))
+    # Busca vetorial usa o termo LIMPO (embedding sem ruido dimensional)
+    pc_task = asyncio.create_task(_pinecone_search(termo_normalizado.termo_limpo, tenant_id, "composicoes"))
     
     pg_results, pc_results = await asyncio.gather(pg_task, pc_task)
     
@@ -76,12 +82,13 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     # Avaliando Pinecone (Embeddings)
     for rank, item in enumerate(pc_results):
         cod = item["codigo"]
+        score_pc = 1.0 / (k + rank + 1)
         if cod in scores_rrf:
-            # HUB MÁGICO: Encontrado em ambos! Boost matemático de 20%
-            scores_rrf[cod] += (1.0 / (k + rank + 1))
-            scores_rrf[cod] *= 1.20
+            # BOOST DE CONSENSO: aplica +20% APENAS sobre o score incremental do Pinecone.
+            # Nao multiplica o total acumulado — evita distorcao matematica em edge cases.
+            scores_rrf[cod] += score_pc * 1.20
         else:
-            scores_rrf[cod] = (1.0 / (k + rank + 1))
+            scores_rrf[cod] = score_pc
             master_dict[cod] = item
             
     # Ordena pelo Score RRF
@@ -93,10 +100,10 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
         item = master_dict[cod].copy()
         # Converte Numeric do Postgres para Float nativo (necessário pro JSON)
         item["preco"] = float(item["preco"]) if item.get("preco") is not None else 0.0
-        item["score_rrf_interno"] = round(score * 100, 2)
+        print(f"[RRF] {cod}: score={round(score * 100, 2)}")
         # Garante campos consistentes independente da origem (Postgres ou Pinecone)
         item.setdefault("score_lexico", None)
         item.setdefault("score_semantico", None)
         top_items.append(item)
         
-    return top_items
+    return top_items, termo_normalizado.caracteristicas_extras

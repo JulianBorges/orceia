@@ -9,6 +9,7 @@ from modules.orcamento.services import (
 )
 from core.db import get_db_pool
 import core.redis_client as rc
+from core.redis_client import delete_ai_cache
 import asyncio
 import json
 
@@ -39,6 +40,9 @@ async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(ge
         pool = get_db_pool()
         async with pool.acquire() as conn:
             await conn.execute(query, feedback.tenant_id, feedback.termo_original.strip().lower(), feedback.codigo_escolhido, feedback.parecer)
+        # Invalida o cache Redis para o termo corrigido pelo humano
+        await delete_ai_cache(feedback.termo_original)
+        print(f"[RLHF] Cache invalidado para: '{feedback.termo_original[:50]}'")
         return {"status": "success", "message": "Feedback memorizado para o Tenant"}
     except Exception as e:
         print(f"[ERRO RLHF] Falha ao salvar feedback: {e}")
@@ -100,31 +104,39 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
     async def event_generator():
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
-        
+        MAX_IDLE_PINGS_POS_CONCLUSAO = 12  # 12 x 5s = 60s apos lote_concluido
+        idle_count = 0
+        lote_concluido = False
+
         try:
             while True:
-                # XREAD trava o loop (block=5000ms) esperando novos itens a partir do last_id
-                # Isso impede loop infinito vazio no processador.
                 if rc.redis_client is None:
                     break
-                    
+
                 streams = await rc.redis_client.xread({stream_key: last_id}, block=5000, count=10)
-                
+
                 if streams:
+                    idle_count = 0
                     for stream_name, messages in streams:
                         for message_id, message_data in messages:
                             last_id = message_id
                             payload = message_data.get("payload", "{}")
-                            
-                            # Cuidado: O protocolo SSE requer que os dados iniciem com 'data: '
                             yield f"id: {message_id}\ndata: {payload}\n\n"
-                            
+
+                            try:
+                                data = json.loads(payload)
+                                if data.get("status") == "lote_concluido":
+                                    lote_concluido = True
+                            except (json.JSONDecodeError, AttributeError):
+                                pass
                 else:
-                    # Envia ping para manter conexão TCP viva no Cloud Run/Vercel
+                    idle_count += 1
+                    if lote_concluido and idle_count >= MAX_IDLE_PINGS_POS_CONCLUSAO:
+                        print(f"[SSE] Stream encerrado por idle timeout (planilha: {id_planilha})")
+                        break
                     yield ": ping\n\n"
-                    
+
         except asyncio.CancelledError:
-            # O usuário fechou a aba ou internet caiu
             print(f"SSE Streaming desconectado pelo cliente para a planilha {id_planilha}.")
         except Exception as e:
             print(f"Erro fatal no SSE: {e}")

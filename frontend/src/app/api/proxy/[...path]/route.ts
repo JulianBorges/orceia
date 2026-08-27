@@ -17,6 +17,27 @@ export async function POST(
   return handleProxy(request, params.path);
 }
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { path: string[] } }
+) {
+  return handleProxy(request, params.path);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { path: string[] } }
+) {
+  return handleProxy(request, params.path);
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { path: string[] } }
+) {
+  return handleProxy(request, params.path);
+}
+
 async function handleProxy(request: NextRequest, pathArray: string[]) {
   const path = pathArray.join("/");
   const backendUrl = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";

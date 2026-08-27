@@ -28,13 +28,6 @@ class FeedbackRLHF(BaseModel):
 
 # --- ESTRUTURAS RÍGIDAS PARA A IA (Structured Outputs) ---
 
-class ComposicaoEscolhida(BaseModel):
-    codigo: str = Field(description="Código SINAPI do item.")
-    descricao: str
-    unidade: str
-    preco: float
-    score: float = Field(description="Percentual de precisão/match.")
-
 class AnaliseIA(BaseModel):
     raciocinio_step_by_step: str = Field(
         description="PENSE ANTES DE AGIR: Analise a família do item original, compare restrições físicas (dimensões, tipo de serviço) com as opções, e justifique os prós/contras antes de emitir qualquer classificação."
@@ -42,6 +35,9 @@ class AnaliseIA(BaseModel):
     categoria_rigor: Literal["BAIXO", "ALTO"] = Field(
         description="ALTO para itens estruturais/críticos (elétrica, hidráulica). BAIXO para provisórios/comuns."
     )
+    aceito_com_tolerancia: bool = Field(
+        default=False,
+        description="True SOMENTE se não houver equivalente exato e a diferença dimensional for <=15% em atributo NÃO estrutural. Implica status RESSALVA obrigatório. False para rejeição ou aceitação exata."
+    )
     codigo_selecionado: Optional[str] = Field(description="O código do item vencedor. Vazio se nenhuma opção atender.")
     parecer_tecnico: str = Field(description="Explicação detalhada da decisão.")
-    composicoes_analisadas: List[ComposicaoEscolhida] = Field(description="A memória de cálculo mostrando os detalhes técnicos das opções avaliadas.")

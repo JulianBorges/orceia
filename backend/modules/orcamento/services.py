@@ -1,6 +1,7 @@
 import asyncio
 import random
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+from openai import RateLimitError, APITimeoutError, APIConnectionError
 from modules.orcamento.schemas import LinhaOrcamentoUpsert
 from modules.orcamento.search_engine import realizar_busca_hibrida
 from modules.orcamento.ai_agents import consultar_agente_engenheiro
@@ -34,7 +35,8 @@ async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
 @retry(
     wait=wait_exponential(multiplier=1, min=2, max=10),
     stop=stop_after_attempt(3),
-    retry=retry_if_exception_type(Exception),
+    # Retenta APENAS erros de infra recuperaveis. ValueError e ValidationError NAO devem ser retentados.
+    retry=retry_if_exception_type((RateLimitError, APITimeoutError, APIConnectionError, ConnectionError)),
     reraise=True
 )
 async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: str) -> dict:
@@ -48,23 +50,32 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
         return rlhf_result
         
     # 1. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID
-    opcoes_rrf = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id)
+    opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id)
 
     # 2. Verifica no Cache Global Criptográfico (SHA-256) com "Trava de Cache Seguro"
     cache = await get_ai_cache(linha.descricao)
     if cache:
         codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
         if cache.get("codigo_novo") in codigos_validos_rrf or not cache.get("codigo_novo"):
-            cache["origem"] = "CACHE_REDIS"
-            cache["id"] = linha.id # Sobrescreve a ID velha do cache com a ID atual da requisição!
-            return cache
+            # Enriquece o veredito cacheado com memoria_calculo frescos do RRF atual
+            memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")] if cache.get("codigo_novo") else opcoes_rrf
+            return {
+                "id": linha.id,
+                **cache,
+                "memoria_calculo": memoria_fresca,
+                "origem": "CACHE_REDIS",
+            }
         else:
             # O item foi removido do SINAPI ou Pinecone recentemente! Cache invalidado.
             print(f"[CACHE] Invalidação por Segurança! Código {cache.get('codigo_novo')} não está mais no Top 15.")
     
     # 3. Agente de IA toma a decisão baseada no Structured Outputs e Curva ABC
     valor_financeiro_total = linha.quantidade * linha.preco_unitario
-    analise = await consultar_agente_engenheiro(linha.descricao, opcoes_rrf, valor_financeiro_total)
+    # Injeta caracteristicas dimensionais como contexto para o Agente Mapeador avaliar tolerancias
+    termo_com_contexto = linha.descricao
+    if caracteristicas_extras:
+        termo_com_contexto = f"{linha.descricao} [Specs extraidas: {caracteristicas_extras}]"
+    analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf, valor_financeiro_total)
     
     # 4. Observabilidade do CoT e Formatação do resultado final
     print(f"[CoT] Raciocínio (ID {linha.id}): {analise.raciocinio_step_by_step}")
@@ -72,21 +83,32 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     status_ia = "ACEITO"
     if not analise.codigo_selecionado:
         status_ia = "REJEITADO"
+    elif getattr(analise, "aceito_com_tolerancia", False):
+        # Tolerancia dimensional <=15% aceita — sempre RESSALVA para rastreabilidade SINAPI
+        status_ia = "RESSALVA"
     elif analise.categoria_rigor == "ALTO":
+        # Item critico ou Classe A da Curva ABC — sempre RESSALVA para auditoria
         status_ia = "RESSALVA"
 
-    resultado = {
-        "id": linha.id,
+    # Cache armazena APENAS o veredito lógico — preços são perecíveis (SINAPI mensal)
+    resultado_cacheavel = {
         "codigo_novo": analise.codigo_selecionado,
         "status_ia": status_ia,
         "parecer": analise.parecer_tecnico,
         "rigor": analise.categoria_rigor,
-        "memoria_calculo": [op.model_dump() for op in analise.composicoes_analisadas]
+        "aceito_com_tolerancia": getattr(analise, "aceito_com_tolerancia", False),
     }
     
-    # 5. Salva o veredito no Redis para não gastar API nas próximas vezes
-    await set_ai_cache(linha.descricao, resultado)
-    resultado["origem"] = "OPENAI"
+    # 5. Salva APENAS o veredito no Redis (sem memoria_calculo — precos nao sao cacheados)
+    await set_ai_cache(linha.descricao, resultado_cacheavel)
+
+    # Monta resultado completo com memoria_calculo frescos do RRF atual
+    resultado = {
+        "id": linha.id,
+        **resultado_cacheavel,
+        "memoria_calculo": opcoes_rrf,
+        "origem": "OPENAI",
+    }
     
     return resultado
 
