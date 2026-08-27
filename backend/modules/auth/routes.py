@@ -5,10 +5,7 @@ from core.db import get_db_pool
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-async def verify_proxy_secret(x_api_secret: str = Header(...)):
-    if x_api_secret != settings.API_SECRET_KEY:
-        raise HTTPException(status_code=403, detail="Acesso não autorizado")
-    return x_api_secret
+from core.security import verify_proxy_secret, get_current_tenant
 
 
 @router.get("/validate-tenant", dependencies=[Depends(verify_proxy_secret)])

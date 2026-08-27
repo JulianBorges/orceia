@@ -19,8 +19,8 @@
 |--------|--------|-----------|--------|
 | [S6] Sprint 6 — Correções Críticas de Motor | Backend Core | 🔴 Crítico | `[X] Concluído` |
 | [S7] Sprint 7 — Precisão de Engenharia Civil | IA + Schema | 🟡 Alto | `[X] Concluído` |
-| [S8] Sprint 8 — Resiliência de Estado Frontend | Frontend | 🟡 Alto | `[ ] Pendente` |
-| [S9] Sprint 9 — Hardening e Qualidade | Backend + Frontend | 🟠 Médio | `[ ] Pendente` |
+| [S8] Sprint 8 — Resiliência de Estado Frontend | Frontend | 🟡 Alto | `[X] Concluído` |
+| [S9] Sprint 9 — Hardening e Qualidade | Backend + Frontend | 🟠 Médio | `[X] Concluído` |
 
 ---
 
@@ -776,14 +776,14 @@ export function useSseListener(planilhaId: string | null) {
 
 ### S8 — Checklist de Verificacao
 
-- `[ ]` `npm install @microsoft/fetch-event-source` executado
-- `[ ]` `setTableData` faz diff real — editar 1 row nao marca todas as 5.000 como dirty
-- `[ ]` `clearBudget` seta `isDirty: false` e `planilhaId: null`
-- `[ ]` Filtro de `processarOrcamentoIA` nao inclui `PROCESSANDO`
-- `[ ]` `useSseListener.ts` usa `fetchEventSource` com `Last-Event-ID` e AbortController
-- `[ ]` Frontend compila sem erros TypeScript
-- `[ ]` Editar 1 celula em planilha de 100 linhas -> apenas 1 linha vai ao `/save-linhas`
-- `[ ]` Clicar em "Limpar Orcamento" -> nenhuma requisicao ao `/save-linhas`
+- `[x]` `npm install @microsoft/fetch-event-source` executado
+- `[x]` `setTableData` faz diff real — editar 1 row nao marca todas as 5.000 como dirty
+- `[x]` `clearBudget` seta `isDirty: false` e `planilhaId: null`
+- `[x]` Filtro de `processarOrcamentoIA` nao inclui `PROCESSANDO`
+- `[x]` `useSseListener.ts` usa `fetchEventSource` com `Last-Event-ID` e AbortController
+- `[x]` Frontend compila sem erros TypeScript
+- `[x]` Editar 1 celula em planilha de 100 linhas -> apenas 1 linha vai ao `/save-linhas`
+- `[x]` Clicar em "Limpar Orcamento" -> nenhuma requisicao ao `/save-linhas`
 
 ---
 
@@ -904,15 +904,15 @@ openai_client = AsyncOpenAI(
 
 ### S9 — Checklist de Verificacao
 
-- `[ ]` `core/security.py` criado com `verify_proxy_secret` e `get_current_tenant`
-- `[ ]` `auth/routes.py` importa de `core.security` (sem funcoes locais duplicadas)
-- `[ ]` `orcamento/routes.py` importa de `core.security` (sem funcoes locais duplicadas)
-- `[ ]` `main.py` tem guard de `WEB_CONCURRENCY` no lifespan
-- `[ ]` `sinapi_search.py` usa dicionario `TABELAS_VALIDAS`
-- `[ ]` `ai_client.py` tem `timeout=30.0` e `max_retries=0`
-- `[ ]` Servidor inicia normalmente com `WEB_CONCURRENCY=1`
-- `[ ]` Servidor lanca `RuntimeError` com `WEB_CONCURRENCY=2`
-- `[ ]` Todos os endpoints respondem (`/orcamento/health`, `/sinapi/search?q=teste`)
+- `[x]` `core/security.py` criado com `verify_proxy_secret` e `get_current_tenant`
+- `[x]` `auth/routes.py` importa de `core.security` (sem funcoes locais duplicadas)
+- `[x]` `orcamento/routes.py` importa de `core.security` (sem funcoes locais duplicadas)
+- `[x]` `main.py` tem guard de `WEB_CONCURRENCY` no lifespan
+- `[x]` `sinapi_search.py` usa dicionario `TABELAS_VALIDAS`
+- `[x]` `ai_client.py` tem `timeout=30.0` e `max_retries=0`
+- `[x]` Servidor inicia normalmente com `WEB_CONCURRENCY=1`
+- `[x]` Servidor lanca `RuntimeError` com `WEB_CONCURRENCY=2`
+- `[x]` Todos os endpoints respondem (`/orcamento/health`, `/sinapi/search?q=teste`)
 
 ---
 

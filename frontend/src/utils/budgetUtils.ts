@@ -4,10 +4,12 @@ export type AIStatus =
   | 'RESSALVA'
   | 'PENDENTE'
   | 'PROCESSANDO'
+  | 'PROCESSADO'
   | 'SUBSTITUIDO'
   | 'MEMÓRIA HUMANA'
   | 'CACHE_REDIS'
-  | 'ERRO DE PROCESSAMENTO';
+  | 'ERRO DE PROCESSAMENTO'
+  | 'REJEITADO_FILTRO_MATEMATICO';
 
 export type BudgetItem = {
   id: string;

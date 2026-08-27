@@ -16,7 +16,13 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     Returns:
         Lista de dicts com campos: codigo, descricao, preco, unidade, score_lexico.
     """
-    tabela = "sinapi_composicoes" if tipo == "composicoes" else "sinapi_insumos"
+    TABELAS_VALIDAS: dict[str, str] = {
+        "composicoes": "sinapi_composicoes",
+        "insumos": "sinapi_insumos",
+    }
+    tabela = TABELAS_VALIDAS.get(tipo)
+    if tabela is None:
+        raise ValueError(f"Tipo de busca SINAPI invalido: '{tipo}'. Aceitos: {list(TABELAS_VALIDAS.keys())}")
 
     # word_similarity é a função do pg_trgm. Quanto mais perto de 1.0, mais parecido.
     query = f"""

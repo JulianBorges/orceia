@@ -6,6 +6,10 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 
 ---
 
+> **Atualização de Status (Hardening Concluído):** A "Fase de Estabilização" (Sprints 6 a 9 do Refactor Plan) foi 100% concluída com sucesso. O motor e o frontend atingiram estabilidade e segurança máximas. O caminho está livre e blindado para prosseguirmos com a **Sprint 4.2 (Curva ABC)** e **Sprint 5 (AuditorIA)**.
+
+---
+
 ## 🏗️ SPRINT 1: Fundação Limpa e Cherry-Picking de UX (Prioridade Zero)
 *Objetivo: Criar um ambiente isolado, conectar aos bancos maduros da V2 e portar estritamente o código visual validado.*
 

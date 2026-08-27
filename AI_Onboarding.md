@@ -80,9 +80,12 @@ orceia_v3/
 │   ├── core/
 │   │   ├── config.py           ← Settings via pydantic-settings
 │   │   ├── db.py               ← Pool asyncpg (statement_cache_size=0)
+│   │   ├── security.py         ← Dependências centrais de segurança (DRY)
+│   │   ├── ai_client.py        ← Singleton OpenAI c/ Timeout global (30.0s)
 │   │   └── redis_client.py     ← Cliente Redis (streams + cache)
 │   └── modules/
 │       ├── orcamento/          ← Motor SINAPI: RRF, OpenAI, SSE (NÚCLEO — não mexa)
+│       │   ├── preprocessor.py ← Agente Corretor (normaliza termos pré-Pinecone)
 │       │   ├── routes.py       ← Endpoints: /upsert-linhas, /save-linhas, /stream
 │       │   ├── services.py     ← Orquestração: chunks, semáforo, SSE
 │       │   ├── search_engine.py← Algoritmo RRF (Pinecone + Supabase)
@@ -106,10 +109,10 @@ orceia_v3/
         │   ├── CompositionDetailsModal.tsx
         │   └── CompositionCreatorModal.tsx
         ├── store/
-        │   └── useBudgetStore.ts       ← Zustand: mutações O(1), dirtyRowIds
+        │   └── useBudgetStore.ts       ← Zustand: mutações O(1), diff cirúrgico
         └── hooks/
             ├── useAutoSave.ts          ← Debounce + /save-linhas (nunca /upsert-linhas)
-            └── useSseListener.ts       ← Consome SSE do backend via EventSource
+            └── useSseListener.ts       ← Consome SSE via fetch-event-source (Last-Event-ID)
 ```
 
 ---

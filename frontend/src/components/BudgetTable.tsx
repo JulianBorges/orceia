@@ -127,7 +127,7 @@ export function BudgetTable({
             return (
                 <div 
                     className={`flex items-center w-full h-full truncate ${isMacro ? 'text-zinc-900 dark:text-zinc-100 font-bold cursor-pointer hover:text-indigo-600 pl-3' : 'text-zinc-700 dark:text-zinc-300 font-semibold pl-[1.6rem]'}`}
-                    onClick={isMacro ? () => toggle(info.row.original.id) : undefined}
+                    onClick={isMacro ? () => toggle?.(info.row.original.id) : undefined}
                 >
                     {isMacro && (
                         <span className="mr-1 text-zinc-400">
@@ -142,7 +142,7 @@ export function BudgetTable({
     columnHelper.accessor("codigo", { 
         header: "Código", 
         size: 100,
-        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CodigoCell initialValue={info.getValue()} item={info.row.original} onOpenDetails={info.table.options.meta?.handleOpenDetails} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'codigo', v)} />
+        cell: info => info.row.original.is_macro_item ? <div className="text-center"></div> : <CodigoCell initialValue={info.getValue()} item={info.row.original} onOpenDetails={(item) => info.table.options.meta?.handleOpenDetails(item)} onUpdate={(v:any) => info.table.options.meta?.handleUpdateData(info.row.original.id, 'codigo', v)} />
     }),
     columnHelper.accessor("base", { 
         header: "Base", 

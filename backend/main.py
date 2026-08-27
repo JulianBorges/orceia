@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+import os
 from contextlib import asynccontextmanager
 
 from core.config import settings
@@ -11,6 +12,13 @@ from modules.auth import routes as auth_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Guard de deploy: semaforo asyncio nao e distribuido entre processos
+    workers = int(os.environ.get("WEB_CONCURRENCY", 1))
+    if workers > 1:
+        raise RuntimeError(
+            f"OrceIA detectou WEB_CONCURRENCY={workers}. "
+            "Use WEB_CONCURRENCY=1 e escale via replicas de container (Cloud Run)."
+        )
     # Setup antes de receber requisições
     await init_db_pool()
     await init_redis()

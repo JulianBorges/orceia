@@ -105,3 +105,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 9 | Storage Bloat Supabase | CoT persistido no banco | Extrair `raciocinio_step_by_step` antes do DTO |
 | 10 | "Processando" infinito | Cache zumbi da V2 no Redis | Flush total do Redis ao mudar schema de status |
 | 11 | Erro 500 asyncpg UUID | Coluna `id` como UUID | Sempre `VARCHAR(255)` |
+| 12 | Estado Sujo O(n) | `setTableData` marcava todas as rows sujas | Usar Diff Cirúrgico via Map O(1) no Zustand |
+| 13 | SSE trava em queda de rede | `EventSource` nativo não suporta header | Usar SEMPRE `@microsoft/fetch-event-source` com `Last-Event-ID` |
+| 14 | Duplicação de Autenticação | `verify_proxy_secret` repetido por módulo | Importar SEMPRE de `core.security` (Filosofia DRY) |
+| 15 | Injeção SQL Dinâmica | Tabela injetada via f-string | Usar dicionários de Allowlist (ex: `TABELAS_VALIDAS`) |

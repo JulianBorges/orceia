@@ -1,7 +1,14 @@
+# backend/core/ai_client.py
+"""
+Singleton do cliente OpenAI assincrono.
+- timeout=30.0: Previne requests travados em falhas de rede.
+- max_retries=0: Tenacity em services.py controla o retry com backoff configurado.
+"""
 from openai import AsyncOpenAI
 from core.config import settings
 
-# Singleton: um único pool de conexões HTTP para toda a aplicação.
-# Todos os módulos que precisam da OpenAI devem importar este cliente,
-# evitando múltiplos pools de conexão desperdiçados.
-openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+openai_client = AsyncOpenAI(
+    api_key=settings.OPENAI_API_KEY,
+    timeout=30.0,
+    max_retries=0,
+)

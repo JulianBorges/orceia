@@ -72,10 +72,17 @@ export const useBudgetStore = create<BudgetState>()(
 
       setTableData: (data) => set((state) => {
         const newData = typeof data === 'function' ? data(state.tableData) : data;
+        // Diff cirurgico: mapeia rows antigas por ID para comparacao O(1)
+        const oldMap = new Map(state.tableData.map(r => [r.id, r]));
+        // Identifica apenas as rows que MUDARAM (novas ou modificadas)
+        const changedIds = newData
+          .filter(r => !oldMap.has(r.id) || oldMap.get(r.id) !== r)
+          .map(r => r.id);
+        const newDirty = Array.from(new Set([...state.dirtyRowIds, ...changedIds]));
         return {
           tableData: newData,
-          dirtyRowIds: newData.map(r => r.id),
-          isDirty: true
+          dirtyRowIds: newDirty,
+          isDirty: newDirty.length > 0,
         };
       }),
 
@@ -239,7 +246,14 @@ export const useBudgetStore = create<BudgetState>()(
         return { tableData: recalculatedData, dirtyRowIds: newDirty, isDirty: newDirty.length > 0 };
       }),
 
-      clearBudget: () => set({ tableData: [], title: 'Orçamento Base', bdi: 25.0, dirtyRowIds: [], isDirty: true }),
+      clearBudget: () => set({
+        tableData: [],
+        title: 'Orçamento Base',
+        bdi: 25.0,
+        dirtyRowIds: [],
+        isDirty: false,    // Nao ha nada para salvar — nao aciona o auto-save
+        planilhaId: null,  // Remove o ID para evitar erro de FK em planilha inexistente
+      }),
 
       memorizeHumanFeedback: async (termoOriginal: string, codigoEscolhido: string, parecer: string) => {
         try {
@@ -266,7 +280,13 @@ export const useBudgetStore = create<BudgetState>()(
 
         // Extrai apenas os itens folha (não-macro) que têm descrição para a IA orçar e que ainda não foram processados
         const linhasParaProcessar = tableData
-          .filter(row => !row.is_macro_item && row.descricao && row.descricao.trim() !== '' && (!row.ai_status || row.ai_status === 'PENDENTE' || row.ai_status === 'PROCESSANDO'))
+          .filter(row =>
+            !row.is_macro_item &&
+            row.descricao &&
+            row.descricao.trim() !== '' &&
+            // Nao reenvia itens em voo — prevencao de processamento duplo
+            (!row.ai_status || row.ai_status === 'PENDENTE')
+          )
           .map(row => ({
             id: row.id,
             id_planilha: planilhaId,

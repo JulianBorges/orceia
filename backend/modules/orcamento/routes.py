@@ -15,15 +15,7 @@ import json
 
 router = APIRouter(prefix="/orcamento", tags=["orcamento"])
 
-async def verify_proxy_secret(x_api_secret: str = Header(...)):
-    if x_api_secret != settings.API_SECRET_KEY:
-        raise HTTPException(status_code=403, detail="Acesso não autorizado")
-    return x_api_secret
-
-async def get_current_tenant(x_tenant_id: str = Header(None)):
-    if not x_tenant_id:
-        raise HTTPException(status_code=401, detail="Sessão Expirada ou Tenant Não Encontrado")
-    return x_tenant_id
+from core.security import verify_proxy_secret, get_current_tenant
 
 @router.post("/feedback", dependencies=[Depends(verify_proxy_secret)])
 async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(get_current_tenant)):
