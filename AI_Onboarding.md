@@ -124,3 +124,9 @@ orceia_v3/
 - **DÃºvida de construÃ§Ã£o do zero?** â†’ Consulte `Manual_OrceIA.md` (blueprint completo).
 - **AuditorIA (PDFs)?** â†’ Consulte `Plano_AuditorIA.md`.
 - **Regra de cÃ³digo especÃ­fica?** â†’ Os `GEMINI.md` e `.agents/rules/` sÃ£o a fonte de verdade ativa.
+
+### Atualizações Arquiteturais Recentes (Auditoria Motor IA)
+1. **Pinecone**: Utiliza Lazy Initialization para não derrubar instâncias serverless no boot.
+2. **Concorrência**: Semáforo assíncrono limitado a 3 por worker para evitar Rate Limit 429 da OpenAI durante auto-scaling.
+3. **Curva ABC**: Totalmente desconectada do LLM. O cálculo da Curva ABC deve ser feito matematicamente no backend ou frontend no momento da exportação do relatório.
+4. **UX do SSE**: O Redis entrega pacotes de 2 em 2 (não mais 10 em 10) para uma UI fluida.

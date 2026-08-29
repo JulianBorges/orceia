@@ -80,7 +80,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 ## 4. Motor RRF — Algoritmo Congelado
 
 ```python
-# 1. Busca paralela (asyncio.gather): Trigramas (Supabase) + Embeddings (Pinecone)
+# 1. Busca paralela (asyncio.gather): Trigramas (pg_trgm > 0.25 estrito) + Embeddings (Pinecone Lazy Load)
 # 2. RRF fusion: score = 1 / (k + rank + 1)
 # 3. Boost de consenso: +20% se ID aparece em ambas as listas
 # 4. Top 10 → gpt-4o-mini via beta.chat.completions.parse (schema Pydantic estrito)
@@ -109,3 +109,5 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 13 | SSE trava em queda de rede | `EventSource` nativo não suporta header | Usar SEMPRE `@microsoft/fetch-event-source` com `Last-Event-ID` |
 | 14 | Duplicação de Autenticação | `verify_proxy_secret` repetido por módulo | Importar SEMPRE de `core.security` (Filosofia DRY) |
 | 15 | Injeção SQL Dinâmica | Tabela injetada via f-string | Usar dicionários de Allowlist (ex: `TABELAS_VALIDAS`) |
+| 16 | Rate Limit da OpenAI (429) | Cloud Run escalando semáforo local de 10 | Semáforo global (`services.py`) fixado em 3 |
+| 17 | Alucinação Matemática (Falsa Curva ABC) | IA julgando valores absolutos sem contexto da planilha | Regra ABC banida da IA. Rigor é puramente Técnico/Engenharia. ABC determinístico movido para Exportação XLSX. |

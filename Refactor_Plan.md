@@ -945,3 +945,14 @@ openai_client = AsyncOpenAI(
 - **Roadmap de produto (Sprints 1-5):** `Master_Plan.md`
 - **Plano de refatoracao (Sprints 6-9):** `Refactor_Plan.md` <- **este arquivo**
 - **Spec da Sprint 5 (PDFs):** `Plano_AuditorIA.md`
+
+
+## Sprint de Auditoria (Agosto/2026) - CONCLUÍDA
+- [x] Correção de lixo léxico no pg_trgm (threshold 0.25)
+- [x] Lazy Loading no Pinecone para estabilidade do Cloud Run
+- [x] Otimização SSE no Redis (xread count=2 para UX fluida)
+- [x] Blindagem do Cache RLHF com utilitário unicode de normalização
+- [x] Remoção da Lógica da Curva ABC do Agente IA (transferida para regra determinística futura)
+
+## Sprint Futura: Exportação e Finanças
+- [ ] Desenvolver serviço determinístico (XLSX) para cálculo da Curva ABC pós-processamento.
