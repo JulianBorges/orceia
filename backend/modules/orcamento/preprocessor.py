@@ -25,10 +25,25 @@ class TermoNormalizado(BaseModel):
     """Especificacoes dimensionais/numericas extraidas — contexto para o Agente Mapeador."""
 
 
-# Padrao: numeros seguidos (ou nao) por unidades de engenharia
+# Padrao revisado: captura dimensões sem espaço, dimensões cruzadas e unidades coladas.
+# Protege ângulos como "45" ou "90" se seguidos por "graus" ou se não tiverem unidade de medida.
 _PADRAO_DIMENSIONAL = re.compile(
-    r'\b\d+[\.,]?\d*\s*(mm|cm|dm|m2|m3|m|kg|kn|kpa|mpa|fck|kgf|psi|mca|kva|kw|kwh|hp|l|lt)\b'
-    r'|(?<!tipo\s)(?<!fase\s)(?<!vez\s)(?<!/)\b\d+[\.,]?\d*\b(?!\s*(vez|tipo|fase|/))',
+    # Dimensões cruzadas: 75x50mm, 50X40MM, 100 x 100 x 50
+    r'\b\d+[.,]?\d*\s*[xX×]\s*\d+[.,]?\d*(?:\s*[xX×]\s*\d+[.,]?\d*)?\s*'
+    r'(?:mm2?|cm|m2|m3|m\b|kg|kn|kpa|mpa|awg|bwg)?\b'
+    # Unidade colada ao número sem espaço: 35MM2, 6MM2, 110MM, 8AWG
+    r'|\b\d+[.,]?\d*(?:mm2?|cm2?|dm|m2|m3|kg|kn|kpa|mpa|fck|kgf|psi|mca|kva|kw|kwh|hp|awg|bwg)\b'
+    # Unidade com espaço: 35 MM, 6 MM², 50 cm
+    r'|\b\d+[.,]?\d*\s+(?:mm|cm|dm|m2|m3|m|kg|kn|kpa|mpa|fck|kgf|psi|mca|kva|kw|kwh|hp|l|lt)\b'
+    # Números isolados (com proteções de contexto para ângulos e multiplicadores)
+    r'|(?<!tipo\s)(?<!fase\s)(?<!vez\s)(?<!/)(?<!\d[xX])\b\d+[.,]?\d*\b(?!\s*(?:vez|tipo|fase|graus?|/))',
+    re.IGNORECASE
+)
+
+
+# Siglas de referência/escala técnica que NÃO são dimensões mas poluem o embedding se mantidas
+_SIGLAS_REFERENCIA = re.compile(
+    r'\b(?:AWG|BWG|AF_\d{2}/\d{4}|NM\b|ISO\b)\b',
     re.IGNORECASE
 )
 
@@ -50,8 +65,10 @@ def normalizar_termo_busca(descricao: str) -> TermoNormalizado:
 
     raw_specs = _PADRAO_DIMENSIONAL.findall(descricao)
 
-    # Remove as especificacoes do nucleo
+    # Remove as especificacoes dimensionais do nucleo
     termo_limpo = _PADRAO_DIMENSIONAL.sub(' ', descricao)
+    # Remove siglas de referência técnica que degradam o embedding
+    termo_limpo = _SIGLAS_REFERENCIA.sub(' ', termo_limpo)
     # Limpa espacos duplos resultantes da remocao
     termo_limpo = ' '.join(termo_limpo.split()).strip()
 

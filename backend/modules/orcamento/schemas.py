@@ -33,11 +33,29 @@ class AnaliseIA(BaseModel):
         description="PENSE ANTES DE AGIR: Analise a família do item original, compare restrições físicas (dimensões, tipo de serviço) com as opções, e justifique os prós/contras antes de emitir qualquer classificação."
     )
     categoria_rigor: Literal["BAIXO", "ALTO"] = Field(
-        description="ALTO para itens estruturais/críticos (elétrica, hidráulica). BAIXO para provisórios/comuns."
+        description=(
+            "Classifique o risco técnico de uma especificação incorreta deste item. "
+            "ALTO: o erro compromete segurança humana ou integridade estrutural. "
+            "Exemplos ALTO: concreto estrutural (fck/resistência), aço de armadura, "
+            "impermeabilização de fundações, sistemas de combate a incêndio, "
+            "instalações elétricas de média/alta tensão, estruturas portantes de madeira ou aço. "
+            "BAIXO: todo o restante, incluindo tubulações hidráulicas prediais convencionais "
+            "(água fria, esgoto, pluvial), eletrodutos de baixa tensão, instalações elétricas "
+            "residenciais/comerciais comuns (tomadas, iluminação, interruptores), "
+            "revestimentos, pinturas, terraplanagem, serviços provisórios, "
+            "esquadrias e divisórias. Na dúvida: classifique como BAIXO."
+        )
     )
     aceito_com_tolerancia: bool = Field(
         default=False,
-        description="True SOMENTE se não houver equivalente exato e a diferença dimensional for <=15% em atributo NÃO estrutural. Implica status RESSALVA obrigatório. False para rejeição ou aceitação exata."
+        description=(
+            "True APENAS quando TODAS estas condições forem verdadeiras: "
+            "(1) não existe nenhuma opção com especificações exatas do item original na lista apresentada; "
+            "(2) a composição aceita difere SOMENTE em atributos NÃO estruturais; "
+            "(3) a diferença dimensional é de no máximo 15%. "
+            "Se existir equivalente exato em qualquer posição da lista, marque False e selecione o exato. "
+            "Para diferença >15% ou atributo estrutural (fck, seção de aço): retorne codigo_selecionado=null."
+        )
     )
     codigo_selecionado: Optional[str] = Field(description="O código do item vencedor. Vazio se nenhuma opção atender.")
     parecer_tecnico: str = Field(description="Explicação detalhada da decisão.")

@@ -26,22 +26,33 @@ async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes"
     )
     vetor = response.data[0].embedding
     
-    # 2. Define o namespace dinâmico por Tenant SaaS (Ex: "construtoraX_composicoes")
+    # 2. Define os namespaces
     sufixo = "composicoes_sinapi" if tipo == "composicoes" else "insumos_sinapi"
-    namespace = f"{tenant_id}_{sufixo}"
+    namespace_tenant = f"{tenant_id}_{sufixo}"
+    namespace_global = sufixo  # O namespace base compartilhado
     
     # 3. Consulta ao Pinecone (encapsulada numa thread para não bloquear o AsyncIO do FastAPI)
     def query_pinecone():
         try:
             idx = get_pinecone_index()
-            return idx.query(
+            # Tenta primeiro os embeddings customizados do tenant
+            result = idx.query(
                 vector=vetor,
-                top_k=15,
+                top_k=20,
                 include_metadata=True,
-                namespace=namespace
+                namespace=namespace_tenant
             )
+            # Fallback para base SINAPI global
+            if not result.matches:
+                result = idx.query(
+                    vector=vetor,
+                    top_k=20,
+                    include_metadata=True,
+                    namespace=namespace_global
+                )
+            return result
         except Exception:
-            # Fallback seguro caso o namespace ainda não exista para um tenant novo
+            # Fallback seguro caso dê falha de conexão ou api key
             from collections import namedtuple
             return namedtuple('MockResult', ['matches'])([])
             
