@@ -2,6 +2,7 @@ import hashlib
 import json
 import redis.asyncio as redis
 from core.config import settings
+from core.text_utils import normalizar_chave
 
 # Conexão global
 redis_client = None
@@ -37,7 +38,7 @@ async def get_ai_cache(texto_busca: str) -> dict | None:
     if redis_client is None: 
         return None
         
-    chave_hash = hashlib.sha256(texto_busca.strip().lower().encode()).hexdigest()
+    chave_hash = hashlib.sha256(normalizar_chave(texto_busca).encode()).hexdigest()
     resultado = await redis_client.get(f"cache_ia:{chave_hash}")
     return json.loads(resultado) if resultado else None
 
@@ -46,7 +47,7 @@ async def set_ai_cache(texto_busca: str, payload: dict):
     if redis_client is None: 
         return
         
-    chave_hash = hashlib.sha256(texto_busca.strip().lower().encode()).hexdigest()
+    chave_hash = hashlib.sha256(normalizar_chave(texto_busca).encode()).hexdigest()
     # TTL de 15 dias (15 * 24 * 60 * 60 = 1296000 segundos)
     await redis_client.setex(f"cache_ia:{chave_hash}", 1296000, json.dumps(payload))
 
@@ -60,6 +61,6 @@ async def delete_ai_cache(texto_busca: str) -> bool:
     """
     if redis_client is None:
         return False
-    chave_hash = hashlib.sha256(texto_busca.strip().lower().encode()).hexdigest()
+    chave_hash = hashlib.sha256(normalizar_chave(texto_busca).encode()).hexdigest()
     deleted = await redis_client.delete(f"cache_ia:{chave_hash}")
     return deleted > 0

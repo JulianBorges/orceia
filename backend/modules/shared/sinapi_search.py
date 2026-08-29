@@ -1,3 +1,4 @@
+import asyncio
 from core.db import get_db_pool
 
 
@@ -28,13 +29,16 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     query = f"""
         SELECT codigo, descricao, preco, unidade, word_similarity(descricao, $1) as score_lexico
         FROM {tabela}
-        WHERE word_similarity(descricao, $1) > 0.1
+        WHERE word_similarity(descricao, $1) > 0.25
         ORDER BY score_lexico DESC
         LIMIT 15;
     """
 
     pool = get_db_pool()
-    async with pool.acquire() as conn:
-        records = await conn.fetch(query, termo)
-
-    return [dict(r) for r in records]
+    try:
+        async with pool.acquire() as conn:
+            records = await asyncio.wait_for(conn.fetch(query, termo), timeout=3.0)
+        return [dict(r) for r in records]
+    except (asyncio.TimeoutError, Exception) as e:
+        print(f"[RRF] Timeout ou erro na busca léxica (PostgreSQL) para '{termo}': {e}")
+        return []

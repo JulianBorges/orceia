@@ -7,6 +7,7 @@ from modules.orcamento.search_engine import realizar_busca_hibrida
 from modules.orcamento.ai_agents import consultar_agente_engenheiro
 from core.redis_client import publish_sse_event, get_ai_cache, set_ai_cache
 from core.db import get_db_pool
+from core.text_utils import normalizar_chave
 
 # ATENÇÃO: Este semáforo é por-processo (Python in-memory).
 # O servidor DEVE rodar com 1 worker apenas (uvicorn --workers 1).
@@ -19,7 +20,7 @@ async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
     query = "SELECT codigo_escolhido, parecer FROM memoria_organizacional WHERE tenant_id = $1 AND termo_original = $2 LIMIT 1"
     pool = get_db_pool()
     async with pool.acquire() as conn:
-        record = await asyncio.wait_for(conn.fetchrow(query, tenant_id, termo.strip().lower()), timeout=5.0)
+        record = await asyncio.wait_for(conn.fetchrow(query, tenant_id, normalizar_chave(termo)), timeout=5.0)
         
     if record:
         return {
@@ -58,7 +59,15 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
         codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
         if cache.get("codigo_novo") in codigos_validos_rrf or not cache.get("codigo_novo"):
             # Enriquece o veredito cacheado com memoria_calculo frescos do RRF atual
-            memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")] if cache.get("codigo_novo") else opcoes_rrf
+            if cache.get("codigo_novo"):
+                memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")]
+                if not memoria_fresca:
+                    memoria_fresca = opcoes_rrf
+                    parecer_original = cache.get("parecer", "")
+                    cache["parecer"] = f"[AVISO DE CACHE: O código validado saiu do Top 15 da busca atual] {parecer_original}"
+            else:
+                memoria_fresca = opcoes_rrf
+                
             return {
                 "id": linha.id,
                 **cache,
@@ -70,12 +79,12 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
             print(f"[CACHE] Invalidação por Segurança! Código {cache.get('codigo_novo')} não está mais no Top 15.")
     
     # 3. Agente de IA toma a decisão baseada no Structured Outputs e Curva ABC
-    valor_financeiro_total = linha.quantidade * linha.preco_unitario
+    # valor_financeiro_total removido: lógica ABC delegada para pós-processamento determinístico
     # Injeta caracteristicas dimensionais como contexto para o Agente Mapeador avaliar tolerancias
     termo_com_contexto = linha.descricao
     if caracteristicas_extras:
         termo_com_contexto = f"{linha.descricao} [Specs extraidas: {caracteristicas_extras}]"
-    analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf, valor_financeiro_total)
+    analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf)
     
     # 4. Observabilidade do CoT e Formatação do resultado final
     print(f"[CoT] Raciocínio (ID {linha.id}): {analise.raciocinio_step_by_step}")

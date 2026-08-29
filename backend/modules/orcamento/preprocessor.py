@@ -27,8 +27,8 @@ class TermoNormalizado(BaseModel):
 
 # Padrao: numeros seguidos (ou nao) por unidades de engenharia
 _PADRAO_DIMENSIONAL = re.compile(
-    r'\b\d+[\.,]?\d*\s*'
-    r'(mm|cm|dm|m2|m3|m|kg|kn|kpa|mpa|fck|kgf|psi|mca|kva|kw|kwh|hp|l|lt)?\b',
+    r'\b\d+[\.,]?\d*\s*(mm|cm|dm|m2|m3|m|kg|kn|kpa|mpa|fck|kgf|psi|mca|kva|kw|kwh|hp|l|lt)\b'
+    r'|(?<!tipo\s)(?<!fase\s)(?<!vez\s)(?<!/)\b\d+[\.,]?\d*\b(?!\s*(vez|tipo|fase|/))',
     re.IGNORECASE
 )
 

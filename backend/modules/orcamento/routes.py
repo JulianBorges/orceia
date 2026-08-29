@@ -10,6 +10,7 @@ from modules.orcamento.services import (
 from core.db import get_db_pool
 import core.redis_client as rc
 from core.redis_client import delete_ai_cache
+from core.text_utils import normalizar_chave
 import asyncio
 import json
 
@@ -31,7 +32,7 @@ async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(ge
     try:
         pool = get_db_pool()
         async with pool.acquire() as conn:
-            await conn.execute(query, feedback.tenant_id, feedback.termo_original.strip().lower(), feedback.codigo_escolhido, feedback.parecer)
+            await conn.execute(query, feedback.tenant_id, normalizar_chave(feedback.termo_original), feedback.codigo_escolhido, feedback.parecer)
         # Invalida o cache Redis para o termo corrigido pelo humano
         await delete_ai_cache(feedback.termo_original)
         print(f"[RLHF] Cache invalidado para: '{feedback.termo_original[:50]}'")

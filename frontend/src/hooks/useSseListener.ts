@@ -34,6 +34,8 @@ export function useSseListener(planilhaId: string | null) {
           lastEventIdRef.current = event.id;
         }
 
+        if (!event.data) return; // Guard clause para ignorar pings ou pacotes vazios
+
         try {
           const payload = JSON.parse(event.data);
 
