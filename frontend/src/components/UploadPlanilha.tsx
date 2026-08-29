@@ -77,6 +77,7 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
                     id: crypto.randomUUID(),
                     item: item,
                     descricao: desc,
+                    descricao_legada: desc,
                     und: und,
                     quant: quant,
                     valorUnit: valor,

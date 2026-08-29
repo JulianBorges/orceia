@@ -97,6 +97,11 @@ export const useBudgetStore = create<BudgetState>()(
         const newData = state.tableData.map((row, index) => {
           if (index === rowIndex) {
             const newRow = { ...row, [columnId]: value };
+            if (columnId === 'descricao' && value !== row.descricao) {
+                if (!row.descricao_legada) {
+                    newRow.descricao_legada = row.descricao;
+                }
+            }
             if (columnId === 'quant' || columnId === 'valorUnit') {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
             }
@@ -116,6 +121,11 @@ export const useBudgetStore = create<BudgetState>()(
         const newData = state.tableData.map((row, index) => {
           if (index === rowIndex) {
             const newRow = { ...row, ...newRowData };
+            if ('descricao' in newRowData && newRowData.descricao !== row.descricao) {
+                if (!row.descricao_legada && !newRowData.descricao_legada) {
+                    newRow.descricao_legada = row.descricao;
+                }
+            }
             if ('quant' in newRowData || 'valorUnit' in newRowData) {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
             }
@@ -141,6 +151,11 @@ export const useBudgetStore = create<BudgetState>()(
           if (row.id === id) {
             wasModified = true;
             const newRow = { ...row, ...newRowData };
+            if ('descricao' in newRowData && newRowData.descricao !== row.descricao) {
+                if (!row.descricao_legada && !newRowData.descricao_legada) {
+                    newRow.descricao_legada = row.descricao;
+                }
+            }
             if ('quant' in newRowData || 'valorUnit' in newRowData) {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
             }
@@ -206,12 +221,13 @@ export const useBudgetStore = create<BudgetState>()(
       }),
 
       addRow: (index, newRow) => set((state) => {
+        const rowToAdd = { ...newRow, descricao_legada: newRow.descricao || '' };
         const newData = [...state.tableData];
-        newData.splice(index, 0, newRow);
+        newData.splice(index, 0, rowToAdd);
         const recalculatedData = recalculateNumbers(newData);
         
         const newlyModifiedIds = recalculatedData
-            .filter((row, idx) => row !== state.tableData[idx] || row.id === newRow.id)
+            .filter((row, idx) => row !== state.tableData[idx] || row.id === rowToAdd.id)
             .map(row => row.id);
             
         const newDirty = Array.from(new Set([...state.dirtyRowIds, ...newlyModifiedIds]));

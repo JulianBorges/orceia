@@ -61,12 +61,13 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Criar tabela de `memoria_organizacional`. Quando o usuário alterar o insumo escolhido pela IA manualmente no Drawer e salvar, o sistema memorizará a preferência.
   - [x] Nos próximos orçamentos da mesma empresa, o sistema contornará a OpenAI e preencherá o item idêntico a custo zero de API.
 
-- [ ] **4.2 Foco na Curva ABC Preditiva:**
-  - [ ] O Backend deve calcular a Curva ABC *antes* da IA terminar. Agentes revisarão com tokens extras os "Itens Classe A" (os 20% que custam 80% da obra), gerando alertas de risco vermelhos no Dashboard.
-
-- [x] **4.3 Multi-Tenancy (Preparação SaaS):**
+- [x] **4.2 Multi-Tenancy (Preparação SaaS):**
   - [x] Implementação de Login Passwordless com segurança via Cookies HTTP-Only, Middleware e Headers `X-Tenant-ID`.
   - [x] Isolamento perimetral do tráfego SSE via Redis Streams (`stream:{tenant_id}:planilha:{id_planilha}`) e injeção de dependência estrita (`Depends(get_current_tenant)`) no FastAPI.
+
+- [ ] **4.3 Gestão de Orçamentos Salvos (CRUD UI / Dívida Técnica):**
+  - [ ] Aproveitar a persistência de planilhas e linhas (já funcional no backend via Auto-Save) para construir as rotas `GET /planilhas` e uma interface visual (Modal "Meus Orçamentos").
+  - [ ] Permitir listar, recuperar histórico e alternar entre orçamentos salvos do Tenant, removendo a dependência atual do LocalStorage do navegador.
 
 ---
 

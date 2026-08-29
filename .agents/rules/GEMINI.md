@@ -90,7 +90,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 
 ---
 
-## 5. Post-Mortem — 11 Bugs Conhecidos (Não Repita)
+## 5. Post-Mortem — 18 Bugs Conhecidos (Não Repita)
 
 | # | Bug | Causa-Raiz | Solução Definitiva |
 |---|-----|------------|---------------------|
@@ -111,3 +111,4 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 15 | Injeção SQL Dinâmica | Tabela injetada via f-string | Usar dicionários de Allowlist (ex: `TABELAS_VALIDAS`) |
 | 16 | Rate Limit da OpenAI (429) | Cloud Run escalando semáforo local de 10 | Semáforo global (`services.py`) fixado em 3 |
 | 17 | Alucinação Matemática (Falsa Curva ABC) | IA julgando valores absolutos sem contexto da planilha | Regra ABC banida da IA. Rigor é puramente Técnico/Engenharia. ABC determinístico movido para Exportação XLSX. |
+| 18 | Memória de Cálculo exibe texto alterado pela IA | `descricao_legada` não inicializada no upload ou sobrescrita no SSE | Injetar `descricao_legada` no upload e blindar a mutação no Zustand (`updateRowById`). |
