@@ -12,7 +12,7 @@ from core.text_utils import normalizar_chave
 # ATENÇÃO: Este semáforo é por-processo (Python in-memory).
 # O servidor DEVE rodar com 1 worker apenas (uvicorn --workers 1).
 # Para múltiplos workers, migrar para semáforo distribuído via Redis.
-MAX_CONCURRENT_TASKS = 10
+MAX_CONCURRENT_TASKS = 3  # Reduzido de 10 para 3 para proteger Rate Limit em auto-scaling (Cloud Run)
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
 async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:

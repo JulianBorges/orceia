@@ -6,8 +6,15 @@ from pinecone import Pinecone
 from core.config import settings
 from modules.shared.sinapi_search import search_sinapi_por_trigrama as _postgres_search
 
-pc = Pinecone(api_key=settings.PINECONE_API_KEY)
-index = pc.Index(settings.PINECONE_INDEX_NAME)
+_pc = None
+_index = None
+
+def get_pinecone_index():
+    global _pc, _index
+    if _index is None:
+        _pc = Pinecone(api_key=settings.PINECONE_API_KEY)
+        _index = _pc.Index(settings.PINECONE_INDEX_NAME)
+    return _index
 
 
 async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes") -> list[dict]:
@@ -26,7 +33,8 @@ async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes"
     # 3. Consulta ao Pinecone (encapsulada numa thread para não bloquear o AsyncIO do FastAPI)
     def query_pinecone():
         try:
-            return index.query(
+            idx = get_pinecone_index()
+            return idx.query(
                 vector=vetor,
                 top_k=15,
                 include_metadata=True,

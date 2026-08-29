@@ -106,7 +106,7 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
                 if rc.redis_client is None:
                     break
 
-                streams = await rc.redis_client.xread({stream_key: last_id}, block=5000, count=10)
+                streams = await rc.redis_client.xread({stream_key: last_id}, block=2000, count=2)
 
                 if streams:
                     idle_count = 0
