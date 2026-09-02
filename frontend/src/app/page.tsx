@@ -96,7 +96,7 @@ export default function Home() {
                      <UploadPlanilha />
                  ) : (
                      isProcessing ? (
-                         <div className="flex flex-col justify-center gap-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 px-6 py-3 rounded-xl shadow-sm w-full md:w-[450px] min-h-[64px]">
+                         <div className="flex flex-col justify-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 px-5 py-2.5 rounded-xl shadow-sm w-full md:w-[450px]">
                              <div className="flex items-center justify-between text-zinc-700 dark:text-zinc-300 w-full">
                                  <div className="flex items-center gap-2 overflow-hidden mr-3">
                                      <Loader2 className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-spin shrink-0" />
@@ -104,20 +104,20 @@ export default function Home() {
                                          {currentAnalyzingItemName || "Iniciando lote..."}
                                      </span>
                                  </div>
-                                 <div className="flex flex-col items-end shrink-0">
-                                     <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                         {totalItemsToProcess > 0 ? Math.round((processedItemsCount / totalItemsToProcess) * 100) : 0}%
-                                     </span>
-                                     <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-                                         {processedItemsCount} / {totalItemsToProcess}
-                                     </span>
-                                 </div>
+                                 <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300 shrink-0">
+                                     {totalItemsToProcess > 0 ? Math.round((processedItemsCount / totalItemsToProcess) * 100) : 0}%
+                                 </span>
                              </div>
-                             <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
-                                 <div 
-                                     className="bg-purple-600 dark:bg-purple-400 h-1.5 rounded-full transition-all duration-300 ease-out"
-                                     style={{ width: `${totalItemsToProcess > 0 ? (processedItemsCount / totalItemsToProcess) * 100 : 0}%` }}
-                                 ></div>
+                             <div className="flex items-center gap-3 w-full">
+                                 <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                                     <div 
+                                         className="bg-purple-600 dark:bg-purple-400 h-1.5 rounded-full transition-all duration-300 ease-out"
+                                         style={{ width: `${totalItemsToProcess > 0 ? (processedItemsCount / totalItemsToProcess) * 100 : 0}%` }}
+                                     ></div>
+                                 </div>
+                                 <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0 whitespace-nowrap">
+                                     {processedItemsCount} / {totalItemsToProcess}
+                                 </span>
                              </div>
                          </div>
                      ) : (
