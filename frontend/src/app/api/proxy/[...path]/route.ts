@@ -81,6 +81,7 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
     if (responseHeaders.get("content-type")?.includes("text/event-stream") && response.body) {
         responseHeaders.set("Cache-Control", "no-cache, no-transform");
         responseHeaders.set("Connection", "keep-alive");
+        responseHeaders.set("X-Accel-Buffering", "no");
 
         // Cria um pipeline de transporte ativo (força o flush de cada chunk)
         const reader = response.body.getReader();

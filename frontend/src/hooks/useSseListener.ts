@@ -61,6 +61,12 @@ export function useSseListener(planilhaId: string | null) {
             }
 
             updateRowById(id, updatePayload);
+            useBudgetStore.getState().incrementProcessedItemsCount();
+            
+            const currentItem = useBudgetStore.getState().tableData.find(r => r.id === id);
+            if (currentItem) {
+                useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
+            }
 
           } else if (payload.status === 'erro') {
             console.error(`[SSE] Erro no item ${payload.id}: ${payload.mensagem}`);
@@ -68,6 +74,12 @@ export function useSseListener(planilhaId: string | null) {
               ai_status: 'ERRO DE PROCESSAMENTO',
               ai_parecer_tecnico: payload.mensagem,
             });
+            useBudgetStore.getState().incrementProcessedItemsCount();
+
+            const currentItem = useBudgetStore.getState().tableData.find(r => r.id === payload.id);
+            if (currentItem) {
+                useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
+            }
 
           } else if (payload.status === 'lote_concluido') {
             useBudgetStore.getState().setIsProcessing(false);

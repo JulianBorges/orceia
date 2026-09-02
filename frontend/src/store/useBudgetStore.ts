@@ -10,9 +10,12 @@ interface BudgetState {
   uploadProgress: number | null;
   processingStatusText: string;
   processedItemsCount: number;
+  totalItemsToProcess: number;
+  currentAnalyzingItemName: string;
   isDirty: boolean;
   dirtyRowIds: string[];
   setIsDirty: (val: boolean) => void;
+  incrementProcessedItemsCount: () => void;
   addDirtyRow: (id: string) => void;
   clearDirtyRows: (idsToClear: string[]) => void;
   setTableData: (data: BudgetItem[] | ((prev: BudgetItem[]) => BudgetItem[])) => void;
@@ -23,6 +26,7 @@ interface BudgetState {
   setIsProcessing: (isProcessing: boolean) => void;
   setUploadProgress: (progress: number | null) => void;
   setProcessingStatusText: (text: string) => void;
+  setCurrentAnalyzingItemName: (name: string) => void;
   setProcessedItemsCount: (count: number) => void;
   updateData: <K extends keyof BudgetItem>(rowIndex: number, columnId: K, value: BudgetItem[K]) => void;
   updateRow: (rowIndex: number, newRowData: Partial<BudgetItem>) => void;
@@ -49,12 +53,16 @@ export const useBudgetStore = create<BudgetState>()(
       uploadProgress: null,
       processingStatusText: '',
       processedItemsCount: 0,
+      totalItemsToProcess: 0,
+      currentAnalyzingItemName: '',
       isDirty: false,
       dirtyRowIds: [],
       planilhaId: null,
 
       setPlanilhaId: (id) => set({ planilhaId: id }),
       setIsDirty: (isDirty) => set({ isDirty }),
+      incrementProcessedItemsCount: () => set((state) => ({ processedItemsCount: state.processedItemsCount + 1 })),
+      setCurrentAnalyzingItemName: (name) => set({ currentAnalyzingItemName: name }),
       addDirtyRow: (id) => set((state) => ({ 
           dirtyRowIds: state.dirtyRowIds.includes(id) ? state.dirtyRowIds : [...state.dirtyRowIds, id],
           isDirty: true
@@ -292,8 +300,6 @@ export const useBudgetStore = create<BudgetState>()(
         const { tableData, planilhaId } = get();
         if (!planilhaId) return;
 
-        set({ isProcessing: true, processedItemsCount: 0, processingStatusText: 'Iniciando inteligência...' });
-
         // Extrai apenas os itens folha (não-macro) que têm descrição para a IA orçar e que ainda não foram processados
         const linhasParaProcessar = tableData
           .filter(row =>
@@ -316,6 +322,14 @@ export const useBudgetStore = create<BudgetState>()(
             set({ isProcessing: false, processingStatusText: 'Nenhum item válido para processar.' });
             return;
         }
+
+        set({ 
+            isProcessing: true, 
+            processedItemsCount: 0, 
+            totalItemsToProcess: linhasParaProcessar.length,
+            currentAnalyzingItemName: 'Iniciando lote...',
+            processingStatusText: 'Iniciando inteligência...' 
+        });
 
         const CHUNK_SIZE = 100;
         let successCount = 0;

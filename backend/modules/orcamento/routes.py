@@ -137,7 +137,12 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
             traceback.print_exc()
             yield f"data: {json.dumps({'status': 'erro', 'id': 'fatal', 'mensagem': f'ERRO INTERNO REDIS: {str(e)}'})}\n\n"
             
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    headers = {
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
 
 @router.get("/health")
 async def health_check():
