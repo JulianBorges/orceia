@@ -9,6 +9,7 @@ from core.redis_client import init_redis, close_redis
 from modules.orcamento import routes as orcamento_routes
 from modules.sinapi import routes as sinapi_routes
 from modules.auth import routes as auth_routes
+from modules.eap import routes as eap_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,6 +49,9 @@ app.include_router(orcamento_routes.router)
 
 # Roteador de SINAPI (busca manual do usuário)
 app.include_router(sinapi_routes.router)
+
+# Roteador EAP (Estruturação de EAP por IA)
+app.include_router(eap_routes.router)
 
 @app.get("/")
 async def root():

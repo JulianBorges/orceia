@@ -78,26 +78,30 @@ orceia_v3/
 â”‚   â”œâ”€â”€ GEMINI.md               â†� Regras de IA para backend (auto-injetadas)
 â”‚   â”œâ”€â”€ main.py                 â†� Entry point FastAPI (lifespan, CORS, routers)
 â”‚   â”œâ”€â”€ core/
-â”‚   â”‚   â”œâ”€â”€ config.py           â†� Settings via pydantic-settings
-â”‚   â”‚   â”œâ”€â”€ db.py               â†� Pool asyncpg (statement_cache_size=0)
-â”‚   â”‚   â”œâ”€â”€ security.py         â†� DependÃªncias centrais de seguranÃ§a (DRY)
-â”‚   â”‚   â”œâ”€â”€ ai_client.py        â†� Singleton OpenAI c/ Timeout global (30.0s)
-â”‚   â”‚   â””â”€â”€ redis_client.py     â†� Cliente Redis (streams + cache)
+â”‚   â”‚   â”œâ”€â”€ config.py           â† Settings via pydantic-settings
+â”‚   â”‚   â”œâ”€â”€ db.py               â† Pool asyncpg (statement_cache_size=0)
+â”‚   â”‚   â”œâ”€â”€ security.py         â† DependÃªncias centrais de seguranÃ§a (DRY)
+â”‚   â”‚   â”œâ”€â”€ ai_client.py        â† Singleton OpenAI c/ Timeout global (30.0s)
+â”‚   â”‚   â””â”€â”€ redis_client.py     â† Cliente Redis (streams + cache)
 â”‚   â””â”€â”€ modules/
-â”‚       â”œâ”€â”€ orcamento/          â†� Motor SINAPI: RRF, OpenAI, SSE (NÃšCLEO â€” nÃ£o mexa)
-â”‚       â”‚   â”œâ”€â”€ preprocessor.py â†� Agente Corretor (normaliza termos prÃ©-Pinecone)
-â”‚       â”‚   â”œâ”€â”€ routes.py       â†� Endpoints: /upsert-linhas, /save-linhas, /stream
-â”‚       â”‚   â”œâ”€â”€ services.py     â†� OrquestraÃ§Ã£o: chunks, semÃ¡foro, SSE
-â”‚       â”‚   â”œâ”€â”€ search_engine.pyâ†� Algoritmo RRF (Pinecone + Supabase)
-â”‚       â”‚   â”œâ”€â”€ ai_agents.py    â†� Structured Outputs com Pydantic
-â”‚       â”‚   â””â”€â”€ schemas.py      â†� DTOs Pydantic v2
-â”‚       â””â”€â”€ sinapi/             â†� Busca manual do usuÃ¡rio (autocomplete)
+â”‚       â”œâ”€â”€ orcamento/          â† Motor SINAPI: RRF, OpenAI, SSE (NÃšCLEO â€” nÃ£o mexa)
+â”‚       â”‚   â”œâ”€â”€ preprocessor.py â† Agente Corretor (normaliza termos prÃ©-Pinecone)
+â”‚       â”‚   â”œâ”€â”€ routes.py       â† Endpoints: /upsert-linhas, /save-linhas, /stream
+â”‚       â”‚   â”œâ”€â”€ services.py     â† OrquestraÃ§Ã£o: chunks, semÃ¡foro, SSE
+â”‚       â”‚   â”œâ”€â”€ search_engine.pyâ† Algoritmo RRF (Pinecone + Supabase)
+â”‚       â”‚   â”œâ”€â”€ ai_agents.py    â† Structured Outputs com Pydantic
+â”‚       â”‚   â””â”€â”€ schemas.py      â† DTOs Pydantic v2
+â”‚       â”œâ”€â”€ eap/                â† Agente de EstruturaÃ§Ã£o (Lista Plana -> EAP)
+â”‚       â”‚   â”œâ”€â”€ routes.py
+â”‚       â”‚   â”œâ”€â”€ ai_agent.py
+â”‚       â”‚   â””â”€â”€ schemas.py
+â”‚       â””â”€â”€ sinapi/             â† Busca manual do usuÃ¡rio (autocomplete)
 â”‚           â””â”€â”€ routes.py
 â”‚
 â””â”€â”€ frontend/
-    â”œâ”€â”€ GEMINI.md               â†� Regras de IA para frontend (auto-injetadas)
+    â”œâ”€â”€ GEMINI.md               â† Regras de IA para frontend (auto-injetadas)
     â””â”€â”€ src/
-        â”œâ”€â”€ middleware.ts       â†� Intercepta req, valida cookie, injeta X-Tenant-ID
+        â”œâ”€â”€ middleware.ts       â† Intercepta req, valida cookie, injeta X-Tenant-ID
         â”œâ”€â”€ app/
         â”‚   â”œâ”€â”€ page.tsx        â†� PÃ¡gina principal (tabela + upload)
         â”‚   â””â”€â”€ api/proxy/      â†� Proxy server-side (mascara API_SECRET_KEY)
@@ -133,3 +137,4 @@ orceia_v3/
 4. **UX do SSE**: O Redis entrega pacotes de 2 em 2 (no mais 10 em 10) para uma UI fluida.
 5. **Dicionário de Canteiro e Estratificação**: Interceptador léxico estático em `vocabulario_obra.py` e Orçamentista Virtual (`reformulador.py`) para expandir queries quando o RRF score é menor que 40%.
 6. **Contexto de Hierarquia**: A UI envia o `macro_item_context` nos itens folha, orientando a IA de forma precisa.
+7. **Detecção de Lista Plana e Estruturação EAP**: Novo módulo isolado `backend/modules/eap/` usa GPT-4o-mini (Structured Outputs + Positional Indexing) para gerar Macro Itens inteligentemente a partir de uma lista plana, fundindo no Frontend antes de rodar o motor RRF.

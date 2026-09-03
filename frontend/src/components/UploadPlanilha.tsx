@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '@/store/useBudgetStore';
 import { CloudUpload } from 'lucide-react';
 import { BudgetItem } from '@/utils/budgetUtils';
+import { FlatListModal } from './FlatListModal';
 
 interface UploadPlanilhaProps {
     children?: React.ReactNode;
@@ -12,7 +13,11 @@ interface UploadPlanilhaProps {
 
 export function UploadPlanilha({ children, className, append = false }: UploadPlanilhaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { tableData, loadTableData, setTableData, setPlanilhaId, processarOrcamentoIA } = useBudgetStore();
+    const { tableData, loadTableData, setTableData, setPlanilhaId, processarOrcamentoIA, estruturarEAP } = useBudgetStore();
+    
+    const [isFlatListModalOpen, setIsFlatListModalOpen] = useState(false);
+    const [isStructuringEAP, setIsStructuringEAP] = useState(false);
+    const [pendingData, setPendingData] = useState<BudgetItem[]>([]);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -97,20 +102,31 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
                 return;
             }
 
+            const numMacroItems = parsedData.filter(d => d.is_macro_item).length;
+            const isFlatList = numMacroItems === 0 && parsedData.length > 0;
+
             if (append) {
-                // No modo append, unir ao existente (marca dirty para auto-save sincronizar)
-                setTableData([...tableData, ...parsedData]);
+                if (isFlatList) {
+                    setPendingData(parsedData);
+                    setIsFlatListModalOpen(true);
+                } else {
+                    setTableData([...tableData, ...parsedData]);
+                    setTimeout(() => processarOrcamentoIA(), 100);
+                }
             } else {
                 const newPlanilhaId = crypto.randomUUID();
                 setPlanilhaId(newPlanilhaId);
-                // loadTableData: não marca dirty — evita auto-save desnecessário no upload inicial
-                loadTableData(parsedData);
+                
+                if (isFlatList) {
+                    // Lista Plana Detectada
+                    setPendingData(parsedData);
+                    setIsFlatListModalOpen(true);
+                } else {
+                    // Tem macro itens, segue o fluxo normal
+                    loadTableData(parsedData);
+                    setTimeout(() => processarOrcamentoIA(), 100);
+                }
             }
-            
-            // Inicia a inteligência artificial automaticamente
-            setTimeout(() => {
-                processarOrcamentoIA();
-            }, 100);
             
             // Reseta o input para permitir carregar o mesmo arquivo novamente se precisar
             if (fileInputRef.current) {
@@ -120,28 +136,62 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
         reader.readAsBinaryString(file);
     };
 
+    const handleMapearComoListaPlana = () => {
+        setIsFlatListModalOpen(false);
+        if (append) {
+            setTableData([...tableData, ...pendingData]);
+        } else {
+            loadTableData(pendingData);
+        }
+        setTimeout(() => processarOrcamentoIA(), 100);
+    };
+
+    const handleUsarIAParaEAP = async () => {
+        setIsStructuringEAP(true);
+        try {
+            await estruturarEAP(pendingData, append);
+            setIsFlatListModalOpen(false);
+            // Após estruturar EAP, dispara automaticamente o motor de orçamentação
+            setTimeout(() => processarOrcamentoIA(), 100);
+        } catch (error) {
+            console.error("Erro ao estruturar EAP", error);
+            alert("Ocorreu um erro ao tentar estruturar a EAP. Por favor, tente novamente.");
+        } finally {
+            setIsStructuringEAP(false);
+        }
+    };
+
     const defaultClassName = "flex items-center gap-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm";
 
     return (
-        <div>
-            <input 
-                type="file" 
-                accept=".xlsx, .xls" 
-                className="hidden" 
-                ref={fileInputRef} 
-                onChange={handleFileUpload} 
+        <>
+            <div>
+                <input 
+                    type="file" 
+                    accept=".xlsx, .xls" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleFileUpload} 
+                />
+                <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={className || defaultClassName}
+                >
+                    {children || (
+                        <>
+                            <CloudUpload className="w-4 h-4" />
+                            Importar Excel
+                        </>
+                    )}
+                </button>
+            </div>
+            
+            <FlatListModal 
+                isOpen={isFlatListModalOpen}
+                isLoading={isStructuringEAP}
+                onMapearComoListaPlana={handleMapearComoListaPlana}
+                onUsarIAParaEAP={handleUsarIAParaEAP}
             />
-            <button 
-                onClick={() => fileInputRef.current?.click()}
-                className={className || defaultClassName}
-            >
-                {children || (
-                    <>
-                        <CloudUpload className="w-4 h-4" />
-                        Importar Excel
-                    </>
-                )}
-            </button>
-        </div>
+        </>
     );
 }

@@ -65,6 +65,11 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Fallback Estratificado: Expansão de queries com GPT-4o-mini sempre que a confiança do motor RRF for menor que 40%, multiplicando as rotas de busca de forma inteligente.
   - [x] Filtro rígido (com fallback nativo) no Pinecone para casar a unidade de medida do item da planilha.
 
+- [x] **Lista Plana e Estruturação EAP:**
+  - [x] Detecção no Frontend de planilhas 100% planas (sem macro itens) alertando o usuário.
+  - [x] Agente de IA EAP Isolado: Utiliza índices posicionais em vez de UUIDs para estruturação inteligente (Structured Outputs) de listas massivas sem estourar limites de tokens da OpenAI.
+  - [x] Integração automática: A lista intercalada pela IA alimenta o frontend e engatilha o motor RRF automaticamente logo em seguida.
+
 ---
 
 ## 📈 SPRINT 4: Inteligência Comercial B2B (Novas Features)

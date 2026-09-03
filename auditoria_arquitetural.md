@@ -88,12 +88,12 @@ Isso significa que `"Tubo PVC 100mm"` e `"tubo pvc 100mm"` geram caches diferent
 
 ---
 
-### 2.1 🟡 Detecção de Lista Plana e Estruturação de EAP
+### 2.1 ✅ Detecção de Lista Plana e Estruturação de EAP (Implementado)
 
 **O Problema (fundamentado no código):**
 Em [`UploadPlanilha.tsx` L85](file:///c:/Users/Julian/orceia_v3/frontend/src/components/UploadPlanilha.tsx#L85), a heurística que define `is_macro_item` é: *"sem unidade ou com traço"*. Se 100% dos itens tiverem unidade (lista plana), o sistema processa tudo sem aviso, enviando itens sem contexto hierárquico para a IA (agravando o problema 1.2 acima). O usuário não recebe nenhum feedback.
 
-**Veredicto: IMPLEMENTAR** — mas com uma diferença arquitetural importante da V2.
+**Veredicto: IMPLEMENTADO** — com arquitetura otimizada para tokens.
 
 **A Versão Correta (V3 Limpa):**
 A V2 oferecia o modal que você mostrou. A V3 deve fazer o mesmo, mas com uma diferença crucial: **a IA de estruturação da EAP deve ser um agente separado, em um endpoint isolado**, nunca acoplado ao motor RRF.
@@ -244,7 +244,7 @@ Substituir `asyncio.Semaphore` por um semáforo distribuído via Redis (usando `
 | **1 — Crítico** | 1.1 Tolerância dimensional determinística | 🔴 Alta precisão | ⭐⭐ Média | ✅ Concluído |
 | **1 — Crítico** | 1.2 Contexto do Macro Item no Agente | 🔴 Maior ROI | ⭐ Baixa | ✅ Concluído |
 | **1 — Crítico** | 1.3 Normalização de chave no Cache Redis | 🔴 Bug silencioso | ⭐ Baixa | ✅ Falso Positivo (Resolvido nativamente) |
-| **2 — Alta** | 2.1 Detecção de Lista Plana + EAP | 🟡 UX + Precisão | ⭐⭐⭐ Alta | ⏳ Pendente |
+| **2 — Alta** | 2.1 Detecção de Lista Plana + EAP | 🟡 UX + Precisão | ⭐⭐⭐ Alta | ✅ Concluído |
 | **2 — Alta** | 2.2 Busca Estratificada com Fallback | 🟡 Qualidade busca | ⭐⭐ Média | ✅ Concluído |
 | **2 — Alta** | 2.3 Dicionário de Canteiro | 🟡 Custo zero | ⭐ Baixa | ✅ Concluído |
 | **2 — Alta** | 2.4 Feedback de upload silencioso | 🟡 UX básica | ⭐ Baixa | ✅ Concluído |
@@ -255,4 +255,4 @@ Substituir `asyncio.Semaphore` por um semáforo distribuído via Redis (usando `
 
 ---
 
-> **Próximos Passos Recomendados:** A Fase 1 e a maior parte da Fase 2 já foram completamente refatoradas. O próximo alvo principal deve ser o Item 2.1 (Agente de Estruturação EAP) e o Item 4.1 (CRUD de Orçamentos Salvos).
+> **Próximos Passos Recomendados:** A Fase 1 e a Fase 2 já foram completamente refatoradas. O próximo alvo principal deve ser o Item 4.1 (CRUD de Orçamentos Salvos).

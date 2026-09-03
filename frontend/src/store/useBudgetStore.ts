@@ -41,6 +41,7 @@ interface BudgetState {
   planilhaId: string | null;
   setPlanilhaId: (id: string | null) => void;
   processarOrcamentoIA: () => Promise<void>;
+  estruturarEAP: (data: BudgetItem[], isAppend?: boolean) => Promise<BudgetItem[]>;
 }
 
 export const useBudgetStore = create<BudgetState>()(
@@ -369,6 +370,61 @@ export const useBudgetStore = create<BudgetState>()(
         } catch (e) {
             console.error('[IA] Falha ao acionar endpoint', e);
             set({ isProcessing: false, processingStatusText: 'Exceção na comunicação com o backend.' });
+        }
+      },
+
+      estruturarEAP: async (data: BudgetItem[], isAppend = false) => {
+        try {
+            const res = await fetch('/api/proxy/eap/estruturar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    linhas: data.map(d => ({ 
+                        id: d.id, 
+                        descricao: d.descricao
+                    })) 
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error('Falha ao estruturar EAP');
+            }
+
+            const responseData = await res.json();
+            
+            // Cria um mapa com os dados originais para restaurar unidade, quant, valorUnit, etc.
+            const originalMap = new Map<string, BudgetItem>();
+            data.forEach(d => originalMap.set(d.id, d));
+            
+            const newData: BudgetItem[] = responseData.linhas.map((row: any) => {
+                const original = row.id ? originalMap.get(row.id) : null;
+                return {
+                    id: row.id || crypto.randomUUID(),
+                    item: row.item || '',
+                    descricao: row.descricao,
+                    descricao_legada: original ? original.descricao_legada : row.descricao,
+                    und: original ? original.und : '-',
+                    quant: original ? original.quant : 0,
+                    valorUnit: original ? original.valorUnit : 0,
+                    total: original ? original.total : 0,
+                    is_macro_item: row.is_macro_item,
+                    base: original ? original.base : '',
+                    codigo: original ? original.codigo : '',
+                    level: row.item ? row.item.split('.').length - 1 : 0
+                };
+            });
+
+            if (isAppend) {
+                const state = get();
+                // append using setTableData so it triggers dirty state for saving
+                state.setTableData([...state.tableData, ...newData]);
+            } else {
+                get().loadTableData(newData);
+            }
+            return newData;
+        } catch (e) {
+            console.error('[EAP] Erro ao estruturar EAP', e);
+            throw e;
         }
       },
     }),
