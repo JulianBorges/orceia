@@ -54,6 +54,19 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 
 ---
 
+## 🎯 SPRINT 3.5: Auditoria e Qualidade de Busca (Refatoração Fases 1 e 2)
+*Objetivo: Blindar matematicamente a IA, traduzir jargões de canteiro de obras e maximizar a recuperação de itens difíceis (Implementado).*
+
+- [x] **Contexto e Tolerância Matemática:**
+  - [x] Injeção de Hierarquia (Macro Item / EAP) no prompt da IA para itens folha, curando desvios de família de serviço.
+  - [x] Tolerância dimensional (15%) calculada deterministicamente em Python antes do LLM interagir, impedindo falsos positivos matemáticos na IA.
+- [x] **Orçamentista Virtual e Léxico:**
+  - [x] Criação de um Dicionário de Canteiro em memória (`vocabulario_obra.py`) para traduzir jargões regionais antes da busca vetorial (ex: "bobcat" -> "minicarregadeira").
+  - [x] Fallback Estratificado: Expansão de queries com GPT-4o-mini sempre que a confiança do motor RRF for menor que 40%, multiplicando as rotas de busca de forma inteligente.
+  - [x] Filtro rígido (com fallback nativo) no Pinecone para casar a unidade de medida do item da planilha.
+
+---
+
 ## 📈 SPRINT 4: Inteligência Comercial B2B (Novas Features)
 *Objetivo: Evoluir de uma ferramenta interna para um Produto SaaS de alto valor e inteligência adaptativa.*
 

@@ -5,6 +5,7 @@ from openai import RateLimitError, APITimeoutError, APIConnectionError
 from modules.orcamento.schemas import LinhaOrcamentoUpsert
 from modules.orcamento.search_engine import realizar_busca_hibrida
 from modules.orcamento.ai_agents import consultar_agente_engenheiro
+from modules.orcamento.preprocessor import extrair_dimensoes_numericas
 from core.redis_client import publish_sse_event, get_ai_cache, set_ai_cache
 from core.db import get_db_pool
 from core.text_utils import normalizar_chave
@@ -50,8 +51,8 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
         rlhf_result["id"] = linha.id
         return rlhf_result
         
-    # 1. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID
-    opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id)
+    # 1. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID e Filtro de Unidade
+    opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id, linha.unidade)
 
     # 2. Verifica no Cache Global Criptográfico (SHA-256) com "Trava de Cache Seguro"
     cache = await get_ai_cache(linha.descricao)
@@ -82,8 +83,36 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     # valor_financeiro_total removido: lógica ABC delegada para pós-processamento determinístico
     # Injeta caracteristicas dimensionais como contexto para o Agente Mapeador avaliar tolerancias
     termo_com_contexto = linha.descricao
+    if getattr(linha, 'macro_item_context', None):
+        termo_com_contexto = f"Etapa da Obra: {linha.macro_item_context}\nItem: {termo_com_contexto}"
+
     if caracteristicas_extras:
-        termo_com_contexto = f"{linha.descricao} [Specs extraidas: {caracteristicas_extras}]"
+        termo_com_contexto = f"{termo_com_contexto} [Specs extraídas: {caracteristicas_extras}]"
+        
+    # --- Lógica Determinística de Tolerância Dimensional ---
+    dimensoes_usuario = extrair_dimensoes_numericas(linha.descricao)
+    if dimensoes_usuario:
+        for op in opcoes_rrf:
+            dimensoes_sinapi = extrair_dimensoes_numericas(op.get("descricao", ""))
+            tolerancia_ok = False
+            
+            if dimensoes_sinapi and len(dimensoes_sinapi) == len(dimensoes_usuario):
+                diffs_ok = True
+                for du, ds in zip(dimensoes_usuario, dimensoes_sinapi):
+                    if ds == 0:
+                        diffs_ok = False
+                        break
+                    diff = abs(du - ds) / ds
+                    if diff > 0.15:
+                        diffs_ok = False
+                        break
+                tolerancia_ok = diffs_ok
+                
+            if tolerancia_ok:
+                op["descricao"] += " [TOLERÂNCIA: ACEITÁVEL]"
+            else:
+                op["descricao"] += " [TOLERÂNCIA: INACEITÁVEL]"
+
     analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf)
     
     # 4. Observabilidade do CoT e Formatação do resultado final

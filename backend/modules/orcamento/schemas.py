@@ -9,6 +9,7 @@ class LinhaOrcamentoBase(BaseModel):
     unidade: str
     quantidade: float = Field(default=0.0)
     preco_unitario: float = Field(default=0.0)
+    macro_item_context: Optional[str] = None
 
 class LinhaOrcamentoUpsert(LinhaOrcamentoBase):
     id: str # UUID que vem do Frontend
@@ -52,9 +53,9 @@ class AnaliseIA(BaseModel):
             "True APENAS quando TODAS estas condições forem verdadeiras: "
             "(1) não existe nenhuma opção com especificações exatas do item original na lista apresentada; "
             "(2) a composição aceita difere SOMENTE em atributos NÃO estruturais; "
-            "(3) a diferença dimensional é de no máximo 15%. "
-            "Se existir equivalente exato em qualquer posição da lista, marque False e selecione o exato. "
-            "Para diferença >15% ou atributo estrutural (fck, seção de aço): retorne codigo_selecionado=null."
+            "(3) o contexto da busca informar explicitamente que a tolerância dimensional calculada pelo sistema [TOLERÂNCIA: ACEITÁVEL] é aceitável. "
+            "Se existir equivalente exato, marque False e selecione o exato. "
+            "Se o sistema indicar [TOLERÂNCIA: INACEITÁVEL] ou para atributo estrutural (fck, seção de aço): retorne codigo_selecionado=null."
         )
     )
     codigo_selecionado: Optional[str] = Field(description="O código do item vencedor. Vazio se nenhuma opção atender.")

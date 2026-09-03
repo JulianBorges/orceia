@@ -48,6 +48,8 @@ _SIGLAS_REFERENCIA = re.compile(
 )
 
 
+from core.vocabulario_obra import SINONIMOS_CANTEIRO
+
 def normalizar_termo_busca(descricao: str) -> TermoNormalizado:
     """
     Separa o nucleo semantico da descricao de suas especificacoes numericas.
@@ -62,6 +64,16 @@ def normalizar_termo_busca(descricao: str) -> TermoNormalizado:
     descricao = descricao.strip()
     if not descricao:
         return TermoNormalizado(termo_limpo="", caracteristicas_extras="")
+
+    # --- Nova camada Léxica (Dicionário de Canteiro) ---
+    # Traduz jargões populares para a taxonomia técnica
+    desc_lower = descricao.lower()
+    for jargao, tecnico in SINONIMOS_CANTEIRO.items():
+        # Regex com word boundary para substituir apenas palavras inteiras
+        pattern = r'\b' + re.escape(jargao) + r'\b'
+        desc_lower = re.sub(pattern, tecnico, desc_lower)
+    
+    descricao = desc_lower
 
     raw_specs = _PADRAO_DIMENSIONAL.findall(descricao)
 
@@ -83,3 +95,26 @@ def normalizar_termo_busca(descricao: str) -> TermoNormalizado:
         termo_limpo=termo_limpo,
         caracteristicas_extras=caracteristicas
     )
+
+def extrair_dimensoes_numericas(texto: str) -> list[float]:
+    """
+    Extrai apenas os valores numéricos puros (como floats) das dimensões contidas no texto,
+    ignorando as unidades. Usado para comparação matemática de tolerância (ex: 100mm vs 110mm).
+    """
+    if not texto:
+        return []
+        
+    specs = _PADRAO_DIMENSIONAL.findall(texto)
+    valores = []
+    
+    _NUMEROS = re.compile(r'\b\d+(?:[.,]\d+)?\b')
+    
+    for spec in specs:
+        numeros_str = _NUMEROS.findall(spec)
+        for num_str in numeros_str:
+            try:
+                valores.append(float(num_str.replace(',', '.')))
+            except ValueError:
+                pass
+                
+    return valores

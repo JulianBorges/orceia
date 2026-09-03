@@ -89,6 +89,14 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
                 });
             }
 
+            if (parsedData.length === 0) {
+                alert("Nenhum item válido foi encontrado. Verifique se sua planilha possui colunas claras como 'Item' e 'Descrição'.");
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                return;
+            }
+
             if (append) {
                 // No modo append, unir ao existente (marca dirty para auto-save sincronizar)
                 setTableData([...tableData, ...parsedData]);

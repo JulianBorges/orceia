@@ -300,23 +300,30 @@ export const useBudgetStore = create<BudgetState>()(
         const { tableData, planilhaId } = get();
         if (!planilhaId) return;
 
-        // Extrai apenas os itens folha (não-macro) que têm descrição para a IA orçar e que ainda não foram processados
-        const linhasParaProcessar = tableData
-          .filter(row =>
-            !row.is_macro_item &&
-            row.descricao &&
-            row.descricao.trim() !== '' &&
-            // Nao reenvia itens em voo — prevencao de processamento duplo
-            (!row.ai_status || row.ai_status === 'PENDENTE')
-          )
-          .map(row => ({
-            id: row.id,
-            id_planilha: planilhaId,
-            descricao: row.descricao,
-            unidade: row.und,
-            quantidade: row.quant,
-            preco_unitario: row.valorUnit
-          }));
+        // Extrai apenas os itens folha, injetando o contexto do macro item pai
+        let currentMacroName = '';
+        const linhasParaProcessar: any[] = [];
+        
+        for (const row of tableData) {
+            if (row.is_macro_item) {
+                currentMacroName = row.descricao || '';
+            } else if (
+                row.descricao &&
+                row.descricao.trim() !== '' &&
+                // Nao reenvia itens em voo — prevencao de processamento duplo
+                (!row.ai_status || row.ai_status === 'PENDENTE')
+            ) {
+                linhasParaProcessar.push({
+                    id: row.id,
+                    id_planilha: planilhaId,
+                    descricao: row.descricao,
+                    unidade: row.und,
+                    quantidade: row.quant,
+                    preco_unitario: row.valorUnit,
+                    macro_item_context: currentMacroName || undefined
+                });
+            }
+        }
 
         if (linhasParaProcessar.length === 0) {
             set({ isProcessing: false, processingStatusText: 'Nenhum item válido para processar.' });
