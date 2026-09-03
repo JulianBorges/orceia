@@ -1,39 +1,63 @@
 # backend/core/vocabulario_obra.py
+"""
+Dicionário de sinônimos de canteiro de obras para a OrceIA V3.
+
+Traduz jargões populares para a terminologia técnica formal do SINAPI,
+melhorando a qualidade da busca vetorial no Pinecone.
+
+Regras de curadoria:
+  - Apenas entradas que TRADUZEM (chave != valor após normalização).
+  - Entradas que mapeiam um termo para si mesmo são inúteis e não pertencem aqui.
+  - Para termos com acento, incluir também a versão sem acento como alias.
+  - A aplicação é feita em preprocessor.py ANTES do Regex dimensional.
+"""
 
 SINONIMOS_CANTEIRO = {
+    # --- Equipamentos de Terraplenagem e Carga ---
     "bobcat": "minicarregadeira",
-    "brita zero": "pedrisco",
-    "po de pedra": "pedrisco",
-    "pó de pedra": "pedrisco",
-    "munck": "guindauto",
-    "muck": "guindauto",
-    "caminhão munck": "caminhao carroceria com guindauto",
-    "caminhao munck": "caminhao carroceria com guindauto",
     "retro": "retroescavadeira",
     "pc": "escavadeira hidraulica",
     "escavadeira pc": "escavadeira hidraulica",
-    "martelete": "martelo rompedor",
+
+    # --- Guindastes e Içamento ---
+    "munck": "guindauto",
+    "muck": "guindauto",
+    "caminhao munck": "caminhao carroceria com guindauto",
+    "caminhão munck": "caminhao carroceria com guindauto",
+
+    # --- Compactação e Vibração ---
     "sapinho": "compactador de solos",
     "placa vibratoria": "placa compactadora",
     "wacker": "compactador de solos",
-    "betoneira": "betoneira",
-    "jerica": "carrinho de mao",
-    "girica": "carrinho de mao",
     "vibrador": "vibrador de imersao",
     "mangote": "vibrador de imersao",
+
+    # --- Granulometria / Britagem ---
+    "brita zero": "pedrisco",
+    "po de pedra": "pedrisco",
+    "pó de pedra": "pedrisco",
+
+    # --- Corte, Esmerilhamento e Perfuração ---
+    "martelete": "martelo rompedor",
     "makita": "serra marmore",
     "lixadeira": "esmerilhadeira",
     "policorte": "serra de corte",
-    "serra circular": "serra circular",
-    "furadeira": "furadeira",
-    "parafusadeira": "parafusadeira",
+
+    # --- Transporte Manual ---
+    "jerica": "carrinho de mao",
+    "girica": "carrinho de mao",
+
+    # --- Compressores ---
     "compressor": "compressor de ar",
-    "andaime": "andaime",
+
+    # --- Andaimes e Acesso Vertical ---
     "balancim": "andaime suspenso",
-    "jaú": "andaime suspenso",
+    "jaú": "andaime suspenso",   # com acento
+    "jau": "andaime suspenso",   # sem acento (alias — previne miss de acentuação)
     "cadeirinha": "cadeira suspensa",
+
+    # --- EPI (Equipamentos de Proteção Individual) ---
     "cinto": "cinto de seguranca",
-    "talabarte": "talabarte",
     "capacete": "capacete de seguranca",
     "botina": "botina de seguranca",
     "luva": "luva de seguranca",
@@ -41,78 +65,33 @@ SINONIMOS_CANTEIRO = {
     "protetor auricular": "protetor auditivo",
     "abafador": "protetor auditivo",
     "mascara": "respirador",
-    "respirador": "respirador",
     "capa de chuva": "vestimenta de seguranca",
     "uniforme": "vestimenta de trabalho",
-    "cabo de aço": "cabo de aco",
-    "corda": "corda",
-    "lona": "lona",
+
+    # --- Formas e Madeiramentos ---
     "madeirite": "chapa compensado",
     "compensado": "chapa compensado",
-    "tabua": "tabua",
-    "sarrafo": "sarrafo",
-    "pontalete": "pontalete",
-    "prego": "prego",
-    "arame": "arame",
+
+    # --- Materiais Metálicos / Armadura ---
     "ferro": "aco",
     "vergalhao": "aco",
-    "estribo": "estribo",
-    "tela": "tela",
-    "cimento": "cimento",
-    "areia": "areia",
-    "brita": "brita",
-    "pedra": "pedra",
-    "bloco": "bloco",
-    "tijolo": "tijolo",
-    "telha": "telha",
-    "cumeeira": "cumeeira",
-    "calha": "calha",
-    "rufo": "rufo",
+
+    # --- Tubulações e Conexões Hidráulicas ---
     "cano": "tubo",
-    "tubo": "tubo",
     "conexoes": "conexao",
-    "registro": "registro",
-    "valvula": "valvula",
-    "torneira": "torneira",
-    "sifao": "sifao",
-    "ralo": "ralo",
-    "grelha": "grelha",
     "caixa d'agua": "reservatorio",
+
+    # --- Instalações Elétricas ---
     "fio": "cabo",
-    "cabo": "cabo",
-    "disjuntor": "disjuntor",
-    "tomada": "tomada",
-    "interruptor": "interruptor",
-    "lampada": "lampada",
-    "luminaria": "luminaria",
-    "quadro": "quadro",
-    "eletroduto": "eletroduto",
     "conduite": "eletroduto",
-    "conduíte": "eletroduto",
-    "mangueira": "mangueira",
-    "tinta": "tinta",
-    "massa": "massa",
-    "selador": "selador",
-    "verniz": "verniz",
+    "conduíte": "eletroduto",   # com acento (alias)
+
+    # --- Pintura e Solventes ---
     "thinner": "solvente",
     "aguarras": "solvente",
     "pincel": "trincha",
-    "rolo": "rolo",
-    "lixa": "lixa",
-    "espatula": "espatula",
-    "desempenadeira": "desempenadeira",
+
+    # --- Ferramentas de Pedreiro ---
     "colher": "colher de pedreiro",
-    "prumo": "prumo",
-    "nivel": "nivel",
-    "trena": "trena",
-    "esquadro": "esquadro",
-    "linha": "linha",
-    "pa": "pa",
-    "enxada": "enxada",
-    "picareta": "picareta",
-    "cavadeira": "cavadeira",
-    "carrinho": "carrinho",
-    "balde": "balde",
-    "vassoura": "vassoura",
-    "rodo": "rodo"
 }
+

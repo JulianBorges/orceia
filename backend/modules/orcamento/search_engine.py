@@ -131,8 +131,8 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     best_score = ranking[0][1] if ranking else 0
     best_pct = (best_score / max_rrf_score) * 100
 
-    # Fallback Orçamentista Virtual se a confiança estiver baixa (Abaixo de 40%)
-    if best_pct < 40.0:
+    # Fallback Orçamentista Virtual se a confiança estiver baixa (Abaixo de 85%)
+    if best_pct < 85.0:
         print(f"[RRF FALLBACK] Confiança muito baixa ({round(best_pct, 1)}%) para '{termo_busca}'. Acionando GPT Reformulador...")
         from modules.orcamento.reformulador import gerar_variacoes_tecnicas
         sinonimos = await gerar_variacoes_tecnicas(termo_busca)

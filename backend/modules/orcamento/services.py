@@ -6,15 +6,11 @@ from modules.orcamento.schemas import LinhaOrcamentoUpsert
 from modules.orcamento.search_engine import realizar_busca_hibrida
 from modules.orcamento.ai_agents import consultar_agente_engenheiro
 from modules.orcamento.preprocessor import extrair_dimensoes_numericas
-from core.redis_client import publish_sse_event, get_ai_cache, set_ai_cache
+from core.redis_client import publish_sse_event, get_ai_cache, set_ai_cache, RedisSemaphore
 from core.db import get_db_pool
 from core.text_utils import normalizar_chave
 
-# ATENÇÃO: Este semáforo é por-processo (Python in-memory).
-# O servidor DEVE rodar com 1 worker apenas (uvicorn --workers 1).
-# Para múltiplos workers, migrar para semáforo distribuído via Redis.
-MAX_CONCURRENT_TASKS = 3  # Reduzido de 10 para 3 para proteger Rate Limit em auto-scaling (Cloud Run)
-semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
+MAX_CONCURRENT_TASKS = 3  # Protege o Rate Limit em auto-scaling (Cloud Run)
 
 async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
     """Consulta o banco de memórias do Cliente (Engenharia Humana)"""
@@ -152,7 +148,7 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
 
 async def processar_linha_com_semaforo(linha: LinhaOrcamentoUpsert, id_planilha: str):
     """Estrangula a requisição usando Semaphore e publica o resultado no Redis Stream"""
-    async with semaphore:
+    async with RedisSemaphore(MAX_CONCURRENT_TASKS):
         try:
             # Roda a inteligência brutal em cascata
             resultado = await processar_linha_inteligente(linha, id_planilha)
@@ -187,7 +183,7 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
         tenant_id = linhas[0].tenant_id if linhas else "default"
         await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
 
-async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str):
+async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str, titulo: str = "Orçamento"):
     """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""
     
     if not linhas:
@@ -196,9 +192,9 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     id_planilha = linhas[0].id_planilha
 
     query_mae = """
-        INSERT INTO planilhas (id, tenant_id) 
-        VALUES ($1, $2)
-        ON CONFLICT (id) DO NOTHING;
+        INSERT INTO planilhas (id, tenant_id, titulo) 
+        VALUES ($1, $2, $3)
+        ON CONFLICT (id) DO UPDATE SET titulo = EXCLUDED.titulo, updated_at = CURRENT_TIMESTAMP;
     """
     
     query_filhas = """
@@ -234,7 +230,7 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     async with pool.acquire() as conn:
         async with conn.transaction():
             # Assegura a integridade referencial: cria a planilha se ela não existir
-            await conn.execute(query_mae, id_planilha, tenant_id)
+            await conn.execute(query_mae, id_planilha, tenant_id, titulo)
             # executemany processa os milhares de registros numa pancada só (Custo O(1) de rede)
             await conn.executemany(query_filhas, dados)
 
@@ -265,4 +261,36 @@ async def bulk_delete_linhas_orcamento(ids: list[str], id_planilha: str, tenant_
                 tenant_id,
             )
             print(f"[DELETE] {deleted} linhas removidas (planilha: {id_planilha}, tenant: {tenant_id})")
+
+async def get_planilhas_by_tenant(tenant_id: str) -> list[dict]:
+    query = """
+        SELECT id, titulo, CAST(created_at AS TEXT) as created_at, CAST(updated_at AS TEXT) as updated_at
+        FROM planilhas 
+        WHERE tenant_id = $1 
+        ORDER BY updated_at DESC
+    """
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        records = await conn.fetch(query, tenant_id)
+        return [dict(r) for r in records]
+
+async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
+    query_planilha = "SELECT titulo FROM planilhas WHERE id = $1 AND tenant_id = $2"
+    query_linhas = "SELECT * FROM planilhas_linhas WHERE id_planilha = $1 AND tenant_id = $2"
+    
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        planilha = await conn.fetchrow(query_planilha, id_planilha, tenant_id)
+        if not planilha:
+            raise ValueError("Planilha não encontrada")
+            
+        records = await conn.fetch(query_linhas, id_planilha, tenant_id)
+        linhas = [dict(r) for r in records]
+        
+        return {
+            "id_planilha": id_planilha,
+            "titulo": planilha["titulo"],
+            "linhas": linhas
+        }
+
 

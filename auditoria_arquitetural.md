@@ -251,7 +251,7 @@ Substituir `asyncio.Semaphore` por um semáforo distribuído via Redis (usando `
 | **3 — Médio** | 3.1 Pipeline bidirecional Memoriais (PDF) | 🟢 Diferenciação máxima | ⭐⭐⭐⭐ Muito Alta | ⏳ Pendente |
 | **3 — Médio** | 3.2 Filtro de unidade Pinecone | 🟢 Precisão busca | ⭐ Baixa | ✅ Concluído |
 | **4 — Fundação** | 4.1 CRUD de Orçamentos Salvos | 🟡 Dívida técnica | ⭐⭐ Média | ⏳ Pendente |
-| **4 — Fundação** | 4.2 Semáforo Distribuído (Redis) | 🟡 Escalabilidade | ⭐⭐ Média | ⏳ Pendente |
+| **4 — Fundação** | 4.2 Semáforo Distribuído (Redis) | 🟡 Escalabilidade | ⭐⭐ Média | ✅ Concluído |
 
 ---
 

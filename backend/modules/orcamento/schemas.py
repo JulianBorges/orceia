@@ -16,10 +16,23 @@ class LinhaOrcamentoUpsert(LinhaOrcamentoBase):
 
 class LoteUpsertRequest(BaseModel):
     linhas: List[LinhaOrcamentoUpsert]
+    titulo: Optional[str] = "Orçamento"
 
 class DeleteLinhasRequest(BaseModel):
     ids: List[str]
     id_planilha: str
+
+class PlanilhaResponse(BaseModel):
+    id: str
+    titulo: Optional[str]
+    created_at: str
+    updated_at: str
+
+class PlanilhaLinhasResponse(BaseModel):
+    id_planilha: str
+    titulo: Optional[str]
+    linhas: List[LinhaOrcamentoUpsert]
+
 
 class FeedbackRLHF(BaseModel):
     tenant_id: Optional[str] = None

@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from core.config import settings
-from modules.orcamento.schemas import LoteUpsertRequest, FeedbackRLHF, DeleteLinhasRequest
+from modules.orcamento.schemas import LoteUpsertRequest, FeedbackRLHF, DeleteLinhasRequest, PlanilhaResponse, PlanilhaLinhasResponse
 from modules.orcamento.services import (
     iniciar_processamento_lote_em_background,
     bulk_upsert_linhas_orcamento,
     bulk_delete_linhas_orcamento,
+    get_planilhas_by_tenant,
+    get_linhas_by_planilha
 )
 from core.db import get_db_pool
 import core.redis_client as rc
@@ -65,7 +67,7 @@ async def save_linhas(lote: LoteUpsertRequest, tenant_id: str = Depends(get_curr
         return {"status": "success"}
     
     try:
-        await bulk_upsert_linhas_orcamento(lote.linhas, tenant_id)
+        await bulk_upsert_linhas_orcamento(lote.linhas, tenant_id, lote.titulo)
         return {
             "status": "success",
             "linhas_salvas": len(lote.linhas)
@@ -143,6 +145,26 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
         "X-Accel-Buffering": "no"
     }
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@router.get("/planilhas", response_model=list[PlanilhaResponse], dependencies=[Depends(verify_proxy_secret)])
+async def list_planilhas(tenant_id: str = Depends(get_current_tenant)):
+    """Lista todos os orçamentos salvos do tenant."""
+    try:
+        return await get_planilhas_by_tenant(tenant_id)
+    except Exception as e:
+        print(f"[ERRO DB] Falha ao listar planilhas: {e}")
+        raise HTTPException(status_code=500, detail="Falha ao listar orçamentos.")
+
+@router.get("/planilhas/{id_planilha}/linhas", response_model=PlanilhaLinhasResponse, dependencies=[Depends(verify_proxy_secret)])
+async def get_planilha_linhas(id_planilha: str, tenant_id: str = Depends(get_current_tenant)):
+    """Retorna as linhas e metadados de uma planilha específica."""
+    try:
+        return await get_linhas_by_planilha(id_planilha, tenant_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Orçamento não encontrado.")
+    except Exception as e:
+        print(f"[ERRO DB] Falha ao carregar planilha {id_planilha}: {e}")
+        raise HTTPException(status_code=500, detail="Falha ao carregar o orçamento.")
 
 @router.get("/health")
 async def health_check():

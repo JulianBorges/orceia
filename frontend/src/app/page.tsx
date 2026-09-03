@@ -5,6 +5,7 @@ import { useSseListener } from '../hooks/useSseListener';
 import { BudgetTable } from '../components/BudgetTable';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { UploadPlanilha } from '../components/UploadPlanilha';
+import { SavedBudgetsModal } from '../components/SavedBudgetsModal';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { Loader2, Download, Layers, Trash2, Plus } from 'lucide-react';
@@ -88,7 +89,8 @@ export default function Home() {
               </div>
               
               <div className="relative flex flex-col items-end w-full md:w-auto">
-                 <div className="absolute -top-12 right-0 z-50">
+                 <div className="absolute -top-14 right-0 z-50 flex items-center gap-3">
+                     <SavedBudgetsModal />
                      <ThemeToggle />
                  </div>
                  <div className="flex items-center gap-4 w-full overflow-x-auto pb-2 md:pb-0">

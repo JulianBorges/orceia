@@ -57,7 +57,8 @@ export function useAutoSave() {
 
       for (let i = 0; i < linhasToSave.length; i += CHUNK_SIZE) {
          const chunk = linhasToSave.slice(i, i + CHUNK_SIZE);
-         const payload = { linhas: chunk };
+         const title = useBudgetStore.getState().title;
+         const payload = { linhas: chunk, titulo: title || "Orçamento" };
          
          try {
            const res = await fetch('/api/proxy/orcamento/save-linhas', {
