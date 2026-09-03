@@ -10,6 +10,7 @@ class LinhaOrcamentoBase(BaseModel):
     quantidade: float = Field(default=0.0)
     preco_unitario: float = Field(default=0.0)
     macro_item_context: Optional[str] = None
+    projeto_id: Optional[str] = Field(default=None, description="ID do projeto/obra — vincula a linha ao memorial descritivo para Modo Geração")
 
 class LinhaOrcamentoUpsert(LinhaOrcamentoBase):
     id: str # UUID que vem do Frontend

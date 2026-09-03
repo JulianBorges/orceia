@@ -9,3 +9,5 @@ asyncpg==0.29.0
 python-dotenv==1.0.1
 tenacity==8.2.3
 pinecone==5.0.1
+pypdf>=4.0.0
+python-multipart>=0.0.9

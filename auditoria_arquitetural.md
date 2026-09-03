@@ -248,11 +248,15 @@ Substituir `asyncio.Semaphore` por um semáforo distribuído via Redis (usando `
 | **2 — Alta** | 2.2 Busca Estratificada com Fallback | 🟡 Qualidade busca | ⭐⭐ Média | ✅ Concluído |
 | **2 — Alta** | 2.3 Dicionário de Canteiro | 🟡 Custo zero | ⭐ Baixa | ✅ Concluído |
 | **2 — Alta** | 2.4 Feedback de upload silencioso | 🟡 UX básica | ⭐ Baixa | ✅ Concluído |
-| **3 — Médio** | 3.1 Pipeline bidirecional Memoriais (PDF) | 🟢 Diferenciação máxima | ⭐⭐⭐⭐ Muito Alta | ⏳ Pendente |
+| **3 — Médio** | 3.1 Pipeline bidirecional Memoriais (PDF) | 🟢 Diferenciação máxima | ⭐⭐⭐⭐ Muito Alta | ✅ Concluído |
 | **3 — Médio** | 3.2 Filtro de unidade Pinecone | 🟢 Precisão busca | ⭐ Baixa | ✅ Concluído |
 | **4 — Fundação** | 4.1 CRUD de Orçamentos Salvos | 🟡 Dívida técnica | ⭐⭐ Média | ⏳ Pendente |
 | **4 — Fundação** | 4.2 Semáforo Distribuído (Redis) | 🟡 Escalabilidade | ⭐⭐ Média | ✅ Concluído |
 
 ---
 
-> **Próximos Passos Recomendados:** A Fase 1 e a Fase 2 já foram completamente refatoradas. O próximo alvo principal deve ser o Item 4.1 (CRUD de Orçamentos Salvos).
+> **Próximos Passos Recomendados:** A Fase 1, Fase 2 e o motor de Memoriais (Fase 3) já foram implementados com sucesso. 
+> 
+> O que resta agora é puramente a construção de duas interfaces no Next.js (Frontend):
+> 1. **Modal de Orçamentos Salvos (Item 4.1):** Consumir a rota `GET /orcamento/planilhas`.
+> 2. **Interface do Modo Auditoria (Complemento do 3.1):** Construir a UI para acionar a rota `POST /auditoria/auditar-planilha` (via SSE) sobre uma tabela existente e exibir o Laudo de Conformidade.

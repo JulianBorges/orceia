@@ -84,7 +84,22 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
 
     if caracteristicas_extras:
         termo_com_contexto = f"{termo_com_contexto} [Specs extraídas: {caracteristicas_extras}]"
-        
+
+    # Modo Geração: enriquece o prompt com trecho relevante do Memorial Descritivo (se disponível).
+    # Import lazy para evitar circular import entre módulos (DDD).
+    # Fallback silencioso: se não houver memorial ou score for baixo, fluxo continua normalmente.
+    if getattr(linha, 'projeto_id', None) and getattr(linha, 'tenant_id', None):
+        from modules.auditoria.services import buscar_contexto_memorial
+        trecho_memorial = await buscar_contexto_memorial(
+            linha.descricao, linha.tenant_id, linha.projeto_id
+        )
+        if trecho_memorial:
+            termo_com_contexto += (
+                f"\n\n[Especificação do Memorial Descritivo — use como referência de conformidade]:\n"
+                f"{trecho_memorial}"
+            )
+            print(f"[MEMORIAL] Contexto injetado para: '{linha.descricao[:60]}'")
+
     # --- Lógica Determinística de Tolerância Dimensional ---
     dimensoes_usuario = extrair_dimensoes_numericas(linha.descricao)
     if dimensoes_usuario:

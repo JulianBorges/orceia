@@ -6,6 +6,7 @@ import { BudgetTable } from '../components/BudgetTable';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { UploadPlanilha } from '../components/UploadPlanilha';
 import { SavedBudgetsModal } from '../components/SavedBudgetsModal';
+import { MemorialUploadButton } from '../components/MemorialUploadButton';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { Loader2, Download, Layers, Trash2, Plus } from 'lucide-react';
@@ -95,7 +96,10 @@ export default function Home() {
                  </div>
                  <div className="flex items-center gap-4 w-full overflow-x-auto pb-2 md:pb-0">
                  {tableData.length === 0 ? (
-                     <UploadPlanilha />
+                     <div className="flex items-center gap-3">
+                         <UploadPlanilha />
+                         <MemorialUploadButton />
+                     </div>
                  ) : (
                      isProcessing ? (
                          <div className="flex flex-col justify-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 px-5 py-2.5 rounded-xl shadow-sm w-full md:w-[450px]">
@@ -176,6 +180,7 @@ export default function Home() {
                                 <Plus className="w-4 h-4 text-zinc-500" />
                                 Carregar Mais Itens
                             </UploadPlanilha>
+                            <MemorialUploadButton />
                             <button 
                                 onClick={() => clearBudget()}
                                 className="flex justify-center items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 px-5 py-2.5 rounded-lg font-medium transition-colors text-[13px] w-full sm:w-auto"

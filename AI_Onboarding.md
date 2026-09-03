@@ -95,28 +95,34 @@ orceia_v3/
 â”‚       â”‚   â”œâ”€â”€ routes.py
 â”‚       â”‚   â”œâ”€â”€ ai_agent.py
 â”‚       â”‚   â””â”€â”€ schemas.py
-â”‚       â””â”€â”€ sinapi/             â† Busca manual do usuÃ¡rio (autocomplete)
-â”‚           â””â”€â”€ routes.py
+â”‚       â”œâ”€â”€ sinapi/             â† Busca manual do usuÃ¡rio (autocomplete)
+â”‚       â”‚   â””â”€â”€ routes.py
+â”‚       â””â”€â”€ auditoria/          â† Pipeline de Memoriais Descritivos (PDF)
+â”‚           â”œâ”€â”€ routes.py       â† Endpoints: ingerir, status, auditar (SSE)
+â”‚           â”œâ”€â”€ services.py     â† Parser pypdf, embeddings, Pinecone
+â”‚           â”œâ”€â”€ ai_agent.py     â† Agente Auditor (Structured Outputs)
+â”‚           â””â”€â”€ schemas.py
 â”‚
 â””â”€â”€ frontend/
     â”œâ”€â”€ GEMINI.md               â† Regras de IA para frontend (auto-injetadas)
     â””â”€â”€ src/
         â”œâ”€â”€ middleware.ts       â† Intercepta req, valida cookie, injeta X-Tenant-ID
         â”œâ”€â”€ app/
-        â”‚   â”œâ”€â”€ page.tsx        â†� PÃ¡gina principal (tabela + upload)
-        â”‚   â””â”€â”€ api/proxy/      â†� Proxy server-side (mascara API_SECRET_KEY)
+        â”‚   â”œâ”€â”€ page.tsx        â† PÃ¡gina principal (tabela + upload)
+        â”‚   â””â”€â”€ api/proxy/      â† Proxy server-side (mascara API_SECRET_KEY)
         â”œâ”€â”€ components/
-        â”‚   â”œâ”€â”€ BudgetTable.tsx         â†� Tabela virtualizada (60 FPS)
-        â”‚   â”œâ”€â”€ BudgetTableCells.tsx    â†� CÃ©lulas editÃ¡veis
-        â”‚   â”œâ”€â”€ SortableRow.tsx         â†� DnD com @dnd-kit
-        â”‚   â”œâ”€â”€ MemoryModal.tsx         â†� MemÃ³ria de cÃ¡lculo da IA (0 req extras)
+        â”‚   â”œâ”€â”€ BudgetTable.tsx         â† Tabela virtualizada (60 FPS)
+        â”‚   â”œâ”€â”€ BudgetTableCells.tsx    â† CÃ©lulas editÃ¡veis
+        â”‚   â”œâ”€â”€ SortableRow.tsx         â† DnD com @dnd-kit
+        â”‚   â”œâ”€â”€ MemoryModal.tsx         â† MemÃ³ria de cÃ¡lculo da IA (0 req extras)
         â”‚   â”œâ”€â”€ CompositionDetailsModal.tsx
-        â”‚   â””â”€â”€ CompositionCreatorModal.tsx
+        â”‚   â”œâ”€â”€ CompositionCreatorModal.tsx
+        â”‚   â””â”€â”€ MemorialUploadButton.tsxâ† BotÃ£o upload multipart PDF
         â”œâ”€â”€ store/
-        â”‚   â””â”€â”€ useBudgetStore.ts       â†� Zustand: mutaÃ§Ãµes O(1), diff cirÃºrgico
+        â”‚   â””â”€â”€ useBudgetStore.ts       â† Zustand: mutaÃ§Ãµes O(1), diff cirÃºrgico
         â””â”€â”€ hooks/
-            â”œâ”€â”€ useAutoSave.ts          â†� Debounce + /save-linhas (nunca /upsert-linhas)
-            â””â”€â”€ useSseListener.ts       â†� Consome SSE via fetch-event-source (Last-Event-ID)
+            â”œâ”€â”€ useAutoSave.ts          â† Debounce + /save-linhas (nunca /upsert-linhas)
+            â””â”€â”€ useSseListener.ts       â† Consome SSE via fetch-event-source (Last-Event-ID)
 ```
 
 ---
@@ -135,6 +141,7 @@ orceia_v3/
 2. **Concorrncia**: Semforo assncrono limitado a 3 por worker para evitar Rate Limit 429 da OpenAI durante auto-scaling.
 3. **Curva ABC e Tolerância**: Totalmente desconectadas do LLM. O clculo matemático de Tolerância Dimensional (15%) é feito em Python de forma determinística antes da IA atuar.
 4. **UX do SSE**: O Redis entrega pacotes de 2 em 2 (no mais 10 em 10) para uma UI fluida.
-5. **Dicionário de Canteiro e Estratificação**: Interceptador léxico estático em `vocabulario_obra.py` e Orçamentista Virtual (`reformulador.py`) para expandir queries quando o RRF score é menor que 40%.
+5. **Dicionário de Canteiro e Estratificação**: Interceptador léxico estático em `vocabulario_obra.py` (totalmente limpo e otimizado) e Orçamentista Virtual (`reformulador.py`) para expandir queries quando o RRF score é menor que 85%.
 6. **Contexto de Hierarquia**: A UI envia o `macro_item_context` nos itens folha, orientando a IA de forma precisa.
 7. **Detecção de Lista Plana e Estruturação EAP**: Novo módulo isolado `backend/modules/eap/` usa GPT-4o-mini (Structured Outputs + Positional Indexing) para gerar Macro Itens inteligentemente a partir de uma lista plana, fundindo no Frontend antes de rodar o motor RRF.
+8. **Pipeline Bidirecional de Memoriais (PDF)**: Módulo `backend/modules/auditoria/` processa PDFs via `pypdf`, chunking semântico e indexação no Pinecone com namespace isolado (`memorial:{tenant}:{projeto}`). Suporta "Modo Geração" (enriquecimento injetado no orçamentista) e "Modo Auditoria" (Agente Auditor cruzando linha a linha via SSE).

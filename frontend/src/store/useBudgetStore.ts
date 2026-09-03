@@ -40,6 +40,9 @@ interface BudgetState {
   // Novos métodos de Integração Funcional e Upload
   planilhaId: string | null;
   setPlanilhaId: (id: string | null) => void;
+  // Memorial Descritivo (Modo Geração / Modo Auditoria)
+  memorialId: string | null;
+  setMemorialId: (id: string | null) => void;
   processarOrcamentoIA: () => Promise<void>;
   estruturarEAP: (data: BudgetItem[], isAppend?: boolean) => Promise<BudgetItem[]>;
 }
@@ -59,8 +62,10 @@ export const useBudgetStore = create<BudgetState>()(
       isDirty: false,
       dirtyRowIds: [],
       planilhaId: null,
+      memorialId: null,
 
       setPlanilhaId: (id) => set({ planilhaId: id }),
+      setMemorialId: (id) => set({ memorialId: id }),
       setIsDirty: (isDirty) => set({ isDirty }),
       incrementProcessedItemsCount: () => set((state) => ({ processedItemsCount: state.processedItemsCount + 1 })),
       setCurrentAnalyzingItemName: (name) => set({ currentAnalyzingItemName: name }),
@@ -298,7 +303,7 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       processarOrcamentoIA: async () => {
-        const { tableData, planilhaId } = get();
+        const { tableData, planilhaId, memorialId } = get();
         if (!planilhaId) return;
 
         // Extrai apenas os itens folha, injetando o contexto do macro item pai
@@ -321,7 +326,8 @@ export const useBudgetStore = create<BudgetState>()(
                     unidade: row.und,
                     quantidade: row.quant,
                     preco_unitario: row.valorUnit,
-                    macro_item_context: currentMacroName || undefined
+                    macro_item_context: currentMacroName || undefined,
+                    projeto_id: memorialId || undefined,
                 });
             }
         }
