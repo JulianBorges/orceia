@@ -133,7 +133,7 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
                 className={`${baseClass} ${iconOnly ? 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200'}`}
             >
                 <FileText className="w-5 h-5 shrink-0" />
-                {!iconOnly && <span className="hidden sm:inline">Carregar Memorial (PDF)</span>}
+                {!iconOnly && <span className="hidden sm:inline">Carregar Memorial</span>}
                 {getTooltip("Carregar Memorial")}
             </button>
         </div>

@@ -75,18 +75,17 @@ export function Sidebar() {
   return (
     <aside className={`${isCollapsed ? 'w-10' : 'w-64'} h-full bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 ease-in-out`}>
       {/* Header / Logo */}
-      <div className={`h-16 flex items-center border-b border-zinc-200 dark:border-zinc-800 shrink-0 ${isCollapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
-        {!isCollapsed && (
-          <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 overflow-hidden whitespace-nowrap">
-            <FolderOpen className="w-5 h-5 shrink-0 text-zinc-500" />
-            <span>Orçamentos</span>
-          </h1>
-        )}
+      <div className={`h-16 flex border-b border-zinc-200 dark:border-zinc-800 shrink-0 ${isCollapsed ? 'flex-col items-center justify-center gap-1 py-1 px-0' : 'items-center justify-between px-4'}`}>
+        <div className={`flex items-center overflow-hidden whitespace-nowrap ${isCollapsed ? '' : 'gap-2'}`}>
+          <FolderOpen className={`shrink-0 text-zinc-500 ${isCollapsed ? 'w-5 h-5' : 'w-5 h-5'}`} />
+          {!isCollapsed && <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Orçamentos</h1>}
+        </div>
+        
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors`}
+          className={`rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors ${isCollapsed ? 'p-0.5' : 'p-1.5'}`}
         >
-          {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
       </div>
 

@@ -184,7 +184,7 @@ export function UploadPlanilha({ children, className, append = false, iconOnly =
                 <>
                     <FileSpreadsheet className="w-5 h-5" />
                     <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                        {append ? "Adicionar Itens" : "Substituir Excel"}
+                        {append ? "Adicionar Itens" : "Substituir Planilha"}
                     </span>
                 </>
             );
@@ -192,7 +192,7 @@ export function UploadPlanilha({ children, className, append = false, iconOnly =
         return (
             <>
                 <CloudUpload className="w-4 h-4" />
-                {append ? "Adicionar Excel" : "Importar Excel"}
+                {append ? "Adicionar Excel" : "Importar Planilha"}
             </>
         );
     };
