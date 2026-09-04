@@ -14,12 +14,14 @@ from modules.auditoria import routes as auditoria_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Guard de deploy: semaforo asyncio nao e distribuido entre processos
+    # Alerta de deploy: o RedisSemaphore já suporta múltiplos workers,
+    # mas registra um aviso para que o operador monitore o consumo de slots.
     workers = int(os.environ.get("WEB_CONCURRENCY", 1))
     if workers > 1:
-        raise RuntimeError(
-            f"OrceIA detectou WEB_CONCURRENCY={workers}. "
-            "Use WEB_CONCURRENCY=1 e escale via replicas de container (Cloud Run)."
+        print(
+            f"[AVISO] OrceIA rodando com WEB_CONCURRENCY={workers}. "
+            "O RedisSemaphore distribui a concorrência entre workers. "
+            "Monitore o consumo de slots em /health."
         )
     # Setup antes de receber requisições
     await init_db_pool()

@@ -9,7 +9,8 @@ export type AIStatus =
   | 'MEMÓRIA HUMANA'
   | 'CACHE_REDIS'
   | 'ERRO DE PROCESSAMENTO'
-  | 'REJEITADO_FILTRO_MATEMATICO';
+  | 'REJEITADO_FILTRO_MATEMATICO'
+  | 'ERRO';
 
 export type BudgetItem = {
   id: string;

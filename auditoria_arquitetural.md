@@ -1,4 +1,8 @@
 # Relatório de Auditoria Arquitetural — OrceIA V3
+> **STATUS: ARQUIVADO — Todos os 11 itens foram implementados (setembro/2026).**
+> Este documento é historico. Nao contem pendencias ativas.
+> Para o estado atual do sistema, leia `AI_Onboarding.md` e `Master_Plan.md`.
+
 **Sessão:** 2026-09-02 | **Auditado por:** Antigravity (análise profunda de código)
 
 > Este relatório é baseado na leitura direta do código-fonte real da V3 (não da documentação) e nas ideias discutidas nesta sessão. Cada recomendação aponta **onde e como mexer**, sem tocar em nada agora.
@@ -67,7 +71,7 @@ O `is_macro_item` já existe em [`schemas.py` do Zustand](file:///c:/Users/Julia
 
 ---
 
-### 1.3 🟡 Invalidação de Cache RLHF usa `descricao` Bruta como Chave
+### 1.3 ✅ Invalidação de Cache RLHF usa `descricao` Bruta como Chave
 
 **O Problema (fundamentado no código):**
 Em [`services.py` L48](file:///c:/Users/Julian/orceia_v3/backend/modules/orcamento/services.py#L48), a consulta RLHF usa `normalizar_chave(linha.descricao)`. Em [`routes.py` L35](file:///c:/Users/Julian/orceia_v3/backend/modules/orcamento/routes.py#L35), o salvamento usa `normalizar_chave(feedback.termo_original)`. Isso é correto. 
@@ -167,7 +171,7 @@ Em [`UploadPlanilha.tsx` L27-28](file:///c:/Users/Julian/orceia_v3/frontend/src/
 
 ---
 
-### 3.1 🟢 Pipeline Bidirecional de Memoriais Descritivos (AuditorIA + Geração)
+### 3.1 ✅ Pipeline Bidirecional de Memoriais Descritivos (AuditorIA + Geração)
 
 **Análise:**
 O `Plano_AuditorIA.md` prevê apenas o **Modo Auditoria** (PDF chega depois do orçamento). A discussão desta sessão revelou um segundo vetor igualmente poderoso: o **Modo Geração** (PDF chega antes, como guia de especificações). Ambos compartilham 100% do mesmo pipeline de ingestão.
@@ -212,7 +216,7 @@ Isso deve ser aplicado como **preferência ponderada**, não como hard block. Se
 
 ---
 
-### 4.1 🟡 CRUD de Orçamentos Salvos (Dívida Técnica do Master Plan)
+### 4.1 ✅ CRUD de Orçamentos Salvos (Dívida Técnica do Master Plan)
 
 **Status no Código:**
 A tabela `planilhas` e `planilhas_linhas` já existem no Supabase e o Auto-Save já escreve nelas ([`services.py` L169-210](file:///c:/Users/Julian/orceia_v3/backend/modules/orcamento/services.py#L169-L210)). O dado persistido não tem tela de acesso.
@@ -223,7 +227,7 @@ A tabela `planilhas` e `planilhas_linhas` já existem no Supabase e o Auto-Save 
 
 ---
 
-### 4.2 🟡 Semáforo de Processo Único (Risco de Escalabilidade)
+### 4.2 ✅ Semáforo de Processo Único (Risco de Escalabilidade)
 
 **O Problema (fundamentado no código):**
 Em [`services.py` L12-16](file:///c:/Users/Julian/orceia_v3/backend/modules/orcamento/services.py#L12-L16), o comentário do próprio código avisa: *"O servidor DEVE rodar com 1 worker apenas"*. O semáforo Python (`asyncio.Semaphore`) é in-memory e não funciona em ambientes com múltiplos processos/replicas (Cloud Run auto-scaling).
@@ -250,7 +254,7 @@ Substituir `asyncio.Semaphore` por um semáforo distribuído via Redis (usando `
 | **2 — Alta** | 2.4 Feedback de upload silencioso | 🟡 UX básica | ⭐ Baixa | ✅ Concluído |
 | **3 — Médio** | 3.1 Pipeline bidirecional Memoriais (PDF) | 🟢 Diferenciação máxima | ⭐⭐⭐⭐ Muito Alta | ✅ Concluído |
 | **3 — Médio** | 3.2 Filtro de unidade Pinecone | 🟢 Precisão busca | ⭐ Baixa | ✅ Concluído |
-| **4 — Fundação** | 4.1 CRUD de Orçamentos Salvos | 🟡 Dívida técnica | ⭐⭐ Média | ⏳ Pendente |
+| **4 — Fundação** | 4.1 CRUD de Orçamentos Salvos | 🟡 Dívida técnica | ⭐⭐ Média | ✅ Concluído |
 | **4 — Fundação** | 4.2 Semáforo Distribuído (Redis) | 🟡 Escalabilidade | ⭐⭐ Média | ✅ Concluído |
 
 ---

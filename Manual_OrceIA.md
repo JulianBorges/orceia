@@ -49,7 +49,7 @@ A Inteligência Artificial NÃO "chuta" preços no OrceIA. Ela atua através do 
 ## Fase 4: Resiliência Assíncrona e Fluxo Contínuo (SSE)
 
 Para sobreviver a planilhas de 5.000 linhas em nuvens com Timeout (ex: Vercel):
-1.  **Semáforos (Rate Limiting):** Abrace todo o processamento de OpenAI com um `asyncio.Semaphore(25)`. Acompanhe com *Exponential Backoff e Jitter* para caso a OpenAI retorne erro `429 (Too Many Requests)`. Nunca derrube a requisição inteira.
+1.  **Semáforos (Rate Limiting):** O motor de orçamento usa um `RedisSemaphore(3)` distribuído (não `asyncio.Semaphore`, que é in-memory e quebra em multi-replica) em `core/redis_client.py`. Usa `SET key NX EX 60` para locks distribuídos com TTL anti-deadlock. O motor de auditoria usa `asyncio.Semaphore(5)` local (aceitável pois é por-request, não global). Acompanhe com *Exponential Backoff e Jitter* para caso a OpenAI retorne erro `429 (Too Many Requests)`. Nunca derrube a requisição inteira.
 2.  **Fatiamento (Chunks):** O backend fatia as linhas em lotes menores e envia uma por uma para background tasks (`asyncio.create_task`).
 3.  **SSE Blindado:** As atualizações são enviadas em tempo real ao front via Server-Sent Events (SSE). Use **Redis Streams** (`XADD` e `XREAD`) como barramento de memória. Monitore o cabeçalho `Last-Event-ID`; se o navegador do usuário perder o sinal de internet, ele reconectará e o Redis deverá injetar apenas os pacotes perdidos.
 
@@ -129,3 +129,8 @@ Durante a construção iterativa da V1 e V2, enfrentamos problemas arquiteturais
    - **Sintoma:** O Frontend enviava o request de Auto-Save, mas o servidor respondia imediatamente com HTTP 500 e a mensagem `invalid input syntax for type uuid` no console do backend.
    - **Causa:** O Frontend usava strings pseudo-randômicas (`macro_17000...`) geradas via `Date.now()`. O Banco de Dados (Supabase) estava configurado rigorosamente para receber `UUID` e o `asyncpg` forçava o cast (`$1::uuid`). A tentativa de injetar uma string comum em uma coluna UUID quebrava o Postgres.
    - **Solução Definitiva:** Para manter compatibilidade com o histórico de planilhas do usuário, o tipo das colunas `id` e `id_planilha` no PostgreSQL DEVE sempre ser `VARCHAR(255)`. Castings agressivos de UUID foram removidos do backend para respeitar a natureza fluida do identificador do React.
+
+12. **Erro 500 nas Rotas de Leitura CRUD (asyncpg UUID → Pydantic v2):**
+   - **Sintoma:** Rotas `GET /orcamento/planilhas` retornavam 500. O `ValidationError` do Pydantic v2 aparecia nos logs: `Input should be a valid string [type=string_type, input_value=UUID('...'), input_type=UUID]`.
+   - **Causa:** Mesmo que a coluna `id` seja `VARCHAR(255)`, o PostgreSQL armazenava UUIDs e o asyncpg os devolvia como objetos Python `uuid.UUID`. O Pydantic v2 é estrito: espera `str`, recusa `uuid.UUID`.
+   - **Solução Definitiva:** Nas queries de leitura, usar `CAST(id AS TEXT) as id` e `CAST(id_planilha AS TEXT) as id_planilha` explicitamente no SQL. Isso força o asyncpg a retornar strings nativas do Python, compatíveis com o schema Pydantic.

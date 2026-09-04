@@ -44,6 +44,7 @@ interface BudgetState {
   memorialId: string | null;
   setMemorialId: (id: string | null) => void;
   processarOrcamentoIA: () => Promise<void>;
+  auditarPlanilha: () => Promise<void>;
   estruturarEAP: (data: BudgetItem[], isAppend?: boolean) => Promise<BudgetItem[]>;
 }
 
@@ -379,6 +380,101 @@ export const useBudgetStore = create<BudgetState>()(
         }
       },
 
+      auditarPlanilha: async () => {
+        const { tableData, memorialId, updateRowById } = get();
+        if (!memorialId) return;
+
+        const linhasParaAuditar = tableData.filter(r => !r.is_macro_item && r.descricao);
+
+        if (linhasParaAuditar.length === 0) {
+            alert('Nenhum item válido para auditar.');
+            return;
+        }
+
+        set({ 
+            isProcessing: true, 
+            processedItemsCount: 0, 
+            totalItemsToProcess: linhasParaAuditar.length,
+            currentAnalyzingItemName: 'Iniciando auditoria...',
+            processingStatusText: 'Conectando ao agente auditor...' 
+        });
+
+        const { fetchEventSource } = await import('@microsoft/fetch-event-source');
+
+        try {
+            await fetchEventSource('/api/proxy/auditoria/auditar-planilha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    projeto_id: memorialId,
+                    linhas: linhasParaAuditar.map(l => ({
+                        id: l.id,
+                        descricao: l.descricao,
+                        codigo: l.codigo
+                    }))
+                }),
+                onopen: async (res) => {
+                    if (!res.ok) {
+                        throw new Error(`Falha na conexão: ${res.status}`);
+                    }
+                    set({ processingStatusText: 'Auditoria em andamento...' });
+                },
+                onmessage: (event) => {
+                    if (!event.data) return;
+                    try {
+                        const payload = JSON.parse(event.data);
+                        if (payload.status === 'sucesso' && payload.dados) {
+                            const data = payload.dados;
+                            
+                            // Map auditoria status to our table's ai_status
+                            let aiStatus: import('@/utils/budgetUtils').AIStatus = 'PROCESSANDO';
+                            if (data.status_conformidade === 'CONFORME') aiStatus = 'ACEITO';
+                            else if (data.status_conformidade === 'DIVERGENTE') aiStatus = 'RESSALVA';
+                            else if (data.status_conformidade === 'SEM_REFERENCIA') aiStatus = 'PENDENTE';
+
+                            let just = data.justificativa;
+                            if (data.trecho_memorial) {
+                                just += `\n\nTrecho do Memorial:\n"${data.trecho_memorial}"`;
+                            }
+
+                            updateRowById(data.id, {
+                                ai_status: aiStatus,
+                                ai_parecer_tecnico: just
+                            });
+
+                            const store = get();
+                            store.incrementProcessedItemsCount();
+                            
+                            const currentItem = store.tableData.find(r => r.id === data.id);
+                            if (currentItem) {
+                                store.setCurrentAnalyzingItemName(currentItem.descricao);
+                            }
+
+                        } else if (payload.status === 'erro') {
+                            updateRowById(payload.id, {
+                                ai_status: 'ERRO',
+                                ai_parecer_tecnico: payload.mensagem
+                            });
+                            get().incrementProcessedItemsCount();
+                        } else if (payload.status === 'auditoria_concluida') {
+                            set({ isProcessing: false, processingStatusText: 'Auditoria Completa!' });
+                        }
+                    } catch (err) {
+                        console.error('Erro no parse do SSE de auditoria', err);
+                    }
+                },
+                onerror: (err) => {
+                    console.error('Erro na conexão SSE', err);
+                    set({ isProcessing: false, processingStatusText: 'Conexão interrompida.' });
+                    throw err; // Stop retrying
+                }
+            });
+        } catch (error) {
+            console.error('Erro na requisição de auditoria', error);
+            set({ isProcessing: false, processingStatusText: 'Falha ao iniciar auditoria.' });
+        }
+      },
+
       estruturarEAP: async (data: BudgetItem[], isAppend = false) => {
         try {
             const res = await fetch('/api/proxy/eap/estruturar', {
@@ -436,7 +532,13 @@ export const useBudgetStore = create<BudgetState>()(
     }),
     {
       name: 'orcamento_data',
-      partialize: (state) => ({ tableData: state.tableData, bdi: state.bdi, title: state.title }),
+      partialize: (state) => ({
+        tableData: state.tableData,
+        bdi: state.bdi,
+        title: state.title,
+        planilhaId: state.planilhaId,
+        memorialId: state.memorialId,
+      }),
     }
   )
 );

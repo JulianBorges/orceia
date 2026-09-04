@@ -7,6 +7,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { UploadPlanilha } from '../components/UploadPlanilha';
 import { SavedBudgetsModal } from '../components/SavedBudgetsModal';
 import { MemorialUploadButton } from '../components/MemorialUploadButton';
+import { AuditorButton } from '../components/AuditorButton';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { Loader2, Download, Layers, Trash2, Plus } from 'lucide-react';
@@ -181,6 +182,7 @@ export default function Home() {
                                 Carregar Mais Itens
                             </UploadPlanilha>
                             <MemorialUploadButton />
+                            <AuditorButton />
                             <button 
                                 onClick={() => clearBudget()}
                                 className="flex justify-center items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 px-5 py-2.5 rounded-lg font-medium transition-colors text-[13px] w-full sm:w-auto"

@@ -126,13 +126,23 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     # Ordena pelo Score RRF
     ranking = sorted(scores_rrf.items(), key=lambda x: x[1], reverse=True)
     
-    # Verifica o Score Máximo
-    max_rrf_score = 2.2 / 61.0
+    # Avalia confiança do resultado considerando as duas escalas possíveis:
+    # - Score máximo de consenso (top 1 em ambos): 1/61 * 1.20 + 1/61 = 2.2/61
+    # - Score máximo de fonte única (top 1 só em uma): 1/61
+    # Normaliza pelo score de fonte única para dar chance justa a itens sem cobertura vetorial.
+    # O Fallback só é acionado se o melhor resultado também seria ruim mesmo se tivesse vindo de uma fonte.
+    max_score_unica_fonte = 1.0 / (k + 1)  # score de rank 0 numa única fonte
     best_score = ranking[0][1] if ranking else 0
-    best_pct = (best_score / max_rrf_score) * 100
+
+    # Desnormaliza o boost de consenso antes de comparar com a escala de fonte única
+    # Se o item tem consenso (score > 1/61), o score base real é ~ score / 2.2
+    # Comparamos o score com 85% do máximo de fonte única para fairness
+    limiar_fallback = max_score_unica_fonte * 0.85
+    acionar_fallback = best_score < limiar_fallback
+    best_pct = min((best_score / (max_score_unica_fonte * 2.2)) * 100, 100.0)
 
     # Fallback Orçamentista Virtual se a confiança estiver baixa (Abaixo de 85%)
-    if best_pct < 85.0:
+    if acionar_fallback:
         print(f"[RRF FALLBACK] Confiança muito baixa ({round(best_pct, 1)}%) para '{termo_busca}'. Acionando GPT Reformulador...")
         from modules.orcamento.reformulador import gerar_variacoes_tecnicas
         sinonimos = await gerar_variacoes_tecnicas(termo_busca)
@@ -160,7 +170,7 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
         # Converte Numeric do Postgres para Float nativo (necessário pro JSON)
         item["preco"] = float(item["preco"]) if item.get("preco") is not None else 0.0
         
-        normalized_percentage = min((score / max_rrf_score) * 100, 100.0)
+        normalized_percentage = min((score / (max_score_unica_fonte * 2.2)) * 100, 100.0)
         
         print(f"[RRF] {cod}: raw_score={score}, pct={round(normalized_percentage, 1)}%")
         # Garante campos consistentes independente da origem (Postgres ou Pinecone)

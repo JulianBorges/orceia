@@ -107,41 +107,49 @@ async def auditar_planilha(
     if not lote.linhas:
         raise HTTPException(status_code=400, detail="Nenhum item enviado para auditoria.")
 
+    # Semáforo local de auditoria — controla chamadas à OpenAI sem bloquear o SSE
+    # Valor conservador: auditoria é menos urgente que orçamentação e compartilha cota da API
+    import asyncio as _asyncio
+    _sem = _asyncio.Semaphore(5)
+
+    async def auditar_linha_com_semaforo(linha):
+        """Processa um item com controle de concorrência, retornando o dict de resultado."""
+        async with _sem:
+            trechos = await buscar_contexto_memorial(
+                linha.descricao, tenant_id, lote.projeto_id
+            )
+            if not trechos:
+                return {
+                    "id": linha.id,
+                    "status_conformidade": "SEM_REFERENCIA",
+                    "justificativa": "O memorial não menciona este tipo de serviço.",
+                    "trecho_memorial": None,
+                }
+            analise = await auditar_item_contra_memorial(
+                linha.descricao, linha.codigo, trechos
+            )
+            print(f"[AUDITORIA CoT] Item '{linha.descricao[:50]}': {analise.raciocinio_auditoria}")
+            return {
+                "id": linha.id,
+                "status_conformidade": analise.status_conformidade,
+                "justificativa": analise.justificativa,
+                "trecho_memorial": analise.trecho_memorial,
+            }
+
     async def event_generator():
-        for linha in lote.linhas:
+        # Cria todas as tasks de auditoria de uma vez (o semáforo controla a concorrência)
+        tasks = [
+            _asyncio.create_task(auditar_linha_com_semaforo(linha))
+            for linha in lote.linhas
+        ]
+
+        for task in tasks:
             try:
-                # Busca contexto semântico do memorial para este item
-                trechos = await buscar_contexto_memorial(
-                    linha.descricao, tenant_id, lote.projeto_id
-                )
-
-                if not trechos:
-                    # Nenhum trecho relevante → SEM_REFERENCIA direto (sem custo de IA)
-                    resultado = {
-                        "id": linha.id,
-                        "status_conformidade": "SEM_REFERENCIA",
-                        "justificativa": "O memorial não menciona este tipo de serviço.",
-                        "trecho_memorial": None,
-                    }
-                else:
-                    analise = await auditar_item_contra_memorial(
-                        linha.descricao, linha.codigo, trechos
-                    )
-                    # CoT é efêmero — apenas log
-                    print(f"[AUDITORIA CoT] Item '{linha.descricao[:50]}': {analise.raciocinio_auditoria}")
-
-                    resultado = {
-                        "id": linha.id,
-                        "status_conformidade": analise.status_conformidade,
-                        "justificativa": analise.justificativa,
-                        "trecho_memorial": analise.trecho_memorial,
-                    }
-
+                resultado = await task
                 yield f"data: {json.dumps({'status': 'sucesso', 'dados': resultado}, ensure_ascii=False)}\n\n"
-
             except Exception as e:
-                print(f"[AUDITORIA] Erro ao auditar item {linha.id}: {e}")
-                yield f"data: {json.dumps({'status': 'erro', 'id': linha.id, 'mensagem': str(e)}, ensure_ascii=False)}\n\n"
+                # Tenta identificar qual linha falhou para notificar o frontend
+                yield f"data: {json.dumps({'status': 'erro', 'mensagem': str(e)}, ensure_ascii=False)}\n\n"
 
         # Evento de conclusão
         yield f"data: {json.dumps({'status': 'auditoria_concluida', 'total': len(lote.linhas)})}\n\n"

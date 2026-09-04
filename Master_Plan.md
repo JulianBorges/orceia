@@ -83,17 +83,31 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
   - [x] Implementação de Login Passwordless com segurança via Cookies HTTP-Only, Middleware e Headers `X-Tenant-ID`.
   - [x] Isolamento perimetral do tráfego SSE via Redis Streams (`stream:{tenant_id}:planilha:{id_planilha}`) e injeção de dependência estrita (`Depends(get_current_tenant)`) no FastAPI.
 
-- [ ] **4.3 Gestão de Orçamentos Salvos (CRUD UI / Dívida Técnica):**
-  - [ ] Aproveitar a persistência de planilhas e linhas (já funcional no backend via Auto-Save) para construir as rotas `GET /planilhas` e uma interface visual (Modal "Meus Orçamentos").
-  - [ ] Permitir listar, recuperar histórico e alternar entre orçamentos salvos do Tenant, removendo a dependência atual do LocalStorage do navegador.
+- [x] **4.3 Gestão de Orçamentos Salvos (CRUD):**
+  - [x] Rotas `GET /orcamento/planilhas` e `GET /orcamento/planilhas/{id}/linhas` implementadas em `services.py` + `routes.py`.
+  - [x] Modal `SavedBudgetsModal.tsx` implementado com listagem, loading state e recuperação de planilha completa.
+  - [x] Mapeamento correto inclui `descricao_legada`, `is_macro_item` baseado em unidade (não em preço) e `base` condicional.
+  - [x] Queries SQL usam `CAST(id AS TEXT)` para evitar incompatibilidade asyncpg → Pydantic v2.
+  - [x] `planilhaId` e `memorialId` persistidos no Zustand `persist` para sobreviver ao refresh de página.
 
 ---
 
-## 🔮 SPRINT 5: Multimodalidade e Auditoria Documental (AuditorIA)
-*Objetivo: Cruzar planilhas financeiras com cadernos de encargos e memoriais descritivos em PDF.*
+## 🔮 SPRINT 5: Pipeline Bidirecional de Memoriais Descritivos (AuditorIA) — CONCLUÍDA
 
-- [ ] **5.1 Ingestão Multimodal:**
-  - [ ] Pipeline para leitura de PDFs com LlamaParse ou Claude 3.5 Sonnet Vision em `backend/modules/auditoria/`.
-  
-- [ ] **5.2 Agente Inspetor de Conformidade:**
-  - [ ] IA capaz de validar se o item de excel reflete exatamente as exigências do Caderno de Encargos em PDF, identificando downgrades de material com citação de página exata.
+- [x] **5.1 Ingestão de Memoriais (PDF):**
+  - [x] `backend/modules/auditoria/services.py`: pipeline PDF → pypdf → chunking semântico por parágrafo → embeddings (`text-embedding-3-small`) → Pinecone em lote.
+  - [x] Namespace isolado por tenant e projeto: `memorial:{tenant_id}:{projeto_id}`.
+  - [x] Endpoint `POST /auditoria/ingerir-memorial` (multipart/form-data) com validação de PDF e geração automática de `projeto_id`.
+  - [x] Endpoint `GET /auditoria/status/{projeto_id}` consulta `describe_index_stats()` do Pinecone.
+  - [x] `MemorialUploadButton.tsx`: estados idle/uploading/success/error com feedback visual de chunks gerados.
+
+- [x] **5.2 Modo Geração (Memorial como guia de especificações):**
+  - [x] `processarOrcamentoIA()` no Zustand envia `projeto_id: memorialId` no payload de cada linha.
+  - [x] Em `orcamento/services.py`: se `projeto_id` presente, chama `buscar_contexto_memorial()` e injeta o trecho relevante no prompt do Agente Engenheiro como `[Especificação do Memorial Descritivo]`.
+  - [x] Fallback silencioso: se memorial sem trecho relevante (score < 0.65), fluxo continua normalmente sem erro.
+
+- [x] **5.3 Modo Auditoria (Conformidade linha a linha):**
+  - [x] `backend/modules/auditoria/ai_agent.py`: Agente Auditor com schema `ResultadoConformidade` (CONFORME/DIVERGENTE/SEM_REFERENCIA) via Structured Outputs.
+  - [x] Endpoint `POST /auditoria/auditar-planilha` (SSE): semáforo `asyncio.Semaphore(5)` protege rate limit. Tasks criadas em paralelo, resultados entregues via SSE conforme concluídas.
+  - [x] `auditarPlanilha()` no Zustand: consome SSE via `fetchEventSource`, mapeia status de conformidade para `AIStatus` e atualiza cada linha em tempo real.
+  - [x] `AuditorButton.tsx`: aparece condicionalmente quando `memorialId` existe; desativado durante processamento.

@@ -1,147 +1,214 @@
-# OrceIA â€” Contexto Arquitetural do Projeto
+﻿# OrceIA V3 — Contexto Arquitetural para IA
 
-> **Nota:** Este arquivo contÃ©m o contexto narrativo e as decisÃµes arquiteturais do projeto.
-> As **regras de cÃ³digo ativas** (guidelines, proibiÃ§Ãµes e padrÃµes) agora vivem nos arquivos `GEMINI.md`
-> hierÃ¡rquicos, lidos automaticamente pela IA:
-> - Regras universais â†’ `/GEMINI.md`
-> - Regras de Frontend â†’ `/frontend/GEMINI.md`
-> - Regras de Backend â†’ `/backend/GEMINI.md`
+> **Leitura obrigatória antes de qualquer tarefa neste repositório.**
+> As **regras de código ativas** (proibições, padrões invioláveis) vivem em `.agents/rules/GEMINI.md`.
+> Este arquivo descreve o *que* o sistema é e *como* está estruturado hoje.
 
 ---
 
-## 1. VisÃ£o Geral do Produto
+## 1. Visão Geral do Produto
 
-O **OrceIA** Ã© um Copiloto de OrÃ§amento de Engenharia de alta performance. Recebe planilhas massivas (5.000+ linhas) do usuÃ¡rio, normaliza os dados, cruza com bancos oficiais (SINAPI) via Busca SemÃ¢ntica HÃ­brida (RRF) e devolve o orÃ§amento preenchido em tempo real via SSE.
+O **OrceIA V3** é um Copiloto de Orçamento de Engenharia governamental de alta performance.
 
-**PÃºblico-alvo:** Engenheiros e gestores de obras em ambientes governamentais e corporativos que precisam orÃ§ar insumos e composiÃ§Ãµes com rastreabilidade e conformidade ao SINAPI.
-
----
-
-## 2. Stack TecnolÃ³gica
-
-| Camada | Tecnologia | Motivo da Escolha |
-|--------|------------|-------------------|
-| Frontend | Next.js 14 + Tailwind CSS | SSR, App Router e ecossistema maduro |
-| Estado | Zustand | MutaÃ§Ãµes atÃ´micas O(1) sem re-renders globais |
-| VirtualizaÃ§Ã£o | `@tanstack/react-virtual` | 60 FPS com 5.000+ linhas no DOM |
-| DnD | `@dnd-kit` | CompatÃ­vel com listas virtualizadas |
-| Backend | FastAPI + asyncio | 100% assÃ­ncrono, ideal para SSE de longa duraÃ§Ã£o |
-| DB Relacional | Supabase (PostgreSQL + `pg_trgm`) | Busca lexical por trigramas sem ElasticSearch |
-| DB Vetorial | Pinecone | Busca semÃ¢ntica por namespace isolado |
-| Cache/Mensageria | Redis Streams | SSE resiliente com `Last-Event-ID` e cache SHA-256 |
-| IA | OpenAI `gpt-4o-mini` + `text-embedding-3-small` | Structured Outputs + custo controlado |
+- Recebe planilhas de **5.000+ linhas** sem bloquear a UI (virtualização `@tanstack/react-virtual`)
+- Detecta planilhas sem estrutura hierárquica ("Lista Plana") e oferece estruturação automática de EAP via IA
+- Cruza dados com o banco SINAPI via **Busca Semântica Híbrida (RRF)** com Fallback Estratificado
+- Devolve resultados em **tempo real via SSE** (Server-Sent Events) sobre Redis Streams
+- Aceita Memoriais Descritivos em PDF para dois modos: **Geração** (guia de especificações) e **Auditoria** (conformidade)
 
 ---
 
-## 3. DecisÃµes Arquiteturais e seus PorquÃªs
+## 2. Stack Tecnológica
 
-### 3.1. Por que NÃ£o Usamos Serverless para o Backend?
-
-A Vercel corta funÃ§Ãµes serverless em 10â€“60 segundos. Uma planilha de 5.000 linhas leva vÃ¡rios minutos para ser processada pela OpenAI. SoluÃ§Ã£o: **Google Cloud Run** com CPU Always Allocated (`--no-cpu-throttling`), onde o container persiste durante toda a sessÃ£o de processamento.
-
-### 3.2. Por que Redis Streams e NÃ£o WebSockets?
-
-WebSockets exigem conexÃ£o bidirecional persistente â€” cara e complexa de escalar horizontalmente. O SSE com Redis Streams (`XADD`/`XREAD`) Ã© unidirecional (servidor â†’ cliente), stateless no servidor e resiliente: o `Last-Event-ID` permite que o cliente reconecte e receba apenas os pacotes perdidos sem reprocessamento.
-
-### 3.3. Por que RRF em Vez de Busca Puramente Vetorial?
-
-Busca vetorial (Pinecone) Ã© excelente para semÃ¢ntica, mas falha em nomes tÃ©cnicos exatos como `"CONCRETO FCK 30 MPa"`. Busca por trigramas (PostgreSQL `pg_trgm`) Ã© rÃ¡pida em exatos, mas falha em sinÃ´nimos. O **Reciprocal Rank Fusion** une os dois mundos matematicamente, sem precisar de um LLM extra para fazer o merge â€” economizando latÃªncia e custo.
-
-### 3.4. Por que Structured Outputs em Vez de Prompt Engineering Puro?
-
-System Prompts "gentis" falham sob fadiga de contexto e em modelos menores. `beta.chat.completions.parse` com schema Pydantic Ã© determinÃ­stico: a OpenAI garante que o JSON retornado serÃ¡ vÃ¡lido e aderente ao schema â€” eliminando a necessidade de parse por Regex ou tentativas de correÃ§Ã£o no pÃ³s-processamento.
-
-### 3.5. Por que Zero-Shot Chain of Thought no Schema?
-
-Ao forÃ§ar o modelo a preencher `raciocinio_step_by_step` *antes* do veredito final, ativamos o raciocÃ­nio lÃ³gico interno da LLM (como um "rascunho mental") antes de ela "commitar" a resposta. Isso reduz drasticamente alucinaÃ§Ãµes em itens ambÃ­guos como materiais com especificaÃ§Ãµes dimensionais.
-
-### 3.6. Por que o Cache SHA-256 no Redis?
-
-Itens de engenharia se repetem entre planilhas de clientes diferentes (ex: `"ALVENARIA DE TIJOLO CERÃ‚MICO"` aparece em 80%+ das obras). Um hash criptogrÃ¡fico do termo pesquisado permite reutilizar o veredito da IA por 15 dias, reduzindo em 70%+ os custos da OpenAI sem comprometer a qualidade.
-
-### 3.7. Por que Multi-Tenancy via Header e NÃ£o via Payload?
-
-Trafegar `tenant_id` no body JSON abre vetor de ataque: qualquer client pode forjar o campo. O `middleware.ts` do Next.js lÃª o Cookie HttpOnly (nÃ£o acessÃ­vel por JavaScript), extrai o tenant e o injeta como header `X-Tenant-ID` â€” inforjÃ¡vel pelo browser. O FastAPI consome apenas via `Depends(get_current_tenant)`.
+| Camada | Tecnologia |
+|--------|------------|
+| Frontend | Next.js 14, Tailwind CSS, Zustand, `@tanstack/react-virtual`, `@dnd-kit` |
+| Backend | FastAPI, `asyncio`, `asyncpg`, `pydantic v2`, `tenacity` |
+| Dados | Supabase (PostgreSQL + `pg_trgm`), Pinecone (vetores) |
+| Cache/SSE | Redis Streams (`XADD`/`XREAD`), Semáforo Distribuído Redis |
+| IA | `gpt-4o-mini` Structured Outputs + `text-embedding-3-small` |
 
 ---
 
-## 4. Mapa do CÃ³digo
+## 3. Decisões Arquiteturais Fundamentais
+
+**Por que Cloud Run e não Serverless?**
+A Vercel corta funções em 10-60s. Uma planilha de 5.000 linhas leva minutos. Cloud Run com CPU Always Allocated mantém o container vivo durante todo o processamento SSE.
+
+**Por que Redis Streams e não WebSockets?**
+SSE com Redis Streams é stateless no servidor, resiliente a reconexões via `Last-Event-ID`, e unidirecional (servidor cliente) ideal para o fluxo de notificação de orçamento.
+
+**Por que RRF e não busca puramente vetorial?**
+Pinecone é excelente para semântica, falha em nomes técnicos exatos. pg_trgm é excelente em exatos, falha em sinônimos. O RRF une os dois matematicamente sem LLM extra.
+
+**Por que Structured Outputs?**
+`beta.chat.completions.parse` com schema Pydantic é determinístico — elimina parse de Regex, preâmbulos e campos vazios sob fadiga de contexto.
+
+**Por que Semáforo Distribuído Redis?**
+O `asyncio.Semaphore` é in-memory e quebra em multi-replica. A classe `RedisSemaphore` em `core/redis_client.py` usa `SET key NX EX 60` para distribuir locks entre workers com TTL anti-deadlock.
+
+**Por que multi-tenancy via Header?**
+Trafegar `tenant_id` no body abre vetor de ataque. O `middleware.ts` lê o Cookie HttpOnly, injeta `X-Tenant-ID` inforjável pelo browser. FastAPI consome via `Depends(get_current_tenant)`.
+
+---
+
+## 4. Mapa do Código (Estado Atual)
 
 ```
 orceia_v3/
-â”œâ”€â”€ GEMINI.md                   â†� Regras universais de IA (auto-injetadas)
-â”œâ”€â”€ Master_Plan.md              â†� Roadmap de Sprints (fonte de verdade de produto)
-â”œâ”€â”€ Manual_OrceIA.md            â†� Blueprint completo de construÃ§Ã£o (referÃªncia humana)
-â”œâ”€â”€ Plano_AuditorIA.md          â†� Spec da Sprint 5 (feature futura de PDFs)
-â”‚
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ GEMINI.md               â†� Regras de IA para backend (auto-injetadas)
-â”‚   â”œâ”€â”€ main.py                 â†� Entry point FastAPI (lifespan, CORS, routers)
-â”‚   â”œâ”€â”€ core/
-â”‚   â”‚   â”œâ”€â”€ config.py           â† Settings via pydantic-settings
-â”‚   â”‚   â”œâ”€â”€ db.py               â† Pool asyncpg (statement_cache_size=0)
-â”‚   â”‚   â”œâ”€â”€ security.py         â† DependÃªncias centrais de seguranÃ§a (DRY)
-â”‚   â”‚   â”œâ”€â”€ ai_client.py        â† Singleton OpenAI c/ Timeout global (30.0s)
-â”‚   â”‚   â””â”€â”€ redis_client.py     â† Cliente Redis (streams + cache)
-â”‚   â””â”€â”€ modules/
-â”‚       â”œâ”€â”€ orcamento/          â† Motor SINAPI: RRF, OpenAI, SSE (NÃšCLEO â€” nÃ£o mexa)
-â”‚       â”‚   â”œâ”€â”€ preprocessor.py â† Agente Corretor (normaliza termos prÃ©-Pinecone)
-â”‚       â”‚   â”œâ”€â”€ routes.py       â† Endpoints: /upsert-linhas, /save-linhas, /stream
-â”‚       â”‚   â”œâ”€â”€ services.py     â† OrquestraÃ§Ã£o: chunks, semÃ¡foro, SSE
-â”‚       â”‚   â”œâ”€â”€ search_engine.pyâ† Algoritmo RRF (Pinecone + Supabase)
-â”‚       â”‚   â”œâ”€â”€ ai_agents.py    â† Structured Outputs com Pydantic
-â”‚       â”‚   â””â”€â”€ schemas.py      â† DTOs Pydantic v2
-â”‚       â”œâ”€â”€ eap/                â† Agente de EstruturaÃ§Ã£o (Lista Plana -> EAP)
-â”‚       â”‚   â”œâ”€â”€ routes.py
-â”‚       â”‚   â”œâ”€â”€ ai_agent.py
-â”‚       â”‚   â””â”€â”€ schemas.py
-â”‚       â”œâ”€â”€ sinapi/             â† Busca manual do usuÃ¡rio (autocomplete)
-â”‚       â”‚   â””â”€â”€ routes.py
-â”‚       â””â”€â”€ auditoria/          â† Pipeline de Memoriais Descritivos (PDF)
-â”‚           â”œâ”€â”€ routes.py       â† Endpoints: ingerir, status, auditar (SSE)
-â”‚           â”œâ”€â”€ services.py     â† Parser pypdf, embeddings, Pinecone
-â”‚           â”œâ”€â”€ ai_agent.py     â† Agente Auditor (Structured Outputs)
-â”‚           â””â”€â”€ schemas.py
-â”‚
-â””â”€â”€ frontend/
-    â”œâ”€â”€ GEMINI.md               â† Regras de IA para frontend (auto-injetadas)
-    â””â”€â”€ src/
-        â”œâ”€â”€ middleware.ts       â† Intercepta req, valida cookie, injeta X-Tenant-ID
-        â”œâ”€â”€ app/
-        â”‚   â”œâ”€â”€ page.tsx        â† PÃ¡gina principal (tabela + upload)
-        â”‚   â””â”€â”€ api/proxy/      â† Proxy server-side (mascara API_SECRET_KEY)
-        â”œâ”€â”€ components/
-        â”‚   â”œâ”€â”€ BudgetTable.tsx         â† Tabela virtualizada (60 FPS)
-        â”‚   â”œâ”€â”€ BudgetTableCells.tsx    â† CÃ©lulas editÃ¡veis
-        â”‚   â”œâ”€â”€ SortableRow.tsx         â† DnD com @dnd-kit
-        â”‚   â”œâ”€â”€ MemoryModal.tsx         â† MemÃ³ria de cÃ¡lculo da IA (0 req extras)
-        â”‚   â”œâ”€â”€ CompositionDetailsModal.tsx
-        â”‚   â”œâ”€â”€ CompositionCreatorModal.tsx
-        â”‚   â””â”€â”€ MemorialUploadButton.tsxâ† BotÃ£o upload multipart PDF
-        â”œâ”€â”€ store/
-        â”‚   â””â”€â”€ useBudgetStore.ts       â† Zustand: mutaÃ§Ãµes O(1), diff cirÃºrgico
-        â””â”€â”€ hooks/
-            â”œâ”€â”€ useAutoSave.ts          â† Debounce + /save-linhas (nunca /upsert-linhas)
-            â””â”€â”€ useSseListener.ts       â† Consome SSE via fetch-event-source (Last-Event-ID)
+├── .agents/rules/GEMINI.md       <- Regras universais (lidas automaticamente - NUNCA ignore)
+├── AI_Onboarding.md              <- Este arquivo (contexto e mapa)
+├── Master_Plan.md                <- Status de Sprints (o que foi e nao foi implementado)
+├── Manual_OrceIA.md              <- Blueprint completo de construcao + Post-Mortem
+│
+├── backend/
+│   ├── main.py                   <- FastAPI entry point: lifespan, CORS, registro de routers
+│   │                                WEB_CONCURRENCY > 1 emite aviso (RedisSemaphore ja suporta multi-worker)
+│   ├── core/
+│   │   ├── config.py             <- Settings via pydantic-settings (le .env)
+│   │   ├── db.py                 <- Pool asyncpg (statement_cache_size=0 obrigatorio)
+│   │   ├── security.py           <- verify_proxy_secret + get_current_tenant (DRY central)
+│   │   ├── ai_client.py          <- Singleton AsyncOpenAI (timeout=30s, max_retries=0)
+│   │   ├── redis_client.py       <- Streams SSE, Cache SHA-256, RedisSemaphore distribuido
+│   │   ├── text_utils.py         <- normalizar_chave(): NFD + lower + colapso de espacos
+│   │   └── vocabulario_obra.py   <- Dicionario de canteiro: jargoes -> terminologia SINAPI
+│   │
+│   └── modules/
+│       ├── orcamento/            <- NUCLEO - nao mexa sem aprovacao explicita
+│       │   ├── preprocessor.py   <- normalizar_termo_busca(): Dicionario -> Regex dimensional -> TermoNormalizado
+│       │   │                        extrair_dimensoes_numericas(): tolerancia deterministica em Python
+│       │   ├── reformulador.py   <- Agente de variacoes tecnicas (acionado pelo Fallback RRF)
+│       │   ├── search_engine.py  <- RRF: Pinecone + pg_trgm, boost consenso 20%, Fallback Estratificado
+│       │   │                        Threshold baseado em fonte unica (nao dupla) para evitar falsos positivos
+│       │   ├── ai_agents.py      <- Agente Engenheiro (Structured Outputs, schema AnaliseIA)
+│       │   ├── services.py       <- Orquestrador: RLHF -> RRF -> Cache -> Tolerancia -> Memorial -> IA -> SSE
+│       │   ├── routes.py         <- /upsert-linhas, /save-linhas, /stream, /feedback, /planilhas (CRUD)
+│       │   └── schemas.py        <- DTOs: LinhaOrcamentoBase (macro_item_context, projeto_id), AnaliseIA
+│       │
+│       ├── eap/                  <- Agente de Estruturacao (Lista Plana -> EAP hierarquica)
+│       │   ├── routes.py         <- POST /eap/estruturar
+│       │   ├── ai_agent.py       <- Agente EAP com indices posicionais (sem UUIDs, economiza tokens)
+│       │   └── schemas.py
+│       │
+│       ├── auditoria/            <- Pipeline Bidirecional de Memoriais Descritivos (PDF)
+│       │   ├── routes.py         <- POST /ingerir-memorial, GET /status/{id}, POST /auditar-planilha (SSE)
+│       │   │                        /auditar-planilha usa asyncio.Semaphore(5) para proteger rate limit
+│       │   ├── services.py       <- pypdf -> chunking semantico -> embeddings -> Pinecone
+│       │   │                        buscar_contexto_memorial() usada pelo Modo Geracao em orcamento/services.py
+│       │   ├── ai_agent.py       <- Agente Auditor: CONFORME/DIVERGENTE/SEM_REFERENCIA (Structured Outputs)
+│       │   └── schemas.py
+│       │
+│       ├── sinapi/               <- Busca manual do usuario (autocomplete)
+│       ├── auth/                 <- Autenticacao multi-tenant (Cookie HttpOnly)
+│       └── shared/
+│           └── sinapi_search.py  <- search_sinapi_por_trigrama() com allowlist de tabelas (injecao SQL bloqueada)
+│
+└── frontend/src/
+    ├── middleware.ts              <- Valida Cookie orceia_tenant_session, injeta X-Tenant-ID
+    ├── app/
+    │   ├── page.tsx               <- Pagina principal: tabela + header com todos os botoes de acao
+    │   └── api/proxy/[...path]/route.ts  <- Proxy server-side: injeta API_SECRET_KEY + X-Tenant-ID
+    │
+    ├── components/
+    │   ├── BudgetTable.tsx         <- Tabela virtualizada 60 FPS
+    │   ├── UploadPlanilha.tsx      <- Upload XLSX: deteccao de Lista Plana -> FlatListModal
+    │   ├── FlatListModal.tsx       <- Modal: Lista Plana como esta OU estruturar EAP com IA
+    │   ├── MemorialUploadButton.tsx <- Upload multipart PDF -> POST /auditoria/ingerir-memorial
+    │   ├── AuditorButton.tsx       <- Aparece quando memorialId existe; aciona auditarPlanilha()
+    │   ├── SavedBudgetsModal.tsx   <- Modal "Meus Orcamentos": lista e recupera planilhas salvas
+    │   └── MemoryModal.tsx         <- Drawer lateral: memoria de calculo da IA (0 requests extras)
+    │
+    ├── store/
+    │   └── useBudgetStore.ts       <- Zustand: diff cirurgico O(1)
+    │                                  persist: tableData, bdi, title, planilhaId, memorialId
+    │                                  processarOrcamentoIA(): injeta macro_item_context + projeto_id
+    │                                  auditarPlanilha(): SSE via @microsoft/fetch-event-source
+    │                                  estruturarEAP(): chama /eap/estruturar
+    │
+    ├── hooks/
+    │   ├── useAutoSave.ts          <- Debounce nativo setTimeout -> /save-linhas (NUNCA /upsert-linhas)
+    │   └── useSseListener.ts       <- fetch-event-source com Last-Event-ID e AbortController
+    │
+    └── utils/
+        └── budgetUtils.ts          <- BudgetItem type, AIStatus union type (inclui ERRO), recalculateNumbers
 ```
 
 ---
 
-## 5. Como Navegar no Projeto
+## 5. Pipeline de Processamento de uma Linha (Fluxo Completo)
 
-- **PrÃ³xima feature a implementar?** â†’ Consulte `Master_Plan.md` (roadmap de Sprints 1-5).
-- **Próxima feature a implementar?** → Consulte `Master_Plan.md` (roadmap de Sprints 1-5).
-- **Refatoração e correção de bugs auditados?** → Consulte `Refactor_Plan.md` (Sprints 6-9).
-- **Dúvida de construção do zero?** → Consulte `Manual_OrceIA.md` (blueprint completo).
-- **AuditorIA (PDFs)?** → Consulte `Plano_AuditorIA.md`.
-- **Regra de código específica?** → Os `GEMINI.md` e `.agents/rules/` são a fonte de verdade ativa.
+```
+UploadPlanilha.tsx
+  -> [0% macro itens?] -> FlatListModal -> estruturarEAP() -> POST /eap/estruturar
+  -> processarOrcamentoIA()
+       percorre tableData: guarda ultimo is_macro_item como currentMacroName
+       monta payload com macro_item_context e projeto_id (se memorialId existir)
+  -> POST /api/proxy/orcamento/upsert-linhas (chunks de 100)
+  -> FastAPI: linha.tenant_id = tenant_id (server-side, nunca via payload)
+  -> processar_linha_com_semaforo() [RedisSemaphore(3)]
+       check_rlhf_memory() [normalizar_chave -> banco memoria_organizacional]
+       realizar_busca_hibrida()
+           normalizar_termo_busca() [Dicionario Canteiro -> Regex dimensional]
+           asyncio.gather(pg_trgm, pinecone[filtro unidade com fallback])
+           RRF fusion [boost consenso 20%]
+           [score < 85% de fonte unica?] -> gerar_variacoes_tecnicas() -> RRF expandido
+       get_ai_cache() [normalizar_chave -> SHA-256]
+       extrair_dimensoes_numericas() -> injeta [TOLERANCIA: ACEITAVEL/INACEITAVEL] nos candidatos
+       [projeto_id?] -> buscar_contexto_memorial() [Pinecone namespace memorial:{tenant}:{projeto}]
+       consultar_agente_engenheiro() [Structured Outputs -> AnaliseIA]
+       print(raciocinio_step_by_step) [EFEMERO - nunca persiste, nunca viaja no SSE]
+       set_ai_cache() [apenas veredito logico, sem precos pereciveis]
+  -> publish_sse_event(stream:{tenant_id}:planilha:{id})
+  -> useSseListener -> updateRowById() [mutacao O(1), nao marca dirty - evita loop auto-save]
+```
 
-### Atualizações Arquiteturais Recentes (Auditoria Motor IA)
-1. **Pinecone**: Utiliza Lazy Initialization para no derrubar instncias serverless no boot, e agora suporta *Filtro Rígido de Unidades* com Fallback nativo.
-2. **Concorrncia**: Semforo assncrono limitado a 3 por worker para evitar Rate Limit 429 da OpenAI durante auto-scaling.
-3. **Curva ABC e Tolerância**: Totalmente desconectadas do LLM. O clculo matemático de Tolerância Dimensional (15%) é feito em Python de forma determinística antes da IA atuar.
-4. **UX do SSE**: O Redis entrega pacotes de 2 em 2 (no mais 10 em 10) para uma UI fluida.
-5. **Dicionário de Canteiro e Estratificação**: Interceptador léxico estático em `vocabulario_obra.py` (totalmente limpo e otimizado) e Orçamentista Virtual (`reformulador.py`) para expandir queries quando o RRF score é menor que 85%.
-6. **Contexto de Hierarquia**: A UI envia o `macro_item_context` nos itens folha, orientando a IA de forma precisa.
-7. **Detecção de Lista Plana e Estruturação EAP**: Novo módulo isolado `backend/modules/eap/` usa GPT-4o-mini (Structured Outputs + Positional Indexing) para gerar Macro Itens inteligentemente a partir de uma lista plana, fundindo no Frontend antes de rodar o motor RRF.
-8. **Pipeline Bidirecional de Memoriais (PDF)**: Módulo `backend/modules/auditoria/` processa PDFs via `pypdf`, chunking semântico e indexação no Pinecone com namespace isolado (`memorial:{tenant}:{projeto}`). Suporta "Modo Geração" (enriquecimento injetado no orçamentista) e "Modo Auditoria" (Agente Auditor cruzando linha a linha via SSE).
+---
+
+## 6. Namespaces Pinecone
+
+| Namespace | Conteudo |
+|-----------|----------|
+| `composicoes_sinapi` | Base SINAPI global (composicoes) |
+| `insumos_sinapi` | Base SINAPI global (insumos) |
+| `{tenant_id}_composicoes_sinapi` | Embeddings customizados do tenant |
+| `memorial:{tenant_id}:{projeto_id}` | Chunks do Memorial Descritivo (PDF) |
+
+---
+
+## 7. Rotas Backend Completas
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| POST | `/orcamento/upsert-linhas` | Aciona IA em background + SSE |
+| POST | `/orcamento/save-linhas` | Persiste no banco (Auto-Save, sem IA) |
+| GET | `/orcamento/stream/{id_planilha}` | Canal SSE (Redis XREAD) |
+| POST | `/orcamento/feedback` | Salva decisao humana (RLHF) + invalida cache |
+| DELETE | `/orcamento/linhas` | Remove linhas com protecao cross-tenant |
+| GET | `/orcamento/planilhas` | Lista planilhas salvas do tenant |
+| GET | `/orcamento/planilhas/{id}/linhas` | Recupera linhas de uma planilha |
+| POST | `/eap/estruturar` | Estrutura Lista Plana em EAP hierarquica |
+| POST | `/auditoria/ingerir-memorial` | PDF -> chunks -> Pinecone |
+| GET | `/auditoria/status/{projeto_id}` | Verifica se memorial esta carregado |
+| POST | `/auditoria/auditar-planilha` | SSE: cruza orcamento contra memorial |
+| POST | `/sinapi/search` | Busca manual do usuario no SINAPI |
+| POST | `/auth/login` | Autenticacao multi-tenant |
+
+---
+
+## 8. Regras Criticas de Banco de Dados
+
+- **IDs: SEMPRE `VARCHAR(255)`** — nunca `UUID` no schema PostgreSQL
+- O asyncpg retorna objetos `uuid.UUID` para colunas tipadas como UUID, quebrando o Pydantic v2
+- Queries de leitura devem usar `CAST(id AS TEXT)` e `CAST(id_planilha AS TEXT)` explicitamente
+- `statement_cache_size=0` obrigatorio na pool asyncpg (PgBouncer transacional do Supabase)
+
+---
+
+## 9. Como Navegar no Projeto
+
+| Intencao | Arquivo |
+|----------|---------|
+| Regras inviolaveis de codigo | `.agents/rules/GEMINI.md` |
+| Contexto arquitetural (este arquivo) | `AI_Onboarding.md` |
+| Blueprint de construcao + Post-Mortem | `Manual_OrceIA.md` |
+| Status de roadmap de produto | `Master_Plan.md` |

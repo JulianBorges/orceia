@@ -279,7 +279,7 @@ async def bulk_delete_linhas_orcamento(ids: list[str], id_planilha: str, tenant_
 
 async def get_planilhas_by_tenant(tenant_id: str) -> list[dict]:
     query = """
-        SELECT id, titulo, CAST(created_at AS TEXT) as created_at, CAST(updated_at AS TEXT) as updated_at
+        SELECT CAST(id AS TEXT) as id, titulo, CAST(created_at AS TEXT) as created_at, CAST(updated_at AS TEXT) as updated_at
         FROM planilhas 
         WHERE tenant_id = $1 
         ORDER BY updated_at DESC
@@ -291,7 +291,7 @@ async def get_planilhas_by_tenant(tenant_id: str) -> list[dict]:
 
 async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
     query_planilha = "SELECT titulo FROM planilhas WHERE id = $1 AND tenant_id = $2"
-    query_linhas = "SELECT * FROM planilhas_linhas WHERE id_planilha = $1 AND tenant_id = $2"
+    query_linhas = "SELECT CAST(id AS TEXT) as id, CAST(id_planilha AS TEXT) as id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario FROM planilhas_linhas WHERE id_planilha = $1 AND tenant_id = $2"
     
     pool = get_db_pool()
     async with pool.acquire() as conn:

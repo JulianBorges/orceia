@@ -47,8 +47,18 @@ backend/modules/orcamento/   ← Motor SINAPI (CONGELADO — não mexa sem permi
 backend/modules/sinapi/      ← Busca manual do usuário
 backend/modules/auth/        ← Autenticação multi-tenant
 backend/modules/shared/      ← Funções públicas compartilhadas entre módulos
-backend/modules/auditoria/   ← Feature futura de PDFs (isolada)
+backend/modules/auditoria/   ← Pipeline de Memoriais Descritivos (PDF) — ATIVO
+backend/modules/eap/         ← Estruturação de Lista Plana em EAP — ATIVO
 ```
+
+### Queries de Leitura no Banco — CAST Explícito
+- ✅ Sempre use `CAST(id AS TEXT) as id` e `CAST(id_planilha AS TEXT) as id_planilha` em queries `SELECT`
+- ❌ `asyncpg` retorna objetos `uuid.UUID` para colunas UUID — isso quebra a validação do Pydantic v2 (`Input should be a valid string`)
+
+### Semáforo de Concorrência — Distribuído (Redis), não Local
+- ✅ Motor de orçamento: `RedisSemaphore(3)` em `core/redis_client.py` (suporta multi-worker/multi-replica)
+- ✅ Motor de auditoria: `asyncio.Semaphore(5)` local é aceitável (é por-request, não global)
+- ❌ `asyncio.Semaphore` global quebra quando Cloud Run escala para múltiplas réplicas
 
 ### Raciocínio da IA (CoT) — Nunca Persiste
 - ✅ `raciocinio_step_by_step` vai para logs efêmeros (Cloud Run) e cache temporário (Redis)
@@ -83,14 +93,15 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 # 1. Busca paralela (asyncio.gather): Trigramas (pg_trgm > 0.25 estrito) + Embeddings (Pinecone Lazy Load)
 # 2. RRF fusion: score = 1 / (k + rank + 1)
 # 3. Boost de consenso: +20% se ID aparece em ambas as listas
-# 4. Top 10 → gpt-4o-mini via beta.chat.completions.parse (schema Pydantic estrito)
+# 4. Threshold de fallback: baseado em fonte única (1/61), não dupla (2.2/61) — evita falsos positivos
+# 5. Top 10 → gpt-4o-mini via beta.chat.completions.parse (schema Pydantic estrito)
 ```
 
 **PROIBIDO:** alterar pesos, desativar boost, usar parse de Markdown ou Regex.
 
 ---
 
-## 5. Post-Mortem — 18 Bugs Conhecidos (Não Repita)
+## 5. Post-Mortem — 20 Bugs Conhecidos (Não Repita)
 
 | # | Bug | Causa-Raiz | Solução Definitiva |
 |---|-----|------------|---------------------|
@@ -104,11 +115,13 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 8 | Erro 404 Frontend→Backend | `BACKEND_API_URL` com `/api` no sufixo | URL base pura, sem sufixos |
 | 9 | Storage Bloat Supabase | CoT persistido no banco | Extrair `raciocinio_step_by_step` antes do DTO |
 | 10 | "Processando" infinito | Cache zumbi da V2 no Redis | Flush total do Redis ao mudar schema de status |
-| 11 | Erro 500 asyncpg UUID | Coluna `id` como UUID | Sempre `VARCHAR(255)` |
+| 11 | Erro 500 asyncpg UUID (escrita) | Coluna `id` como UUID, frontend envia string | Sempre `VARCHAR(255)` |
 | 12 | Estado Sujo O(n) | `setTableData` marcava todas as rows sujas | Usar Diff Cirúrgico via Map O(1) no Zustand |
 | 13 | SSE trava em queda de rede | `EventSource` nativo não suporta header | Usar SEMPRE `@microsoft/fetch-event-source` com `Last-Event-ID` |
 | 14 | Duplicação de Autenticação | `verify_proxy_secret` repetido por módulo | Importar SEMPRE de `core.security` (Filosofia DRY) |
 | 15 | Injeção SQL Dinâmica | Tabela injetada via f-string | Usar dicionários de Allowlist (ex: `TABELAS_VALIDAS`) |
-| 16 | Rate Limit da OpenAI (429) | Cloud Run escalando semáforo local de 10 | Semáforo global (`services.py`) fixado em 3 |
-| 17 | Alucinação Matemática (Falsa Curva ABC) | IA julgando valores absolutos sem contexto da planilha | Regra ABC banida da IA. Rigor é puramente Técnico/Engenharia. ABC determinístico movido para Exportação XLSX. |
-| 18 | Memória de Cálculo exibe texto alterado pela IA | `descricao_legada` não inicializada no upload ou sobrescrita no SSE | Injetar `descricao_legada` no upload e blindar a mutação no Zustand (`updateRowById`). |
+| 16 | Rate Limit da OpenAI (429) | Cloud Run escalando semáforo local de 10 | `RedisSemaphore(3)` distribuído em `core/redis_client.py` |
+| 17 | Alucinação Matemática (Falsa Curva ABC) | IA julgando valores absolutos sem contexto | Regra ABC banida da IA. Determinístico na Exportação XLSX. |
+| 18 | Memória de Cálculo exibe texto alterado pela IA | `descricao_legada` não inicializada no upload | Injetar `descricao_legada` no upload e blindar no `updateRowById` |
+| 19 | Erro 500 asyncpg UUID (leitura CRUD) | asyncpg retorna `uuid.UUID`, Pydantic v2 espera `str` | `CAST(id AS TEXT)` em TODAS as queries SELECT |
+| 20 | Fallback RRF disparando em excesso | `max_rrf_score` baseado em consenso duplo como teto | Threshold baseado em fonte única: `1/(k+1) * 0.85` |

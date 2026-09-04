@@ -36,11 +36,13 @@ export function SavedBudgetsModal() {
       
       const mappedRows = (data.linhas || []).map((row: any) => ({
         id: row.id,
-        is_macro_item: !row.preco_unitario && !row.unidade,
+        is_macro_item: !row.unidade || row.unidade.trim() === '' || row.unidade.trim() === '-',
         item: "-",
         codigo: row.codigo || "",
-        base: "SINAPI",
+        base: row.codigo ? "SINAPI" : "",
         descricao: row.descricao || "",
+        // descricao_legada preserva o texto original antes de qualquer edição da IA
+        descricao_legada: row.descricao || "",
         und: row.unidade || "",
         quant: row.quantidade || 0,
         valorUnit: row.preco_unitario || 0,
