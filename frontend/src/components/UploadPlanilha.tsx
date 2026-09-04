@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useBudgetStore } from '@/store/useBudgetStore';
-import { CloudUpload } from 'lucide-react';
+import { CloudUpload, Plus, FileSpreadsheet } from 'lucide-react';
 import { BudgetItem } from '@/utils/budgetUtils';
 import { FlatListModal } from './FlatListModal';
 
@@ -9,9 +9,11 @@ interface UploadPlanilhaProps {
     children?: React.ReactNode;
     className?: string;
     append?: boolean;
+    iconOnly?: boolean;
+    isFloatingAdd?: boolean;
 }
 
-export function UploadPlanilha({ children, className, append = false }: UploadPlanilhaProps) {
+export function UploadPlanilha({ children, className, append = false, iconOnly = false, isFloatingAdd = false }: UploadPlanilhaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { tableData, loadTableData, setTableData, setPlanilhaId, processarOrcamentoIA, estruturarEAP } = useBudgetStore();
     
@@ -161,11 +163,50 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
         }
     };
 
-    const defaultClassName = "flex items-center gap-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm";
+    const defaultClassName = "flex items-center gap-2 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg font-medium transition-colors text-sm";
+    const iconOnlyClassName = "group relative p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 transition-colors flex items-center justify-center";
+    const floatingClassName = "group flex items-center justify-center w-8 h-8 bg-white hover:bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-400 rounded-full shadow-sm transition-transform hover:scale-110 border border-zinc-200 dark:border-zinc-700 absolute left-1/2 -bottom-4 -translate-x-1/2 z-10";
+
+    const getButtonContent = () => {
+        if (children) return children;
+        if (isFloatingAdd) {
+            return (
+                <>
+                    <Plus className="w-4 h-4" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        Carregar mais itens
+                    </span>
+                </>
+            );
+        }
+        if (iconOnly) {
+            return (
+                <>
+                    <FileSpreadsheet className="w-5 h-5" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        {append ? "Adicionar Itens" : "Substituir Excel"}
+                    </span>
+                </>
+            );
+        }
+        return (
+            <>
+                <CloudUpload className="w-4 h-4" />
+                {append ? "Adicionar Excel" : "Importar Excel"}
+            </>
+        );
+    };
+
+    const resolveClassName = () => {
+        if (className) return className;
+        if (isFloatingAdd) return floatingClassName;
+        if (iconOnly) return iconOnlyClassName;
+        return defaultClassName;
+    };
 
     return (
         <>
-            <div>
+            <div className={isFloatingAdd ? "" : ""}>
                 <input 
                     type="file" 
                     accept=".xlsx, .xls" 
@@ -175,14 +216,9 @@ export function UploadPlanilha({ children, className, append = false }: UploadPl
                 />
                 <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className={className || defaultClassName}
+                    className={resolveClassName()}
                 >
-                    {children || (
-                        <>
-                            <CloudUpload className="w-4 h-4" />
-                            Importar Excel
-                        </>
-                    )}
+                    {getButtonContent()}
                 </button>
             </div>
             

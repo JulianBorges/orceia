@@ -5,7 +5,7 @@ import { useBudgetStore } from '@/store/useBudgetStore';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
-export function MemorialUploadButton() {
+export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { setMemorialId, memorialId } = useBudgetStore();
 
@@ -69,33 +69,43 @@ export function MemorialUploadButton() {
         fileInputRef.current?.click();
     };
 
+    const baseClass = iconOnly
+        ? "group relative p-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer"
+        : "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm cursor-pointer";
+
+    const getTooltip = (text: string) => {
+        if (!iconOnly) return null;
+        return (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                {text}
+            </span>
+        );
+    };
+
     if (displayStatus === 'success') {
         return (
             <button
                 onClick={handleClick}
-                title="Memorial carregado. Clique para substituir."
-                className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-400 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm"
+                className={`${baseClass} ${iconOnly ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-400'}`}
             >
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">
-                    Memorial ✓{chunksGerados > 0 ? ` (${chunksGerados} trechos)` : ''}
-                </span>
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={handleFileChange}
-                />
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                {!iconOnly && (
+                    <span className="hidden sm:inline">
+                        Memorial ✓{chunksGerados > 0 ? ` (${chunksGerados} trechos)` : ''}
+                    </span>
+                )}
+                {getTooltip("Substituir Memorial")}
+                <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
             </button>
         );
     }
 
     if (displayStatus === 'uploading') {
         return (
-            <div className="flex items-center gap-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 px-4 py-2 rounded-lg text-sm">
-                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                <span className="hidden sm:inline">Processando PDF...</span>
+            <div className={`${baseClass} ${iconOnly ? 'text-zinc-500' : 'bg-zinc-50 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'}`}>
+                <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                {!iconOnly && <span className="hidden sm:inline">Processando PDF...</span>}
+                {getTooltip("Processando...")}
             </div>
         );
     }
@@ -104,18 +114,12 @@ export function MemorialUploadButton() {
         return (
             <button
                 onClick={handleClick}
-                title={errorMessage}
-                className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:border-red-500/30 dark:text-red-400 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm"
+                className={`${baseClass} ${iconOnly ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:border-red-500/30 dark:text-red-400'}`}
             >
-                <XCircle className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Erro — tentar novamente</span>
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={handleFileChange}
-                />
+                <XCircle className="w-5 h-5 shrink-0" />
+                {!iconOnly && <span className="hidden sm:inline">Erro — tentar novamente</span>}
+                {getTooltip("Erro no Memorial")}
+                <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
             </button>
         );
     }
@@ -123,19 +127,14 @@ export function MemorialUploadButton() {
     // Estado idle
     return (
         <div>
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={handleFileChange}
-            />
+            <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
             <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm"
+                className={`${baseClass} ${iconOnly ? 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200'}`}
             >
-                <FileText className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Carregar Memorial (PDF)</span>
+                <FileText className="w-5 h-5 shrink-0" />
+                {!iconOnly && <span className="hidden sm:inline">Carregar Memorial (PDF)</span>}
+                {getTooltip("Carregar Memorial")}
             </button>
         </div>
     );
