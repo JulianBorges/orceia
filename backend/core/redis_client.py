@@ -11,8 +11,8 @@ async def init_redis():
     global redis_client
     if redis_client is None:
         try:
-            # O decode_responses=True garante que receberemos strings em vez de bytes
-            redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+            # max_connections=20 evita o erro "max number of clients reached" limitando o pool local
+            redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True, max_connections=20)
             # Testa a conexão
             await redis_client.ping()
             print("Redis connection initialized successfully.")
