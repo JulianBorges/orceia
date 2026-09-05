@@ -8,7 +8,7 @@ import { useBudgetStore } from '../store/useBudgetStore';
  */
 export function useSseListener(planilhaId: string | null) {
   const updateRowById = useBudgetStore((state) => state.updateRowById);
-  const lastEventIdRef = useRef<string>('0-0');
+  const lastEventIdRef = useRef<string>('$');
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {

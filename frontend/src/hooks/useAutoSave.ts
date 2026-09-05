@@ -42,7 +42,9 @@ export function useAutoSave() {
            unidade: row.und || "-",
            quantidade: Number(row.quant) || 0.0,
            preco_unitario: Number(row.valorUnit) || 0.0,
-           ordem: rowIndexMap.get(id) || 0
+           ordem: rowIndexMap.get(id) || 0,
+           ai_status: row.ai_status || null,
+           ai_parecer_tecnico: row.ai_parecer_tecnico || null
         };
       }).filter(Boolean) as any[];
 
@@ -85,6 +87,7 @@ export function useAutoSave() {
           console.log(`[AutoSave] ${idsProcessados.length} linhas salvas com sucesso! Limpando estado sujo...`);
           // Limpa cirurgicamente apenas as que a nuvem aceitou, protegendo edições paralelas (Race Condition Fix)
           clearDirtyRows(idsProcessados); 
+          useBudgetStore.getState().triggerSaveRefresh();
       }
       
     }, 3000); // 3 Segundos de Debounce

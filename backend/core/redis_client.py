@@ -12,7 +12,9 @@ async def init_redis():
     if redis_client is None:
         try:
             # max_connections=20 evita o erro "max number of clients reached" limitando o pool local
-            redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True, max_connections=20)
+            # BlockingConnectionPool aguarda caso não haja slots livres, resolvendo "Too many connections"
+            pool = redis.BlockingConnectionPool.from_url(settings.REDIS_URL, decode_responses=True, max_connections=20, timeout=30)
+            redis_client = redis.Redis(connection_pool=pool)
             # Testa a conexão
             await redis_client.ping()
             print("Redis connection initialized successfully.")
@@ -77,6 +79,7 @@ class RedisSemaphore:
 
     async def __aenter__(self):
         import asyncio
+        import random
         if redis_client is None:
             return self
         
@@ -88,7 +91,7 @@ class RedisSemaphore:
                 if acquired:
                     self.acquired_slot = key
                     return self
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.5 + random.uniform(0, 0.5))
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if redis_client and self.acquired_slot:

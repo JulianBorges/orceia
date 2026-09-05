@@ -89,7 +89,7 @@ export default function Home() {
                         className="text-[24px] md:text-[28px] font-bold text-zinc-900 dark:text-zinc-100 bg-transparent border-none outline-none w-full min-w-[200px] md:min-w-[300px] placeholder-zinc-300"
                         placeholder="Orçamento"
                     />
-                    <p className="text-zinc-500 dark:text-zinc-400 text-[13px] md:text-[14px]">Gerencie itens, insumos e composições com IA.</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-[13px] md:text-[14px]">Crie orçamentos com IA.</p>
                 </div>
                 
                 <div className="relative flex flex-col items-end w-full md:w-auto">

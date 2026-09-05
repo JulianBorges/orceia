@@ -1,4 +1,4 @@
-﻿# OrceIA V3 — Contexto Arquitetural para IA
+# OrceIA V3 — Contexto Arquitetural para IA
 
 > **Leitura obrigatória antes de qualquer tarefa neste repositório.**
 > As **regras de código ativas** (proibições, padrões invioláveis) vivem em `.agents/rules/GEMINI.md`.
@@ -145,21 +145,22 @@ UploadPlanilha.tsx
        monta payload com macro_item_context e projeto_id (se memorialId existir)
   -> POST /api/proxy/orcamento/upsert-linhas (chunks de 100)
   -> FastAPI: linha.tenant_id = tenant_id (server-side, nunca via payload)
-  -> processar_linha_com_semaforo() [RedisSemaphore(3)]
+  -> processar_linha_com_semaforo() [RedisSemaphore(3) + LocalSemaphore(15) anti DDoS]
        check_rlhf_memory() [normalizar_chave -> banco memoria_organizacional]
+       get_ai_cache() [normalizar_chave -> SHA-256]
+       [rejeitado no passado?] -> Early Exit (Short-Circuit)
        realizar_busca_hibrida()
            normalizar_termo_busca() [Dicionario Canteiro -> Regex dimensional]
            asyncio.gather(pg_trgm, pinecone[filtro unidade com fallback])
            RRF fusion [boost consenso 20%]
            [score < 85% de fonte unica?] -> gerar_variacoes_tecnicas() -> RRF expandido
-       get_ai_cache() [normalizar_chave -> SHA-256]
        extrair_dimensoes_numericas() -> injeta [TOLERANCIA: ACEITAVEL/INACEITAVEL] nos candidatos
        [projeto_id?] -> buscar_contexto_memorial() [Pinecone namespace memorial:{tenant}:{projeto}]
        consultar_agente_engenheiro() [Structured Outputs -> AnaliseIA]
        print(raciocinio_step_by_step) [EFEMERO - nunca persiste, nunca viaja no SSE]
        set_ai_cache() [apenas veredito logico, sem precos pereciveis]
   -> publish_sse_event(stream:{tenant_id}:planilha:{id})
-  -> useSseListener -> updateRowById() [mutacao O(1), nao marca dirty - evita loop auto-save]
+  -> useSseListener [Last-Event-ID = '$' (ao vivo)] -> updateRowById()
 ```
 
 ---

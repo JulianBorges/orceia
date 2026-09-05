@@ -125,7 +125,7 @@ export function UploadPlanilha({ children, className, append = false, iconOnly =
                     setIsFlatListModalOpen(true);
                 } else {
                     // Tem macro itens, segue o fluxo normal
-                    loadTableData(parsedData);
+                    loadTableData(parsedData, true);
                     setTimeout(() => processarOrcamentoIA(), 100);
                 }
             }
@@ -143,7 +143,7 @@ export function UploadPlanilha({ children, className, append = false, iconOnly =
         if (append) {
             setTableData([...tableData, ...pendingData]);
         } else {
-            loadTableData(pendingData);
+            loadTableData(pendingData, true);
         }
         setTimeout(() => processarOrcamentoIA(), 100);
     };

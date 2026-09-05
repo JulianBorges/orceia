@@ -14,13 +14,15 @@ interface BudgetState {
   currentAnalyzingItemName: string;
   isDirty: boolean;
   dirtyRowIds: string[];
+  lastSaveTimestamp: number;
+  triggerSaveRefresh: () => void;
   setIsDirty: (val: boolean) => void;
   incrementProcessedItemsCount: () => void;
   addDirtyRow: (id: string) => void;
   clearDirtyRows: (idsToClear: string[]) => void;
   setTableData: (data: BudgetItem[] | ((prev: BudgetItem[]) => BudgetItem[])) => void;
-  /** Carga inicial (upload). Não marca linhas como dirty — evita auto-save desnecessário. */
-  loadTableData: (data: BudgetItem[]) => void;
+  /** Carga inicial (upload). Pode forçar salvamento instantâneo se isNewUpload for true. */
+  loadTableData: (data: BudgetItem[], isNewUpload?: boolean) => void;
   setBdi: (bdi: number) => void;
   setTitle: (title: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
@@ -62,6 +64,8 @@ export const useBudgetStore = create<BudgetState>()(
       currentAnalyzingItemName: '',
       isDirty: false,
       dirtyRowIds: [],
+      lastSaveTimestamp: 0,
+      triggerSaveRefresh: () => set({ lastSaveTimestamp: Date.now() }),
       planilhaId: null,
       memorialId: null,
 
@@ -79,10 +83,10 @@ export const useBudgetStore = create<BudgetState>()(
         return { dirtyRowIds: remainingIds, isDirty: remainingIds.length > 0 };
       }),
 
-      loadTableData: (data) => set({
+      loadTableData: (data, isNewUpload = false) => set({
         tableData: recalculateNumbers(data),
-        dirtyRowIds: [],
-        isDirty: false,
+        dirtyRowIds: isNewUpload ? data.map(r => r.id) : [],
+        isDirty: isNewUpload,
       }),
 
       setTableData: (data) => set((state) => {
@@ -532,7 +536,7 @@ export const useBudgetStore = create<BudgetState>()(
                 // append using setTableData so it triggers dirty state for saving
                 state.setTableData([...state.tableData, ...newData]);
             } else {
-                get().loadTableData(newData);
+                get().loadTableData(newData, true);
             }
             return newData;
         } catch (e) {

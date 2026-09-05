@@ -47,8 +47,8 @@ export function Sidebar() {
         quant: row.quantidade || 0,
         valorUnit: row.preco_unitario || 0,
         total: (row.quantidade || 0) * (row.preco_unitario || 0),
-        ai_status: row.codigo ? "ACEITO" : "PENDENTE",
-        ai_parecer_tecnico: ""
+        ai_status: row.ai_status || (row.codigo ? "ACEITO" : "PENDENTE"),
+        ai_parecer_tecnico: row.ai_parecer_tecnico || ""
       }));
       
       setPlanilhaId(id);
@@ -63,9 +63,11 @@ export function Sidebar() {
     }
   };
 
+  const lastSaveTimestamp = useBudgetStore((state) => state.lastSaveTimestamp);
+  
   useEffect(() => {
     fetchBudgets();
-  }, []);
+  }, [lastSaveTimestamp]);
 
   const handleNewBudget = () => {
     const newPlanilhaId = `planilha_${Date.now()}`;

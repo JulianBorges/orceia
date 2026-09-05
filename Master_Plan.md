@@ -86,7 +86,9 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 - [x] **4.3 Gestão de Orçamentos Salvos (CRUD):**
   - [x] Rotas `GET /orcamento/planilhas` e `GET /orcamento/planilhas/{id}/linhas` implementadas em `services.py` + `routes.py`.
   - [x] Modal `SavedBudgetsModal.tsx` implementado com listagem, loading state e recuperação de planilha completa.
-  - [x] Mapeamento correto inclui `descricao_legada`, `is_macro_item` baseado em unidade (não em preço) e `base` condicional.
+  - [x] Mapeamento correto inclui `descricao_legada`, `is_macro_item` baseado em unidade (não em preço) e persistência de memórias da IA (`ai_status` e `ai_parecer_tecnico`).
+  - [x] Auto-Save Inteligente e Instantâneo: Persiste estrutura de Macro Itens integralmente (isNewUpload) com auto-refresh reativo na Sidebar (Zustand event).
+  - [x] SSE Ao Vivo: Redução de 100% de payload morto no Redis Streams ao usar o protocolo live (`$`), eliminando "replays fantasmas" ao carregar planilhas antigas.
   - [x] Queries SQL usam `CAST(id AS TEXT)` para evitar incompatibilidade asyncpg → Pydantic v2.
   - [x] `planilhaId` e `memorialId` persistidos no Zustand `persist` para sobreviver ao refresh de página.
 

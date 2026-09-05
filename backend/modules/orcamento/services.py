@@ -47,23 +47,29 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
         rlhf_result["id"] = linha.id
         return rlhf_result
         
-    # 1. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID e Filtro de Unidade
+    # 1. Verifica Cache ANTES da busca híbrida para poupar processamento
+    cache = await get_ai_cache(linha.descricao)
+    if cache and not cache.get("codigo_novo"):
+        # Se foi rejeitado (não tem código novo), economiza a busca RRF completa
+        return {
+            "id": linha.id,
+            **cache,
+            "memoria_calculo": [],
+            "origem": "CACHE_REDIS",
+        }
+        
+    # 2. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID e Filtro de Unidade
     opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id, linha.unidade)
 
-    # 2. Verifica no Cache Global Criptográfico (SHA-256) com "Trava de Cache Seguro"
-    cache = await get_ai_cache(linha.descricao)
-    if cache:
+    # 3. Validação final de Cache para itens aceitos (trazendo preços frescos)
+    if cache and cache.get("codigo_novo"):
         codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
-        if cache.get("codigo_novo") in codigos_validos_rrf or not cache.get("codigo_novo"):
-            # Enriquece o veredito cacheado com memoria_calculo frescos do RRF atual
-            if cache.get("codigo_novo"):
-                memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")]
-                if not memoria_fresca:
-                    memoria_fresca = opcoes_rrf
-                    parecer_original = cache.get("parecer", "")
-                    cache["parecer"] = f"[AVISO DE CACHE: O código validado saiu do Top 15 da busca atual] {parecer_original}"
-            else:
+        if cache.get("codigo_novo") in codigos_validos_rrf:
+            memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")]
+            if not memoria_fresca:
                 memoria_fresca = opcoes_rrf
+                parecer_original = cache.get("parecer", "")
+                cache["parecer"] = f"[AVISO DE CACHE: O código validado saiu do Top 15 da busca atual] {parecer_original}"
                 
             return {
                 "id": linha.id,
@@ -186,9 +192,15 @@ async def processar_linha_com_semaforo(linha: LinhaOrcamentoUpsert, id_planilha:
         await publish_sse_event(stream_key, evento_sse)
 
 async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUpsert], id_planilha: str):
-    """Cria tasks paralelas, porém limitadas pelo semaphore de 10 slots"""
+    """Cria tasks paralelas, porém limitadas pelo semaphore local e global"""
+    local_semaphore = asyncio.Semaphore(15) # Limita as chamadas à rede Redis locais
+    
+    async def processar_com_filtro_local(linha):
+        async with local_semaphore:
+            return await processar_linha_com_semaforo(linha, id_planilha)
+
     try:
-        tasks = [processar_linha_com_semaforo(linha, id_planilha) for linha in linhas]
+        tasks = [processar_com_filtro_local(linha) for linha in linhas]
         
         # O gather roda todos, mas o Semaphore internamente na função segura os cavalos.
         # return_exceptions=True garante que se 1 linha explodir de vez, as outras não parem.
@@ -211,8 +223,8 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     """
     
     query_filhas = """
-        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         ON CONFLICT (id) 
         DO UPDATE SET 
             codigo = EXCLUDED.codigo,
@@ -221,6 +233,8 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             quantidade = EXCLUDED.quantidade,
             preco_unitario = EXCLUDED.preco_unitario,
             ordem = EXCLUDED.ordem,
+            ai_status = EXCLUDED.ai_status,
+            ai_parecer_tecnico = EXCLUDED.ai_parecer_tecnico,
             updated_at = CURRENT_TIMESTAMP
         WHERE planilhas_linhas.tenant_id = EXCLUDED.tenant_id; 
     """
@@ -236,7 +250,9 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             linha.unidade, 
             linha.quantidade, 
             linha.preco_unitario,
-            linha.ordem
+            linha.ordem,
+            linha.ai_status,
+            linha.ai_parecer_tecnico
         )
         for linha in linhas
     ]
@@ -310,7 +326,7 @@ async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
     
     query_filhas = """
         SELECT CAST(id AS TEXT) as id, CAST(id_planilha AS TEXT) as id_planilha, 
-               codigo, descricao, unidade, quantidade, preco_unitario, ordem
+               codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico
         FROM planilhas_linhas 
         WHERE id_planilha = $1 AND tenant_id = $2
         ORDER BY ordem ASC
