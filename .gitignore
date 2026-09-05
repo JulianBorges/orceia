@@ -1,0 +1,12 @@
+# Ambientes Virtuais Python
+.venv/
+.venv-1/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
