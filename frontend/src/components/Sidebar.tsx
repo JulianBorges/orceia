@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBudgetStore } from '../store/useBudgetStore';
-import { FolderOpen, Loader2, FileText, Calendar, Plus, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { FolderOpen, Loader2, FileText, Calendar, Plus, ChevronLeft, ChevronRight, Menu, Trash2 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 export function Sidebar() {
@@ -53,6 +53,7 @@ export function Sidebar() {
       
       setPlanilhaId(id);
       setTitle(data.titulo || 'Orçamento Recuperado');
+      useBudgetStore.getState().setMemorialId(data.memorial_id || null);
       loadTableData(mappedRows);
     } catch (err) {
       console.error(err);
@@ -67,26 +68,64 @@ export function Sidebar() {
   }, []);
 
   const handleNewBudget = () => {
-    setPlanilhaId(null);
+    const newPlanilhaId = `planilha_${Date.now()}`;
+    setPlanilhaId(newPlanilhaId);
     setTitle('Novo Orçamento');
+    useBudgetStore.getState().setMemorialId(null);
     loadTableData([]);
+  };
+
+  const handleDeleteBudget = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("Tem certeza que deseja excluir este orçamento?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/proxy/orcamento/planilhas/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Falha ao deletar orçamento');
+
+      setBudgets((prev) => prev.filter((b) => b.id !== id));
+      
+      if (planilhaId === id) {
+        useBudgetStore.getState().clearBudget();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao excluir orçamento.');
+    }
   };
 
   return (
     <aside className={`${isCollapsed ? 'w-10' : 'w-64'} h-full bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 ease-in-out`}>
       {/* Header / Logo */}
-      <div className={`h-16 flex border-b border-zinc-200 dark:border-zinc-800 shrink-0 ${isCollapsed ? 'flex-col items-center justify-center gap-1 py-1 px-0' : 'items-center justify-between px-4'}`}>
-        <div className={`flex items-center overflow-hidden whitespace-nowrap ${isCollapsed ? '' : 'gap-2'}`}>
-          <FolderOpen className={`shrink-0 text-zinc-500 ${isCollapsed ? 'w-5 h-5' : 'w-5 h-5'}`} />
-          {!isCollapsed && <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Orçamentos</h1>}
-        </div>
-        
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors ${isCollapsed ? 'p-0.5' : 'p-1.5'}`}
-        >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-5 h-5" />}
-        </button>
+      <div className={`h-16 flex border-b border-zinc-200 dark:border-zinc-800 shrink-0 ${isCollapsed ? 'items-center justify-center px-0' : 'items-center justify-between px-4'}`}>
+        {!isCollapsed ? (
+          <>
+            <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+              <FolderOpen className="shrink-0 text-zinc-500 w-5 h-5" />
+              <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Orçamentos</h1>
+            </div>
+            <button 
+              onClick={() => setIsCollapsed(true)}
+              className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          </>
+        ) : (
+          <button 
+            onClick={() => setIsCollapsed(false)}
+            className="group relative w-full h-full flex items-center justify-center text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            title="Expandir Orçamentos"
+          >
+            <FolderOpen className="w-5 h-5 absolute transition-opacity duration-200 opacity-100 group-hover:opacity-0" />
+            <ChevronRight className="w-5 h-5 absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100" />
+          </button>
+        )}
       </div>
 
       {/* Conteúdo oculto quando recolhido */}
@@ -127,24 +166,32 @@ export function Sidebar() {
             ) : (
               <div className="flex flex-col gap-1 items-center">
                 {budgets.map((b) => (
-                  <button
-                    key={b.id}
-                    onClick={() => loadBudget(b.id)}
-                    disabled={loadingBudgetId === b.id}
-                    className={`flex flex-col gap-1 p-2.5 rounded-xl transition-colors text-left w-full items-start
-                      ${planilhaId === b.id 
-                        ? 'bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/30' 
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent'}
-                    `}
-                  >
-                    <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-[13px] line-clamp-1 break-all">
-                      {b.titulo || 'Sem título'}
-                    </span>
-                    <div className="flex items-center gap-1 text-[10px] text-zinc-500 dark:text-zinc-400">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(b.updated_at).toLocaleDateString()}
-                    </div>
-                  </button>
+                  <div key={b.id} className="group relative w-full">
+                    <button
+                      onClick={() => loadBudget(b.id)}
+                      disabled={loadingBudgetId === b.id}
+                      className={`flex flex-col gap-1 p-2.5 rounded-xl transition-colors text-left w-full items-start pr-10
+                        ${planilhaId === b.id 
+                          ? 'bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/30' 
+                          : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent'}
+                      `}
+                    >
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-[13px] line-clamp-1 break-all">
+                        {b.titulo || 'Sem título'}
+                      </span>
+                      <div className="flex items-center gap-1 text-[10px] text-zinc-500 dark:text-zinc-400">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(b.updated_at).toLocaleDateString()}
+                      </div>
+                    </button>
+                    <button 
+                      onClick={(e) => handleDeleteBudget(b.id, e)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 opacity-0 group-hover:opacity-100 bg-white/80 dark:bg-zinc-900/80 text-red-500 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 transition-all"
+                      title="Excluir Orçamento"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 ))}
               </div>
             )}

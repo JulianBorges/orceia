@@ -28,6 +28,7 @@ export function useAutoSave() {
       // Dicionário para acesso O(1) ao invés de buscar (find) repetidamente num array de 5.000 itens
       const rowDict = new Map(tableData.map(r => [r.id, r]));
       
+      const rowIndexMap = new Map(tableData.map((r, i) => [r.id, i]));
       // Mapeia os dados reais em O(1) ignorando IDs que não estão mais na tabela (deletados)
       const linhasToSave = dirtyRowIds.map(id => {
         const row = rowDict.get(id);
@@ -40,7 +41,8 @@ export function useAutoSave() {
            descricao: row.descricao || "",
            unidade: row.und || "-",
            quantidade: Number(row.quant) || 0.0,
-           preco_unitario: Number(row.valorUnit) || 0.0
+           preco_unitario: Number(row.valorUnit) || 0.0,
+           ordem: rowIndexMap.get(id) || 0
         };
       }).filter(Boolean) as any[];
 
@@ -57,8 +59,8 @@ export function useAutoSave() {
 
       for (let i = 0; i < linhasToSave.length; i += CHUNK_SIZE) {
          const chunk = linhasToSave.slice(i, i + CHUNK_SIZE);
-         const title = useBudgetStore.getState().title;
-         const payload = { linhas: chunk, titulo: title || "Orçamento" };
+         const state = useBudgetStore.getState();
+         const payload = { linhas: chunk, titulo: state.title || "Orçamento", memorial_id: state.memorialId };
          
          try {
            const res = await fetch('/api/proxy/orcamento/save-linhas', {

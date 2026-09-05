@@ -7,7 +7,8 @@ from modules.orcamento.services import (
     bulk_upsert_linhas_orcamento,
     bulk_delete_linhas_orcamento,
     get_planilhas_by_tenant,
-    get_linhas_by_planilha
+    get_linhas_by_planilha,
+    delete_planilha
 )
 from core.db import get_db_pool
 import core.redis_client as rc
@@ -67,7 +68,7 @@ async def save_linhas(lote: LoteUpsertRequest, tenant_id: str = Depends(get_curr
         return {"status": "success"}
     
     try:
-        await bulk_upsert_linhas_orcamento(lote.linhas, tenant_id, lote.titulo)
+        await bulk_upsert_linhas_orcamento(lote.linhas, tenant_id, lote.titulo, lote.memorial_id)
         return {
             "status": "success",
             "linhas_salvas": len(lote.linhas)
@@ -99,9 +100,12 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
     async def event_generator():
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
-        MAX_IDLE_PINGS_POS_CONCLUSAO = 12  # 12 x 5s = 60s apos lote_concluido
-        idle_count = 0
-        lote_concluido = False
+        if last_id and "," in last_id:
+            # Tratamento correto segundo a RFC 2616 do HTTP/1.1 para headers concatenados pelo navegador
+            last_id = last_id.split(",")[-1].strip()
+            
+        if not last_id or last_id in ("null", "undefined", ""):
+            last_id = "0-0"
 
         try:
             while True:
@@ -111,24 +115,16 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
                 streams = await rc.redis_client.xread({stream_key: last_id}, block=2000, count=2)
 
                 if streams:
-                    idle_count = 0
                     for stream_name, messages in streams:
                         for message_id, message_data in messages:
+                            if isinstance(message_id, bytes):
+                                message_id = message_id.decode("utf-8")
                             last_id = message_id
                             payload = message_data.get("payload", "{}")
+                            if isinstance(payload, bytes):
+                                payload = payload.decode("utf-8")
                             yield f"id: {message_id}\ndata: {payload}\n\n"
-
-                            try:
-                                data = json.loads(payload)
-                                if data.get("status") == "lote_concluido":
-                                    lote_concluido = True
-                            except (json.JSONDecodeError, AttributeError):
-                                pass
                 else:
-                    idle_count += 1
-                    if lote_concluido and idle_count >= MAX_IDLE_PINGS_POS_CONCLUSAO:
-                        print(f"[SSE] Stream encerrado por idle timeout (planilha: {id_planilha})")
-                        break
                     yield ": ping\n\n"
 
         except asyncio.CancelledError:
@@ -165,6 +161,16 @@ async def get_planilha_linhas(id_planilha: str, tenant_id: str = Depends(get_cur
     except Exception as e:
         print(f"[ERRO DB] Falha ao carregar planilha {id_planilha}: {e}")
         raise HTTPException(status_code=500, detail="Falha ao carregar o orçamento.")
+
+@router.delete("/planilhas/{id_planilha}", dependencies=[Depends(verify_proxy_secret)])
+async def delete_planilha_route(id_planilha: str, tenant_id: str = Depends(get_current_tenant)):
+    """Deleta um orçamento completo pelo seu ID."""
+    try:
+        await delete_planilha(id_planilha, tenant_id)
+        return {"status": "success", "message": "Orçamento deletado."}
+    except Exception as e:
+        print(f"[ERRO DB] Falha ao deletar planilha {id_planilha}: {e}")
+        raise HTTPException(status_code=500, detail="Falha ao excluir o orçamento.")
 
 @router.get("/health")
 async def health_check():

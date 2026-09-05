@@ -125,3 +125,9 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 18 | Memória de Cálculo exibe texto alterado pela IA | `descricao_legada` não inicializada no upload | Injetar `descricao_legada` no upload e blindar no `updateRowById` |
 | 19 | Erro 500 asyncpg UUID (leitura CRUD) | asyncpg retorna `uuid.UUID`, Pydantic v2 espera `str` | `CAST(id AS TEXT)` em TODAS as queries SELECT |
 | 20 | Fallback RRF disparando em excesso | `max_rrf_score` baseado em consenso duplo como teto | Threshold baseado em fonte única: `1/(k+1) * 0.85` |
+| 21 | Rate Limit Severo (Avalanche) | Semoforo do Redis apagando travas de terceiros ao expirar | Usar UUID (Owner Token) antes de deletar a chave no Redis |
+| 22 | Cloud Run matando background tasks | SSE desconectando cedo demais, zerando uso de CPU | Manter SSE aberto indefinidamente, delegar controle ao cliente |
+| 23 | 'Invalid stream ID' no Redis | f-string vazando b'123' em bytes nativos do Python | Usar sempre .decode('utf-8') ao ler message_id do aioredis |
+| 24 | Barra de progresso para na metade | Frontend confiando na conclusuo de 1 gnico chunk | UI deve confiar em totalProcessado >= totalEnviado O(1) |
+| 25 | IA ignora itens com erro | Itens com ERRO nuo resetavam ai_status ao editar a descriuo | Forar reset para PENDENTE no updateRow e updateData do Zustand |
+

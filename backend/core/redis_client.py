@@ -65,31 +65,35 @@ async def delete_ai_cache(texto_busca: str) -> bool:
     deleted = await redis_client.delete(f"cache_ia:{chave_hash}")
     return deleted > 0
 
+import uuid
+
 class RedisSemaphore:
-    """Semáforo Distribuído rudimentar para limitar concorrência no tenant/global"""
+    """Semáforo Distribuído com Owner Token para limitar concorrência"""
     def __init__(self, max_concurrent: int, lock_prefix: str = "global_semaforo"):
         self.max_concurrent = max_concurrent
         self.lock_prefix = lock_prefix
         self.acquired_slot = None
+        self.token = str(uuid.uuid4())
 
     async def __aenter__(self):
         import asyncio
         if redis_client is None:
-            # Fallback para execução sem lock (ou falha) se o redis estiver offline
             return self
         
         while True:
             for slot in range(self.max_concurrent):
                 key = f"{self.lock_prefix}:{slot}"
-                # Tenta adquirir o lock para este slot específico (TTL de 60s para evitar deadlocks)
-                acquired = await redis_client.set(key, "locked", nx=True, ex=60)
+                # Tenta adquirir o lock com TTL maior (180s) e salvando o próprio token
+                acquired = await redis_client.set(key, self.token, nx=True, ex=180)
                 if acquired:
                     self.acquired_slot = key
                     return self
-            # Se não conseguiu nenhum slot, aguarda antes de tentar novamente
             await asyncio.sleep(0.5)
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if redis_client and self.acquired_slot:
-            await redis_client.delete(self.acquired_slot)
+            # Padrão Owner Token: Só apaga a trava se nós ainda formos os donos dela
+            current_token = await redis_client.get(self.acquired_slot)
+            if current_token == self.token:
+                await redis_client.delete(self.acquired_slot)
 

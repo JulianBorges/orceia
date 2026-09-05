@@ -204,3 +204,22 @@ async def checar_status_memorial(tenant_id: str, projeto_id: str) -> dict:
     except Exception as e:
         print(f"[MEMORIAL] Erro ao checar status: {e}")
         return {"status": "erro", "chunks": 0}
+
+async def deletar_memorial(tenant_id: str, projeto_id: str) -> bool:
+    """
+    Apaga completamente os vetores do memorial no Pinecone para este projeto.
+    """
+    namespace = f"memorial:{tenant_id}:{projeto_id}"
+
+    def delete_all():
+        idx = _get_pinecone_index()
+        idx.delete(delete_all=True, namespace=namespace)
+
+    try:
+        await asyncio.to_thread(delete_all)
+        print(f"[MEMORIAL] Namespace '{namespace}' deletado com sucesso.")
+        return True
+    except Exception as e:
+        print(f"[MEMORIAL] Erro ao deletar namespace '{namespace}': {e}")
+        return False
+

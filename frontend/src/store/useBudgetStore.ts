@@ -87,11 +87,14 @@ export const useBudgetStore = create<BudgetState>()(
 
       setTableData: (data) => set((state) => {
         const newData = typeof data === 'function' ? data(state.tableData) : data;
-        // Diff cirurgico: mapeia rows antigas por ID para comparacao O(1)
-        const oldMap = new Map(state.tableData.map(r => [r.id, r]));
-        // Identifica apenas as rows que MUDARAM (novas ou modificadas)
+        // Diff cirurgico: mapeia rows antigas por ID para comparacao O(1) de referencia e índice
+        const oldMap = new Map(state.tableData.map((r, i) => [r.id, { row: r, index: i }]));
+        // Identifica rows que MUDARAM (referencia diferente ou nova) OU mudaram de posição (ordem)
         const changedIds = newData
-          .filter(r => !oldMap.has(r.id) || oldMap.get(r.id) !== r)
+          .filter((r, idx) => {
+              const old = oldMap.get(r.id);
+              return !old || old.row !== r || old.index !== idx;
+          })
           .map(r => r.id);
         const newDirty = Array.from(new Set([...state.dirtyRowIds, ...changedIds]));
         return {
@@ -116,6 +119,7 @@ export const useBudgetStore = create<BudgetState>()(
                 if (!row.descricao_legada) {
                     newRow.descricao_legada = row.descricao;
                 }
+                newRow.ai_status = 'PENDENTE';
             }
             if (columnId === 'quant' || columnId === 'valorUnit') {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
@@ -140,6 +144,7 @@ export const useBudgetStore = create<BudgetState>()(
                 if (!row.descricao_legada && !newRowData.descricao_legada) {
                     newRow.descricao_legada = row.descricao;
                 }
+                newRow.ai_status = 'PENDENTE';
             }
             if ('quant' in newRowData || 'valorUnit' in newRowData) {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
@@ -179,8 +184,13 @@ export const useBudgetStore = create<BudgetState>()(
           return row;
         });
         
-        // Atualizações que vêm do SSE (backend) não devem sujar a planilha para reenvio (loop infinito)
-        return wasModified ? { tableData: recalculateNumbers(newData) } : {};
+        // Agora que /save-linhas não aciona IA, é SEGURO sujar a planilha para o AutoSave persistir o resultado do SSE no DB
+        if (wasModified) {
+            const newTableData = recalculateNumbers(newData);
+            const newDirty = Array.from(new Set([...state.dirtyRowIds, id]));
+            return { tableData: newTableData, dirtyRowIds: newDirty, isDirty: true };
+        }
+        return {};
       }),
 
       updateItemPosition: (oldIndex, newNumberText) => set((state) => {
@@ -282,8 +292,9 @@ export const useBudgetStore = create<BudgetState>()(
         title: 'Orçamento Base',
         bdi: 25.0,
         dirtyRowIds: [],
-        isDirty: false,    // Nao ha nada para salvar — nao aciona o auto-save
-        planilhaId: null,  // Remove o ID para evitar erro de FK em planilha inexistente
+        isDirty: false,    
+        planilhaId: `planilha_${Date.now()}`,
+        memorialId: null,
       }),
 
       memorizeHumanFeedback: async (termoOriginal: string, codigoEscolhido: string, parecer: string) => {
@@ -314,12 +325,12 @@ export const useBudgetStore = create<BudgetState>()(
         for (const row of tableData) {
             if (row.is_macro_item) {
                 currentMacroName = row.descricao || '';
-            } else if (
-                row.descricao &&
-                row.descricao.trim() !== '' &&
-                // Nao reenvia itens em voo — prevencao de processamento duplo
-                (!row.ai_status || row.ai_status === 'PENDENTE')
-            ) {
+              } else if (
+                  row.descricao &&
+                  row.descricao.trim() !== '' &&
+                  // Nao reenvia itens em voo — prevencao de processamento duplo
+                  (!row.ai_status || row.ai_status === 'PENDENTE' || row.ai_status === 'ERRO DE PROCESSAMENTO' || row.ai_status === 'ERRO')
+              ) {
                 linhasParaProcessar.push({
                     id: row.id,
                     id_planilha: planilhaId,

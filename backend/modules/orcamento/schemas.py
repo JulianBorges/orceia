@@ -9,6 +9,7 @@ class LinhaOrcamentoBase(BaseModel):
     unidade: str
     quantidade: float = Field(default=0.0)
     preco_unitario: float = Field(default=0.0)
+    ordem: int = Field(default=0)
     macro_item_context: Optional[str] = None
     projeto_id: Optional[str] = Field(default=None, description="ID do projeto/obra — vincula a linha ao memorial descritivo para Modo Geração")
 
@@ -18,6 +19,7 @@ class LinhaOrcamentoUpsert(LinhaOrcamentoBase):
 class LoteUpsertRequest(BaseModel):
     linhas: List[LinhaOrcamentoUpsert]
     titulo: Optional[str] = "Orçamento"
+    memorial_id: Optional[str] = None
 
 class DeleteLinhasRequest(BaseModel):
     ids: List[str]
@@ -28,11 +30,13 @@ class PlanilhaResponse(BaseModel):
     titulo: Optional[str]
     created_at: str
     updated_at: str
+    memorial_id: Optional[str] = None
 
 class PlanilhaLinhasResponse(BaseModel):
     id_planilha: str
     titulo: Optional[str]
     linhas: List[LinhaOrcamentoUpsert]
+    memorial_id: Optional[str] = None
 
 
 class FeedbackRLHF(BaseModel):

@@ -20,6 +20,7 @@ from modules.auditoria.services import (
     ingerir_memorial_pdf,
     buscar_contexto_memorial,
     checar_status_memorial,
+    deletar_memorial,
 )
 from modules.auditoria.ai_agent import auditar_item_contra_memorial
 
@@ -163,3 +164,14 @@ async def auditar_planilha(
             "X-Accel-Buffering": "no",
         },
     )
+
+@router.delete("/memorial/{projeto_id}", dependencies=[Depends(verify_proxy_secret)])
+async def delete_memorial(projeto_id: str, tenant_id: str = Depends(get_current_tenant)):
+    """
+    Deleta um memorial da base de vetores da IA (Pinecone).
+    """
+    sucesso = await deletar_memorial(tenant_id, projeto_id)
+    if sucesso:
+        return {"status": "success", "message": "Memorial excludo com sucesso."}
+    raise HTTPException(status_code=500, detail="Falha ao excluir o memorial da IA.")
+

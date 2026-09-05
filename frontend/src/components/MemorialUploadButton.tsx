@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { FileText, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { useBudgetStore } from '@/store/useBudgetStore';
+import { MemorialActionModal } from './MemorialActionModal';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -12,6 +13,9 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
     const [status, setStatus] = useState<UploadStatus>('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const [chunksGerados, setChunksGerados] = useState(0);
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Se já há um memorial carregado na sessão, inicializa como sucesso
     const displayStatus: UploadStatus = status === 'idle' && memorialId ? 'success' : status;
@@ -41,7 +45,6 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
             const res = await fetch('/api/proxy/auditoria/ingerir-memorial', {
                 method: 'POST',
                 body: formData,
-                // Não setar Content-Type: o browser define multipart/form-data + boundary automaticamente
             });
 
             if (!res.ok) {
@@ -64,9 +67,37 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
     };
 
     const handleClick = () => {
-        // Se já carregado, permite trocar o memorial
+        if (displayStatus === 'success') {
+            setIsModalOpen(true);
+        } else {
+            fileInputRef.current?.click();
+        }
+    };
+
+    const handleReplace = () => {
+        setIsModalOpen(false);
         setStatus('idle');
         fileInputRef.current?.click();
+    };
+
+    const handleDelete = async () => {
+        if (!memorialId) return;
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`/api/proxy/auditoria/memorial/${memorialId}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error('Falha ao excluir o memorial.');
+            setMemorialId(null);
+            setStatus('idle');
+            setChunksGerados(0);
+            setIsModalOpen(false);
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao excluir memorial.');
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const baseClass = iconOnly
@@ -84,19 +115,28 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
 
     if (displayStatus === 'success') {
         return (
-            <button
-                onClick={handleClick}
-                className={`${baseClass} ${iconOnly ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-400'}`}
-            >
-                <CheckCircle2 className="w-5 h-5 shrink-0" />
-                {!iconOnly && (
-                    <span className="hidden sm:inline">
-                        Memorial ✓{chunksGerados > 0 ? ` (${chunksGerados} trechos)` : ''}
-                    </span>
-                )}
-                {getTooltip("Substituir Memorial")}
-                <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
-            </button>
+            <>
+                <button
+                    onClick={handleClick}
+                    className={`${baseClass} ${iconOnly ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-400'}`}
+                >
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                    {!iconOnly && (
+                        <span className="hidden sm:inline">
+                            Memorial ✓{chunksGerados > 0 ? ` (${chunksGerados} trechos)` : ''}
+                        </span>
+                    )}
+                    {getTooltip("Gerenciar Memorial")}
+                    <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+                </button>
+                <MemorialActionModal 
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onReplace={handleReplace}
+                    onDelete={handleDelete}
+                    isDeleting={isDeleting}
+                />
+            </>
         );
     }
 
@@ -129,7 +169,7 @@ export function MemorialUploadButton({ iconOnly = false }: { iconOnly?: boolean 
         <div>
             <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
             <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={handleClick}
                 className={`${baseClass} ${iconOnly ? 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border-zinc-700 dark:text-zinc-200'}`}
             >
                 <FileText className="w-5 h-5 shrink-0" />

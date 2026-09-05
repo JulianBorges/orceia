@@ -198,23 +198,21 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
         tenant_id = linhas[0].tenant_id if linhas else "default"
         await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
 
-async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str, titulo: str = "Orçamento"):
+async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str, titulo: str = "Orçamento", memorial_id: str = None):
     """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""
     
     if not linhas:
         return
         
-    id_planilha = linhas[0].id_planilha
-
     query_mae = """
-        INSERT INTO planilhas (id, tenant_id, titulo) 
-        VALUES ($1, $2, $3)
-        ON CONFLICT (id) DO UPDATE SET titulo = EXCLUDED.titulo, updated_at = CURRENT_TIMESTAMP;
+        INSERT INTO planilhas (id, tenant_id, titulo, memorial_id) 
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (id) DO UPDATE SET titulo = EXCLUDED.titulo, memorial_id = EXCLUDED.memorial_id, updated_at = CURRENT_TIMESTAMP;
     """
     
     query_filhas = """
-        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (id) 
         DO UPDATE SET 
             codigo = EXCLUDED.codigo,
@@ -222,6 +220,7 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             unidade = EXCLUDED.unidade,
             quantidade = EXCLUDED.quantidade,
             preco_unitario = EXCLUDED.preco_unitario,
+            ordem = EXCLUDED.ordem,
             updated_at = CURRENT_TIMESTAMP
         WHERE planilhas_linhas.tenant_id = EXCLUDED.tenant_id; 
     """
@@ -236,7 +235,8 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             linha.descricao, 
             linha.unidade, 
             linha.quantidade, 
-            linha.preco_unitario
+            linha.preco_unitario,
+            linha.ordem
         )
         for linha in linhas
     ]
@@ -244,8 +244,9 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     pool = get_db_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
+            id_planilha = linhas[0].id_planilha
             # Assegura a integridade referencial: cria a planilha se ela não existir
-            await conn.execute(query_mae, id_planilha, tenant_id, titulo)
+            await conn.execute(query_mae, id_planilha, tenant_id, titulo, memorial_id)
             # executemany processa os milhares de registros numa pancada só (Custo O(1) de rede)
             await conn.executemany(query_filhas, dados)
 
@@ -277,9 +278,24 @@ async def bulk_delete_linhas_orcamento(ids: list[str], id_planilha: str, tenant_
             )
             print(f"[DELETE] {deleted} linhas removidas (planilha: {id_planilha}, tenant: {tenant_id})")
 
+async def delete_planilha(id_planilha: str, tenant_id: str):
+    """
+    Remove o orçamento completo (e consequentemente suas linhas via CASCADE) 
+    protegendo o escopo cross-tenant.
+    """
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        deleted = await conn.execute(
+            "DELETE FROM planilhas WHERE id = $1 AND tenant_id = $2",
+            id_planilha,
+            tenant_id
+        )
+        print(f"[DELETE] Planilha {id_planilha} removida pelo tenant {tenant_id}.")
+        return deleted
+
 async def get_planilhas_by_tenant(tenant_id: str) -> list[dict]:
     query = """
-        SELECT CAST(id AS TEXT) as id, titulo, CAST(created_at AS TEXT) as created_at, CAST(updated_at AS TEXT) as updated_at
+        SELECT CAST(id AS TEXT) as id, titulo, CAST(created_at AS TEXT) as created_at, CAST(updated_at AS TEXT) as updated_at, memorial_id
         FROM planilhas 
         WHERE tenant_id = $1 
         ORDER BY updated_at DESC
@@ -290,22 +306,27 @@ async def get_planilhas_by_tenant(tenant_id: str) -> list[dict]:
         return [dict(r) for r in records]
 
 async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
-    query_planilha = "SELECT titulo FROM planilhas WHERE id = $1 AND tenant_id = $2"
-    query_linhas = "SELECT CAST(id AS TEXT) as id, CAST(id_planilha AS TEXT) as id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario FROM planilhas_linhas WHERE id_planilha = $1 AND tenant_id = $2"
+    query_mae = "SELECT titulo, memorial_id FROM planilhas WHERE id = $1 AND tenant_id = $2"
+    
+    query_filhas = """
+        SELECT CAST(id AS TEXT) as id, CAST(id_planilha AS TEXT) as id_planilha, 
+               codigo, descricao, unidade, quantidade, preco_unitario, ordem
+        FROM planilhas_linhas 
+        WHERE id_planilha = $1 AND tenant_id = $2
+        ORDER BY ordem ASC
+    """
     
     pool = get_db_pool()
     async with pool.acquire() as conn:
-        planilha = await conn.fetchrow(query_planilha, id_planilha, tenant_id)
-        if not planilha:
+        mae = await conn.fetchrow(query_mae, id_planilha, tenant_id)
+        if not mae:
             raise ValueError("Planilha não encontrada")
             
-        records = await conn.fetch(query_linhas, id_planilha, tenant_id)
-        linhas = [dict(r) for r in records]
+        filhas = await conn.fetch(query_filhas, id_planilha, tenant_id)
         
         return {
             "id_planilha": id_planilha,
-            "titulo": planilha["titulo"],
-            "linhas": linhas
+            "titulo": mae["titulo"],
+            "memorial_id": mae["memorial_id"],
+            "linhas": [dict(r) for r in filhas]
         }
-
-

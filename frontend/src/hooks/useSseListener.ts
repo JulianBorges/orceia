@@ -39,6 +39,15 @@ export function useSseListener(planilhaId: string | null) {
         try {
           const payload = JSON.parse(event.data);
 
+          const checkCompletion = () => {
+            const state = useBudgetStore.getState();
+            if (state.processedItemsCount >= state.totalItemsToProcess && state.totalItemsToProcess > 0) {
+              state.setIsProcessing(false);
+              state.setProcessingStatusText('Análise Completa!');
+              console.log(`[SSE] Todos os ${state.totalItemsToProcess} itens foram processados com sucesso!`);
+            }
+          };
+          
           if (payload.status === 'sucesso' && payload.dados_ia) {
             const { id, status_ia, parecer, codigo_novo, memoria_calculo } = payload.dados_ia;
             console.log(`[SSE] Linha processada pela IA (ID: ${id})`);
@@ -67,6 +76,8 @@ export function useSseListener(planilhaId: string | null) {
             if (currentItem) {
                 useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
             }
+            
+            checkCompletion();
 
           } else if (payload.status === 'erro') {
             console.error(`[SSE] Erro no item ${payload.id}: ${payload.mensagem}`);
@@ -80,11 +91,12 @@ export function useSseListener(planilhaId: string | null) {
             if (currentItem) {
                 useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
             }
+            
+            checkCompletion();
 
           } else if (payload.status === 'lote_concluido') {
-            useBudgetStore.getState().setIsProcessing(false);
-            useBudgetStore.getState().setProcessingStatusText('Analise Completa!');
-            console.log(`[SSE] Lote de ${payload.total} itens processado!`);
+            console.log(`[SSE] Lote de ${payload.total} itens reportou conclusão parcial (background thread terminou).`);
+            checkCompletion();
           }
 
         } catch (e) {
