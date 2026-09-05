@@ -48,7 +48,7 @@ export function MemoryModal({ memoryModalData, setMemoryModalData, data, updateR
                         <div key={idx} className="bg-white dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden group/match hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors shrink-0">
                             {match.codigo === memoryModalData.codigoSelecionado && (
                                 <div className="absolute top-0 right-0 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg border-l border-b border-emerald-500/20">
-                                    Vencedor
+                                    Escolha da IA
                                 </div>
                             )}
                             <div className="flex items-center gap-2 flex-wrap pr-16">

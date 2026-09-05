@@ -163,7 +163,7 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
             # Reordena com os novos competidores misturados
             ranking = sorted(scores_rrf.items(), key=lambda x: x[1], reverse=True)
 
-    # Formata a entrega e corta para apenas os Top 10 vencedores
+    # Formata a entrega e corta para apenas os Top 10 itens
     top_items = []
     for cod, score in ranking[:10]:
         item = master_dict[cod].copy()

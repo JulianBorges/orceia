@@ -82,7 +82,8 @@ SINONIMOS_CANTEIRO = {
     "caixa d'agua": "reservatorio",
 
     # --- Instalações Elétricas ---
-    "fio": "cabo",
+    # NOTA: "fio → cabo" é substituição CONTEXTUAL aplicada no preprocessor.py,
+    # não aqui, pois depende do contexto da frase (elétrico vs. arame de malha).
     "conduite": "eletroduto",
     "conduíte": "eletroduto",   # com acento (alias)
 

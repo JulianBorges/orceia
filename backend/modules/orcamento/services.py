@@ -107,28 +107,8 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
             print(f"[MEMORIAL] Contexto injetado para: '{linha.descricao[:60]}'")
 
     # --- Lógica Determinística de Tolerância Dimensional ---
-    dimensoes_usuario = extrair_dimensoes_numericas(linha.descricao)
-    if dimensoes_usuario:
-        for op in opcoes_rrf:
-            dimensoes_sinapi = extrair_dimensoes_numericas(op.get("descricao", ""))
-            tolerancia_ok = False
-            
-            if dimensoes_sinapi and len(dimensoes_sinapi) == len(dimensoes_usuario):
-                diffs_ok = True
-                for du, ds in zip(dimensoes_usuario, dimensoes_sinapi):
-                    if ds == 0:
-                        diffs_ok = False
-                        break
-                    diff = abs(du - ds) / ds
-                    if diff > 0.15:
-                        diffs_ok = False
-                        break
-                tolerancia_ok = diffs_ok
-                
-            if tolerancia_ok:
-                op["descricao"] += " [TOLERÂNCIA: ACEITÁVEL]"
-            else:
-                op["descricao"] += " [TOLERÂNCIA: INACEITÁVEL]"
+    from modules.orcamento.preprocessor import injetar_tolerancia_dimensional
+    injetar_tolerancia_dimensional(linha.descricao, opcoes_rrf)
 
     analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf)
     

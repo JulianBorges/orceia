@@ -78,5 +78,5 @@ class AnaliseIA(BaseModel):
             "Se o sistema indicar [TOLERÂNCIA: INACEITÁVEL] ou para atributo estrutural (fck, seção de aço): retorne codigo_selecionado=null."
         )
     )
-    codigo_selecionado: Optional[str] = Field(description="O código do item vencedor. Vazio se nenhuma opção atender.")
+    codigo_selecionado: Optional[str] = Field(description="O código do item escolhido. Vazio se nenhuma opção atender.")
     parecer_tecnico: str = Field(description="Explicação detalhada da decisão.")
