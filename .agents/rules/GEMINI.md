@@ -90,7 +90,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 ## 4. Motor RRF — Algoritmo Congelado
 
 ```python
-# 1. Busca paralela (asyncio.gather): Trigramas (pg_trgm > 0.25 estrito) + Embeddings (Pinecone Lazy Load)
+# 1. Busca paralela (asyncio.gather): Trigramas (pg_trgm > 0.15 estrito, LIMIT 50) + Embeddings (Pinecone top_k=40)
 # 2. RRF fusion: score = 1 / (k + rank + 1)
 # 3. Boost de consenso: +20% se ID aparece em ambas as listas
 # 4. Threshold de fallback: baseado em fonte única (1/61), não dupla (2.2/61) — evita falsos positivos
@@ -101,7 +101,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 
 ---
 
-## 5. Post-Mortem — 20 Bugs Conhecidos (Não Repita)
+## 5. Post-Mortem — 28 Bugs Conhecidos (Não Repita)
 
 | # | Bug | Causa-Raiz | Solução Definitiva |
 |---|-----|------------|---------------------|
@@ -130,4 +130,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 23 | 'Invalid stream ID' no Redis | f-string vazando b'123' em bytes nativos do Python | Usar sempre .decode('utf-8') ao ler message_id do aioredis |
 | 24 | Barra de progresso para na metade | Frontend confiando na conclusuo de 1 gnico chunk | UI deve confiar em totalProcessado >= totalEnviado O(1) |
 | 25 | IA ignora itens com erro | Itens com ERRO nuo resetavam ai_status ao editar a descriuo | Forar reset para PENDENTE no updateRow e updateData do Zustand |
+| 26 | Queda de Acurácia com IA Decomposta (V2) | Modelos "espertos" sem regras engessadas ignoram as restrições implícitas do SINAPI (Laje vs Parede) | Manter Arquitetura V1 (Prompt único massivo + `gpt-4o-mini`) |
+| 27 | RRF Miss (Item sumiu da busca) | Pinecone indexado com `termo_limpo` em vez da descrição bruta (RAW), perdendo contexto de dimensões | Sempre re-indexar o Pinecone iterando a `descricao` original do banco |
+| 28 | Queda no RRF por limites apertados | Postgres com `word_similarity` 0.12 causava falsos positivos; `top_k=20` trazia poucos itens semânticos | Congelar: `pg_trgm > 0.15` (LIMIT 50) e Pinecone `top_k=40` |
 

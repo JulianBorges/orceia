@@ -44,7 +44,8 @@ export function useAutoSave() {
            preco_unitario: Number(row.valorUnit) || 0.0,
            ordem: rowIndexMap.get(id) || 0,
            ai_status: row.ai_status || null,
-           ai_parecer_tecnico: row.ai_parecer_tecnico || null
+           ai_parecer_tecnico: row.ai_parecer_tecnico || null,
+           memoria_calculo: row.memoria_calculo || null
         };
       }).filter(Boolean) as any[];
 

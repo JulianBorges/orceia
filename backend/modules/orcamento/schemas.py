@@ -14,6 +14,7 @@ class LinhaOrcamentoBase(BaseModel):
     projeto_id: Optional[str] = Field(default=None, description="ID do projeto/obra — vincula a linha ao memorial descritivo para Modo Geração")
     ai_status: Optional[str] = None
     ai_parecer_tecnico: Optional[str] = None
+    memoria_calculo: Optional[list] = None
 
 class LinhaOrcamentoUpsert(LinhaOrcamentoBase):
     id: str # UUID que vem do Frontend

@@ -48,7 +48,8 @@ export function Sidebar() {
         valorUnit: row.preco_unitario || 0,
         total: (row.quantidade || 0) * (row.preco_unitario || 0),
         ai_status: row.ai_status || (row.codigo ? "ACEITO" : "PENDENTE"),
-        ai_parecer_tecnico: row.ai_parecer_tecnico || ""
+        ai_parecer_tecnico: row.ai_parecer_tecnico || "",
+        memoria_calculo: row.memoria_calculo || []
       }));
       
       setPlanilhaId(id);

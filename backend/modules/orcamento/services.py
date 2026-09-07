@@ -92,16 +92,18 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
         termo_com_contexto = f"{termo_com_contexto} [Specs extraídas: {caracteristicas_extras}]"
 
     # Modo Geração: enriquece o prompt com trecho relevante do Memorial Descritivo (se disponível).
-    # Import lazy para evitar circular import entre módulos (DDD).
     # Fallback silencioso: se não houver memorial ou score for baixo, fluxo continua normalmente.
+    termo_ctx = termo_com_contexto
     if getattr(linha, 'projeto_id', None) and getattr(linha, 'tenant_id', None):
         from modules.auditoria.services import buscar_contexto_memorial
         trecho_memorial = await buscar_contexto_memorial(
-            linha.descricao, linha.tenant_id, linha.projeto_id
+            linha.descricao,
+            linha.tenant_id,
+            linha.projeto_id
         )
         if trecho_memorial:
-            termo_com_contexto += (
-                f"\n\n[Especificação do Memorial Descritivo — use como referência de conformidade]:\n"
+            termo_ctx = (
+                f"{termo_com_contexto}\n\n[Especificação do Memorial Descritivo — use como referência de conformidade]:\n"
                 f"{trecho_memorial}"
             )
             print(f"[MEMORIAL] Contexto injetado para: '{linha.descricao[:60]}'")
@@ -110,7 +112,9 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     from modules.orcamento.preprocessor import injetar_tolerancia_dimensional
     injetar_tolerancia_dimensional(linha.descricao, opcoes_rrf)
 
-    analise = await consultar_agente_engenheiro(termo_com_contexto, opcoes_rrf)
+    # A IA performa melhor (63% vs 58%) focando apenas no Top 10, mas a UI precisa exibir os 20
+    opcoes_para_ia = opcoes_rrf[:10]
+    analise = await consultar_agente_engenheiro(termo_ctx, opcoes_para_ia)
     
     # 4. Observabilidade do CoT e Formatação do resultado final
     print(f"[CoT] Raciocínio (ID {linha.id}): {analise.raciocinio_step_by_step}")
@@ -203,8 +207,8 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     """
     
     query_filhas = """
-        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico, memoria_calculo)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         ON CONFLICT (id) 
         DO UPDATE SET 
             codigo = EXCLUDED.codigo,
@@ -215,9 +219,12 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             ordem = EXCLUDED.ordem,
             ai_status = EXCLUDED.ai_status,
             ai_parecer_tecnico = EXCLUDED.ai_parecer_tecnico,
+            memoria_calculo = EXCLUDED.memoria_calculo,
             updated_at = CURRENT_TIMESTAMP
         WHERE planilhas_linhas.tenant_id = EXCLUDED.tenant_id; 
     """
+    
+    import json
     
     # Prepara a matriz de dados para a inserção binária do asyncpg
     dados = [
@@ -232,7 +239,8 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             linha.preco_unitario,
             linha.ordem,
             linha.ai_status,
-            linha.ai_parecer_tecnico
+            linha.ai_parecer_tecnico,
+            json.dumps(linha.memoria_calculo) if linha.memoria_calculo else None
         )
         for linha in linhas
     ]
@@ -306,12 +314,14 @@ async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
     
     query_filhas = """
         SELECT CAST(id AS TEXT) as id, CAST(id_planilha AS TEXT) as id_planilha, 
-               codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico
+               codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico,
+               CAST(memoria_calculo AS TEXT) as memoria_calculo
         FROM planilhas_linhas 
         WHERE id_planilha = $1 AND tenant_id = $2
         ORDER BY ordem ASC
     """
     
+    import json
     pool = get_db_pool()
     async with pool.acquire() as conn:
         mae = await conn.fetchrow(query_mae, id_planilha, tenant_id)
@@ -320,9 +330,21 @@ async def get_linhas_by_planilha(id_planilha: str, tenant_id: str) -> dict:
             
         filhas = await conn.fetch(query_filhas, id_planilha, tenant_id)
         
+        linhas_parsed = []
+        for r in filhas:
+            linha_dict = dict(r)
+            if linha_dict.get("memoria_calculo"):
+                try:
+                    linha_dict["memoria_calculo"] = json.loads(linha_dict["memoria_calculo"])
+                except Exception:
+                    linha_dict["memoria_calculo"] = []
+            else:
+                linha_dict["memoria_calculo"] = []
+            linhas_parsed.append(linha_dict)
+        
         return {
             "id_planilha": id_planilha,
             "titulo": mae["titulo"],
             "memorial_id": mae["memorial_id"],
-            "linhas": [dict(r) for r in filhas]
+            "linhas": linhas_parsed
         }

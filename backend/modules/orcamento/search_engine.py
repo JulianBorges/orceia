@@ -38,7 +38,7 @@ async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes"
             
             kwargs = {
                 "vector": vetor,
-                "top_k": 20,
+                "top_k": 40,
                 "include_metadata": True
             }
             if unidade_filtro:
@@ -87,7 +87,7 @@ async def _pinecone_search(termo: str, tenant_id: str, tipo: str = "composicoes"
 async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: str, unidade: str = None) -> tuple[list[dict], str]:
     """
     Reciprocal Rank Fusion (RRF).
-    Funde a nota do PostgreSQL com a nota do Pinecone e retorna o Top 10 Absoluto.
+    Funde a nota do PostgreSQL com a nota do Pinecone e retorna o Top 20 Absoluto.
     """
     # Agente Corretor: normaliza o termo antes do embedding (nao afeta busca lexical)
     termo_normalizado = normalizar_termo_busca(termo_busca)
@@ -163,9 +163,9 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
             # Reordena com os novos competidores misturados
             ranking = sorted(scores_rrf.items(), key=lambda x: x[1], reverse=True)
 
-    # Formata a entrega e corta para apenas os Top 10 itens
+    # Formata a entrega e corta para apenas os Top 20 itens
     top_items = []
-    for cod, score in ranking[:10]:
+    for cod, score in ranking[:20]:
         item = master_dict[cod].copy()
         # Converte Numeric do Postgres para Float nativo (necessário pro JSON)
         item["preco"] = float(item["preco"]) if item.get("preco") is not None else 0.0

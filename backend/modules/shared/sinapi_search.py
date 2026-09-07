@@ -42,9 +42,9 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     query = f"""
         SELECT codigo, descricao, preco, unidade, word_similarity(descricao, $1) as score_lexico
         FROM {tabela}
-        WHERE word_similarity(descricao, $1) > 0.12
+        WHERE word_similarity(descricao, $1) > 0.15
         ORDER BY score_lexico DESC
-        LIMIT 30;
+        LIMIT 50;
     """
 
     pool = get_db_pool()
