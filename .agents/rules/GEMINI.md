@@ -101,7 +101,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 
 ---
 
-## 5. Post-Mortem — 30 Bugs Conhecidos (Não Repita)
+## 5. Post-Mortem — 33 Bugs Conhecidos (Não Repita)
 
 | # | Bug | Causa-Raiz | Solução Definitiva |
 |---|-----|------------|---------------------|
@@ -135,4 +135,6 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 28 | Queda no RRF por limites apertados | Postgres com `word_similarity` 0.12 causava falsos positivos; `top_k=20` trazia poucos itens semânticos | Congelar: `pg_trgm > 0.15` (LIMIT 50) e Pinecone `top_k=40` |
 | 29 | Dilema do Consenso RRF (Tubo 110mm) | Pinecone não traz a dimensão correta e ofusca o FTS do Postgres no RRF | Injetar Bônus de Sniper Exponencial se Postgres trouxer score > 0.22 |
 | 30 | Botão de Memória Some da UI | Cache do Redis abortava o motor de busca para itens rejeitados | Separar Cache de Busca: O RRF roda SEMPRE O(1), o Redis pula apenas a OpenAI |
-
+| 31 | UI Pct achatado em 100% | Bônus de Sniper FTS rompeu o limite matemático de 1/61 | `normalizar_score` mapeia scores clássicos até 90% e reserva 90-100% EXCLUSIVAMENTE para snipers |
+| 32 | FTS cego para dimensões cruzadas | Regex separava 110mm mas ignorava 75x50 como bloco único | Adicionar Regex Lookahead `(\d+)\s*[xX]\s*(?=\d)` para garantir parsing universal no FTS |
+| 33 | Falsos Positivos no Diagnóstico | Script mandava Top 20 inteiro pra IA e passava num item rank 14 | Espelhar produção estritamente: Fatiar `opcoes_rrf[:10]` em todos os testes |
