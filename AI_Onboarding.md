@@ -201,7 +201,15 @@ UploadPlanilha.tsx
 
 ---
 
-## 8. Regras Criticas de Banco de Dados
+## 8. Regras Críticas do Motor de Busca e Testes
+
+- **Normalização Matemática UI (`pct`):** O `raw_score` do RRF gera frações minúsculas. A UI precisa de % legíveis. A função `normalizar_score` em `search_engine.py` mapeia matches clássicos até 90% e reserva a faixa de 90-100% EXCLUSIVAMENTE para itens que acionaram o *Bônus de Sniper FTS*, impedindo o achatamento visual no frontend (Bug resolvido na Fase 1).
+- **Parse Dimensional Cruzado:** O `sinapi_search.py` usa a Regex Lookahead `(\d+)\s*[xX]\s*(?=\d)` para explodir dimensões hifenizadas ou cruzadas (ex: `75x50` vira `75 X 50`), forçando o Postgres FTS a indexar e dar match exato em cada medida separadamente.
+- **Testes Mimetizados (`test_diagnostico_motor.py`):** O script de teste NUNCA deve enviar as 20 opções para a IA. Ele deve fatiar o array em `[:10]` espelhando estritamente o ambiente de produção (`services.py`). Isso previne falsos positivos onde a IA acerta um item que estava no rank 13 e que jamais seria visto pelo usuário real.
+
+---
+
+## 9. Regras Críticas de Banco de Dados
 
 - **IDs: SEMPRE `VARCHAR(255)`** — nunca `UUID` no schema PostgreSQL
 - O asyncpg retorna objetos `uuid.UUID` para colunas tipadas como UUID, quebrando o Pydantic v2
@@ -210,7 +218,7 @@ UploadPlanilha.tsx
 
 ---
 
-## 9. Como Navegar no Projeto
+## 10. Como Navegar no Projeto
 
 | Intencao | Arquivo |
 |----------|---------|
