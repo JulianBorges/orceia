@@ -39,7 +39,13 @@ A Vercel corta funções em 10-60s. Uma planilha de 5.000 linhas leva minutos. C
 SSE com Redis Streams é stateless no servidor, resiliente a reconexões via `Last-Event-ID`, e unidirecional (servidor cliente) ideal para o fluxo de notificação de orçamento.
 
 **Por que RRF e não busca puramente vetorial?**
-Pinecone é excelente para semântica, falha em nomes técnicos exatos. pg_trgm é excelente em exatos, falha em sinônimos. O RRF une os dois matematicamente sem LLM extra.
+Pinecone é excelente para semântica, mas cego para números e bitolas exatas. Postgres FTS (BM25 + Trigramas) é excelente em exatos, mas falha em sinônimos. O RRF une os dois.
+
+**Por que o Bônus de Sniper no RRF?**
+Se o Pinecone trouxer itens genéricos, ele pode ofuscar um "Headshot" do Postgres (ex: Tubo 110mm). Por isso, se o `score_lexico` do Postgres for alto (> 0.22), aplicamos um multiplicador exponencial na nota, dando autoridade de veto ao banco relacional.
+
+**Por que o Cache Redis NUNCA pula o Motor RRF?**
+Para garantir a rastreabilidade na Engenharia Civil. O Motor RRF *sempre* roda (Custo O(1)) para buscar as 20 opções com preços atualizados do mês. O Redis é consultado *depois* do banco apenas para anexar a decisão passada da IA e poupar a chamada à OpenAI, nunca para mutilar o Top 20 visual da UI.
 
 **Por que Structured Outputs?**
 `beta.chat.completions.parse` com schema Pydantic é determinístico — elimina parse de Regex, preâmbulos e campos vazios sob fadiga de contexto.
@@ -146,17 +152,16 @@ UploadPlanilha.tsx
   -> POST /api/proxy/orcamento/upsert-linhas (chunks de 100)
   -> FastAPI: linha.tenant_id = tenant_id (server-side, nunca via payload)
   -> processar_linha_com_semaforo() [RedisSemaphore(3) + LocalSemaphore(15) anti DDoS]
+       realizar_busca_hibrida() [RODA SEMPRE 1º para garantir Top 20 fresco]
+           normalizar_termo_busca() [Dicionario Canteiro -> Regex dimensional]
+           asyncio.gather(pg_fts_trigram, pinecone[filtro unidade com fallback])
+           RRF fusion [Bônus de Sniper FTS + boost consenso 20%]
        check_rlhf_memory() [normalizar_chave -> banco memoria_organizacional]
        get_ai_cache() [normalizar_chave -> SHA-256]
-       [rejeitado no passado?] -> Early Exit (Short-Circuit)
-       realizar_busca_hibrida()
-           normalizar_termo_busca() [Dicionario Canteiro -> Regex dimensional]
-           asyncio.gather(pg_trgm, pinecone[filtro unidade com fallback])
-           RRF fusion [boost consenso 20%]
-           [score < 85% de fonte unica?] -> gerar_variacoes_tecnicas() -> RRF expandido
+       [rejeitado/aceito no cache?] -> Acopla decisão no Top 20 fresco -> Early Exit (Poupou OpenAI)
        extrair_dimensoes_numericas() -> injeta [TOLERANCIA: ACEITAVEL/INACEITAVEL] nos candidatos
        [projeto_id?] -> buscar_contexto_memorial() [Pinecone namespace memorial:{tenant}:{projeto}]
-       consultar_agente_engenheiro() [Structured Outputs -> AnaliseIA]
+       consultar_agente_engenheiro() [Structured Outputs -> AnaliseIA recebe Top 10]
        print(raciocinio_step_by_step) [EFEMERO - nunca persiste, nunca viaja no SSE]
        set_ai_cache() [apenas veredito logico, sem precos pereciveis]
   -> publish_sse_event(stream:{tenant_id}:planilha:{id})

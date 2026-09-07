@@ -39,49 +39,46 @@ async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
 )
 async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: str) -> dict:
     if not linha.descricao:
-        raise ValueError("Descrição vazia")
+        raise ValueError("Descriçāo vazia")
         
-    # 0. Verifica RLHF (Reinforcement Learning from Human Feedback) B2B
+    # 1. A Busca Universal RRF SEMPRE roda primeiro
+    # Traz os preços frescos do SINAPI e as 20 opções garantidas para a auditoria visual
+    opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id, linha.unidade)
+
+    # 2. Verifica RLHF (Engenharia Humana) B2B
     rlhf_result = await check_rlhf_memory(linha.tenant_id, linha.descricao)
     if rlhf_result:
         rlhf_result["id"] = linha.id
+        rlhf_result["memoria_calculo"] = opcoes_rrf  # Rastreabilidade garantida!
         return rlhf_result
         
-    # 1. Verifica Cache ANTES da busca híbrida para poupar processamento
+    # 3. Verifica Cache da OpenAI no Redis (para poupar tempo e custo de API)
     cache = await get_ai_cache(linha.descricao)
-    if cache and not cache.get("codigo_novo"):
-        # Se foi rejeitado (não tem código novo), economiza a busca RRF completa
-        return {
-            "id": linha.id,
-            **cache,
-            "memoria_calculo": [],
-            "origem": "CACHE_REDIS",
-        }
-        
-    # 2. Busca Híbrida RRF (Pinecone + Postgres Trigramas) com Tenant ID e Filtro de Unidade
-    opcoes_rrf, caracteristicas_extras = await realizar_busca_hibrida(linha.descricao, id_planilha, linha.tenant_id, linha.unidade)
-
-    # 3. Validação final de Cache para itens aceitos (trazendo preços frescos)
-    if cache and cache.get("codigo_novo"):
-        codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
-        if cache.get("codigo_novo") in codigos_validos_rrf:
-            memoria_fresca = [op for op in opcoes_rrf if op["codigo"] == cache.get("codigo_novo")]
-            if not memoria_fresca:
-                memoria_fresca = opcoes_rrf
-                parecer_original = cache.get("parecer", "")
-                cache["parecer"] = f"[AVISO DE CACHE: O código validado saiu do Top 15 da busca atual] {parecer_original}"
-                
+    if cache:
+        if not cache.get("codigo_novo"):
+            # Foi REJEITADO pela IA no passado. Preserva a recusa, mas entrega as 20 opções frescas
             return {
                 "id": linha.id,
                 **cache,
-                "memoria_calculo": memoria_fresca,
+                "memoria_calculo": opcoes_rrf,
                 "origem": "CACHE_REDIS",
             }
         else:
-            # O item foi removido do SINAPI ou Pinecone recentemente! Cache invalidado.
-            print(f"[CACHE] Invalidação por Segurança! Código {cache.get('codigo_novo')} não está mais no Top 15.")
+            # Foi ACEITO pela IA no passado. Valida se o SINAPI não o removeu do RRF:
+            codigos_validos_rrf = [op["codigo"] for op in opcoes_rrf]
+            if cache.get("codigo_novo") in codigos_validos_rrf:
+                # O item continua existindo. Retornamos TODAS as 20 opções (sem mutilar)
+                return {
+                    "id": linha.id,
+                    **cache,
+                    "memoria_calculo": opcoes_rrf,
+                    "origem": "CACHE_REDIS",
+                }
+            else:
+                # O item sumiu do RRF (pode ter sido descontinuado no SINAPI)
+                print(f"[CACHE] Invalidação de Segurança! Código {cache.get('codigo_novo')} não está mais no RRF.")
     
-    # 3. Agente de IA toma a decisão baseada no Structured Outputs e Curva ABC
+    # 4. Agente de IA toma a decisão baseada no Structured Outputs e Curva ABC
     # valor_financeiro_total removido: lógica ABC delegada para pós-processamento determinístico
     # Injeta caracteristicas dimensionais como contexto para o Agente Mapeador avaliar tolerancias
     termo_com_contexto = linha.descricao

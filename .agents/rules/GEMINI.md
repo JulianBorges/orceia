@@ -90,18 +90,18 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 ## 4. Motor RRF — Algoritmo Congelado
 
 ```python
-# 1. Busca paralela (asyncio.gather): Trigramas (pg_trgm > 0.15 estrito, LIMIT 50) + Embeddings (Pinecone top_k=40)
+# 1. Busca paralela (asyncio.gather): FTS + Trigramas (pg_trgm > 0.10) e Embeddings (Pinecone top_k=40)
 # 2. RRF fusion: score = 1 / (k + rank + 1)
 # 3. Boost de consenso: +20% se ID aparece em ambas as listas
-# 4. Threshold de fallback: baseado em fonte única (1/61), não dupla (2.2/61) — evita falsos positivos
+# 4. Bônus de Sniper: Postgres aplica multiplicador exponencial se FTS (score_lexico > 0.22) achar termos exatos
 # 5. Top 10 → gpt-4o-mini via beta.chat.completions.parse (schema Pydantic estrito)
 ```
 
-**PROIBIDO:** alterar pesos, desativar boost, usar parse de Markdown ou Regex.
+**PROIBIDO:** alterar pesos, desativar boost ou pular o RRF ao atingir o Cache Redis. O RRF *sempre* roda para gerar o Top 20 fresco. O Redis pula apenas a OpenAI.
 
 ---
 
-## 5. Post-Mortem — 28 Bugs Conhecidos (Não Repita)
+## 5. Post-Mortem — 30 Bugs Conhecidos (Não Repita)
 
 | # | Bug | Causa-Raiz | Solução Definitiva |
 |---|-----|------------|---------------------|
@@ -133,4 +133,6 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 26 | Queda de Acurácia com IA Decomposta (V2) | Modelos "espertos" sem regras engessadas ignoram as restrições implícitas do SINAPI (Laje vs Parede) | Manter Arquitetura V1 (Prompt único massivo + `gpt-4o-mini`) |
 | 27 | RRF Miss (Item sumiu da busca) | Pinecone indexado com `termo_limpo` em vez da descrição bruta (RAW), perdendo contexto de dimensões | Sempre re-indexar o Pinecone iterando a `descricao` original do banco |
 | 28 | Queda no RRF por limites apertados | Postgres com `word_similarity` 0.12 causava falsos positivos; `top_k=20` trazia poucos itens semânticos | Congelar: `pg_trgm > 0.15` (LIMIT 50) e Pinecone `top_k=40` |
+| 29 | Dilema do Consenso RRF (Tubo 110mm) | Pinecone não traz a dimensão correta e ofusca o FTS do Postgres no RRF | Injetar Bônus de Sniper Exponencial se Postgres trouxer score > 0.22 |
+| 30 | Botão de Memória Some da UI | Cache do Redis abortava o motor de busca para itens rejeitados | Separar Cache de Busca: O RRF roda SEMPRE O(1), o Redis pula apenas a OpenAI |
 

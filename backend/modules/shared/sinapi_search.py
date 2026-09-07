@@ -36,13 +36,36 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     if tabela is None:
         raise ValueError(f"Tipo de busca SINAPI invalido: '{tipo}'. Aceitos: {list(TABELAS_VALIDAS.keys())}")
 
-    termo_pg = _limpar_termo_lexico(termo)
+    # Limpa termo
+    termo_limpo = _limpar_termo_lexico(termo)
+    # Adiciona espaço entre números e letras para que o Trigram ache '110 MM' corretamente
+    termo_limpo = re.sub(r'(\d+)([a-zA-Z]+)', r'\1 \2', termo_limpo)
+    
+    # Prepara tokens para Busca Textual (OR)
+    raw_tokens = [w for w in termo_limpo.split() if w.isalnum()]
+    expanded_tokens = []
+    for t in raw_tokens:
+        expanded_tokens.append(t)
+        # Se for "110MM", injeta tambem "110" e "MM"
+        match = re.match(r'^(\d+)([a-zA-Z]+)$', t)
+        if match:
+            expanded_tokens.extend([match.group(1), match.group(2)])
+            
+    termo_fts = ' | '.join(expanded_tokens)
+    
+    if not expanded_tokens:
+        return []
 
-    # word_similarity é a função do pg_trgm. Quanto mais perto de 1.0, mais parecido.
+    # Busca Híbrida Postgres: Trigram + TSVector BM25
     query = f"""
-        SELECT codigo, descricao, preco, unidade, word_similarity(descricao, $1) as score_lexico
+        SELECT codigo, descricao, preco, unidade, 
+               (
+                 ts_rank(to_tsvector('simple', descricao), to_tsquery('simple', $2)) * 2.0
+                 + word_similarity(descricao, $1)
+               ) as score_lexico
         FROM {tabela}
-        WHERE word_similarity(descricao, $1) > 0.15
+        WHERE word_similarity(descricao, $1) > 0.10
+           OR to_tsvector('simple', descricao) @@ to_tsquery('simple', $2)
         ORDER BY score_lexico DESC
         LIMIT 50;
     """
@@ -50,8 +73,8 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     pool = get_db_pool()
     try:
         async with pool.acquire() as conn:
-            records = await asyncio.wait_for(conn.fetch(query, termo_pg), timeout=3.0)
+            records = await asyncio.wait_for(conn.fetch(query, termo_limpo, termo_fts), timeout=3.0)
         return [dict(r) for r in records]
     except (asyncio.TimeoutError, Exception) as e:
-        print(f"[RRF] Timeout ou erro na busca léxica (PostgreSQL) para '{termo}': {e}")
+        print(f"[RRF] Timeout ou erro na busca lexica (PostgreSQL) para '{termo}': {e}")
         return []

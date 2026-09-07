@@ -105,10 +105,22 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     master_dict = {}
     
     def processar_resultados(pg_res, pc_res):
-        # Avaliando Postgres (Trigramas)
+        # Avaliando Postgres (FTS + Trigramas)
         for rank, item in enumerate(pg_res):
             cod = item["codigo"]
-            scores_rrf[cod] = scores_rrf.get(cod, 0) + (1.0 / (k + rank + 1))
+            base_score = 1.0 / (k + rank + 1)
+            
+            # BONUS DE SNIPER / EXATIDÃO:
+            # O Postgres traz o score_lexico real (FTS ts_rank + Trigram). 
+            # Se for > 0.22, significa match exato de dimensões e palavras-chave.
+            # Damos um bônus dinâmico para vencer o "consenso cego" do Pinecone.
+            score_lexico = float(item.get("score_lexico") or 0.0)
+            if score_lexico >= 0.22:
+                # Multiplicador proporcional (0.28 vira ~1.3 vezes o score de rank 0)
+                bonus_multi = (score_lexico - 0.15) * 10.0
+                base_score += (1.0 / (k + 1)) * bonus_multi
+
+            scores_rrf[cod] = scores_rrf.get(cod, 0.0) + base_score
             master_dict[cod] = item
             
         # Avaliando Pinecone (Embeddings)
