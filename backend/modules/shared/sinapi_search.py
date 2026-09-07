@@ -9,6 +9,8 @@ def _limpar_termo_lexico(termo: str) -> str:
     termo = re.sub(r'(?i)\bfornecimento\s+e\s+instala[çc][aã]o\.?', '', termo)
     # Remove código de atualização AF_MM/AAAA
     termo = re.sub(r'(?i)\bAF_\d{2}/\d{4}', '', termo)
+    # Uniformiza multiplicadores (ex: 75x50 -> 75 X 50) para garantir parse correto no FTS
+    termo = re.sub(r'(\d+)\s*[xX]\s*(?=\d)', r'\1 X ', termo)
     # Limpa espaços extras
     return ' '.join(termo.split()).strip()
 
