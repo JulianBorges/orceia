@@ -87,13 +87,13 @@ async def rodar_caso(caso, idx):
         esperado = caso["codigo_esperado"]
         if isinstance(esperado, list):
             encontrados = [c for c in esperado if c in codigos_rrf]
-            resultado["esperado_no_rrf"] = len(encontrados) > 0
+            resultado["esperado_no_rrf"] = len([c for c in esperado if c in codigos_rrf[:10]]) > 0
             resultado["codigos_esperados_encontrados_no_rrf"] = encontrados
         elif esperado is None:
             resultado["esperado_no_rrf"] = None
             resultado["codigos_esperados_encontrados_no_rrf"] = []
         else:
-            resultado["esperado_no_rrf"] = str(esperado) in [str(c) for c in codigos_rrf]
+            resultado["esperado_no_rrf"] = str(esperado) in [str(c) for c in codigos_rrf[:10]]
             resultado["codigos_esperados_encontrados_no_rrf"] = [esperado] if resultado["esperado_no_rrf"] else []
 
         print(f"      [RRF] {len(opcoes_rrf)} itens: {codigos_rrf}")
@@ -103,7 +103,7 @@ async def rodar_caso(caso, idx):
         if caracteristicas:
             termo_ctx = f"{caso['descricao_legada']} [Specs extraidas: {caracteristicas}]"
 
-        analise = await consultar_agente_engenheiro(termo_ctx, opcoes_rrf)
+        analise = await consultar_agente_engenheiro(termo_ctx, opcoes_rrf[:10])
         resultado["llm"] = {
             "codigo_selecionado": analise.codigo_selecionado,
             "categoria_rigor": analise.categoria_rigor,

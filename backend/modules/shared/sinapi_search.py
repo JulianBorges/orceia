@@ -36,13 +36,11 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
     if tabela is None:
         raise ValueError(f"Tipo de busca SINAPI invalido: '{tipo}'. Aceitos: {list(TABELAS_VALIDAS.keys())}")
 
-    # Limpa termo
-    termo_limpo = _limpar_termo_lexico(termo)
-    # Adiciona espaço entre números e letras para que o Trigram ache '110 MM' corretamente
-    termo_limpo = re.sub(r'(\d+)([a-zA-Z]+)', r'\1 \2', termo_limpo)
+    # Limpa termo base
+    termo_base = _limpar_termo_lexico(termo)
     
     # Prepara tokens para Busca Textual (OR)
-    raw_tokens = [w for w in termo_limpo.split() if w.isalnum()]
+    raw_tokens = [w for w in termo_base.split() if w.isalnum()]
     expanded_tokens = []
     for t in raw_tokens:
         expanded_tokens.append(t)
@@ -52,6 +50,9 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
             expanded_tokens.extend([match.group(1), match.group(2)])
             
     termo_fts = ' | '.join(expanded_tokens)
+    
+    # Adiciona espaço entre números e letras APENAS para que o Trigram ache '110 MM' corretamente
+    termo_limpo = re.sub(r'(\d+)([a-zA-Z]+)', r'\1 \2', termo_base)
     
     if not expanded_tokens:
         return []

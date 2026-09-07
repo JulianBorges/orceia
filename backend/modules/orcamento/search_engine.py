@@ -151,7 +151,14 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
     # Comparamos o score com 85% do máximo de fonte única para fairness
     limiar_fallback = max_score_unica_fonte * 0.85
     acionar_fallback = best_score < limiar_fallback
-    best_pct = min((best_score / (max_score_unica_fonte * 2.2)) * 100, 100.0)
+    baseline_max = max_score_unica_fonte * 2.2
+    def normalizar_score(s: float) -> float:
+        if s <= baseline_max:
+            return (s / baseline_max) * 90.0
+        else:
+            return min(90.0 + ((s - baseline_max) / (0.12 - baseline_max)) * 10.0, 100.0)
+            
+    best_pct = normalizar_score(best_score)
 
     # Fallback Orçamentista Virtual se a confiança estiver baixa (Abaixo de 85%)
     if acionar_fallback:
@@ -182,7 +189,7 @@ async def realizar_busca_hibrida(termo_busca: str, id_planilha: str, tenant_id: 
         # Converte Numeric do Postgres para Float nativo (necessário pro JSON)
         item["preco"] = float(item["preco"]) if item.get("preco") is not None else 0.0
         
-        normalized_percentage = min((score / (max_score_unica_fonte * 2.2)) * 100, 100.0)
+        normalized_percentage = normalizar_score(score)
         
         print(f"[RRF] {cod}: raw_score={score}, pct={round(normalized_percentage, 1)}%")
         # Garante campos consistentes independente da origem (Postgres ou Pinecone)
