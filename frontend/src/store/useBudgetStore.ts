@@ -151,7 +151,9 @@ export const useBudgetStore = create<BudgetState>()(
                 if (!row.descricao_legada && !newRowData.descricao_legada) {
                     newRow.descricao_legada = row.descricao;
                 }
-                newRow.ai_status = 'PENDENTE';
+                if (!('ai_status' in newRowData)) {
+                    newRow.ai_status = 'PENDENTE';
+                }
             }
             if ('quant' in newRowData || 'valorUnit' in newRowData) {
               newRow.total = Number(newRow.quant) * Number(newRow.valorUnit);
