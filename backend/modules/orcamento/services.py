@@ -14,16 +14,16 @@ MAX_CONCURRENT_TASKS = 3  # Protege o Rate Limit em auto-scaling (Cloud Run)
 
 async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
     """Consulta o banco de memórias do Cliente (Engenharia Humana)"""
-    query = "SELECT codigo_escolhido, parecer FROM memoria_organizacional WHERE tenant_id = $1 AND termo_original = $2 LIMIT 1"
+    query = "SELECT codigo, parecer_tecnico FROM memoria_organizacional WHERE tenant_id = $1 AND descricao_legada = $2 LIMIT 1"
     pool = get_db_pool()
     async with pool.acquire() as conn:
         record = await asyncio.wait_for(conn.fetchrow(query, tenant_id, normalizar_chave(termo)), timeout=5.0)
         
     if record:
         return {
-            "codigo_novo": record["codigo_escolhido"],
+            "codigo_novo": record["codigo"],
             "status_ia": "MEMÓRIA HUMANA",
-            "parecer": record["parecer"],
+            "parecer": record["parecer_tecnico"],
             "rigor": "BAIXO",
             "origem": "RLHF_DATABASE"
         }
