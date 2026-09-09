@@ -100,14 +100,17 @@ async def delete_linhas(body: DeleteLinhasRequest, tenant_id: str = Depends(get_
         print(f"[ERRO DB] Falha ao deletar linhas: {e}")
         raise HTTPException(status_code=500, detail="Falha ao remover as linhas do orçamento.")
 
+from fastapi import APIRouter, Depends, HTTPException, Header, BackgroundTasks, Request
+
+# ... skips to sse_stream ...
+
 @router.get("/stream/{id_planilha}")
-async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(verify_stream_token)):
+async def sse_stream(request: Request, id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(verify_stream_token)):
     """Canal de Eventos (SSE). O frontend escuta aqui DIRETAMENTE e atualiza a UI instantaneamente"""
     async def event_generator():
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
         if last_id and "," in last_id:
-            # Tratamento correto segundo a RFC 2616 do HTTP/1.1 para headers concatenados pelo navegador
             last_id = last_id.split(",")[-1].strip()
             
         if not last_id or last_id in ("null", "undefined", ""):
@@ -115,10 +118,19 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
 
         try:
             while True:
+                # Checagem vital para evitar Zombie Clients no Redis (Timeout / Vercel cortando sujo)
+                if await request.is_disconnected():
+                    print(f"SSE Streaming abortado pelo Request Lifecycle (Planilha {id_planilha}).")
+                    break
+
                 if rc.redis_client is None:
                     break
 
-                streams = await rc.redis_client.xread({stream_key: last_id}, block=2000, count=2)
+                # Usamos asyncio.wait_for para que o xread nao segure a Thread e deixe checar is_disconnected a cada tick
+                try:
+                    streams = await asyncio.wait_for(rc.redis_client.xread({stream_key: last_id}, count=2), timeout=2.0)
+                except asyncio.TimeoutError:
+                    streams = None
 
                 if streams:
                     for stream_name, messages in streams:
