@@ -12,3 +12,21 @@ async def get_current_tenant(x_tenant_id: str = Header(None)):
     if not x_tenant_id:
         raise HTTPException(status_code=401, detail="Sessao Expirada ou Tenant Nao Encontrado")
     return x_tenant_id
+
+from fastapi import Query
+import core.redis_client as rc
+
+async def verify_stream_token(token: str = Query(...)):
+    """Valida Token Efêmero de Streaming (Bypass Proxy)"""
+    if not rc.redis_client:
+        raise HTTPException(status_code=500, detail="Redis offline")
+    
+    tenant_id = await rc.redis_client.get(f"sse_token:{token}")
+    if not tenant_id:
+        raise HTTPException(status_code=401, detail="Token de Streaming Invalido ou Expirado")
+    
+    # decode porque o aioredis retorna bytes as vezes
+    if isinstance(tenant_id, bytes):
+        tenant_id = tenant_id.decode('utf-8')
+        
+    return tenant_id

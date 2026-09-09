@@ -16,10 +16,11 @@ from core.redis_client import delete_ai_cache
 from core.text_utils import normalizar_chave
 import asyncio
 import json
+import secrets
 
 router = APIRouter(prefix="/orcamento", tags=["orcamento"])
 
-from core.security import verify_proxy_secret, get_current_tenant
+from core.security import verify_proxy_secret, get_current_tenant, verify_stream_token
 
 @router.post("/feedback", dependencies=[Depends(verify_proxy_secret)])
 async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(get_current_tenant)):
@@ -54,10 +55,15 @@ async def upsert_linhas(lote: LoteUpsertRequest, background_tasks: BackgroundTas
     for linha in lote.linhas:
         linha.tenant_id = tenant_id
         
+    # Gera um Token Efemero de Leitura para autorizar a conexao direta SSE
+    stream_token = secrets.token_urlsafe(32)
+    if rc.redis_client:
+        await rc.redis_client.setex(f"sse_token:{stream_token}", 7200, tenant_id) # Valido por 2h
+        
     # Despacha a bomba para o background. O Frontend fica livre instantaneamente (0 latência)
     background_tasks.add_task(iniciar_processamento_lote_em_background, lote.linhas, planilha_id)
     
-    return {"status": "processing_started", "linhas": len(lote.linhas)}
+    return {"status": "processing_started", "linhas": len(lote.linhas), "stream_token": stream_token}
 
 @router.post("/save-linhas", dependencies=[Depends(verify_proxy_secret)])
 async def save_linhas(lote: LoteUpsertRequest, tenant_id: str = Depends(get_current_tenant)):
@@ -94,9 +100,9 @@ async def delete_linhas(body: DeleteLinhasRequest, tenant_id: str = Depends(get_
         print(f"[ERRO DB] Falha ao deletar linhas: {e}")
         raise HTTPException(status_code=500, detail="Falha ao remover as linhas do orçamento.")
 
-@router.get("/stream/{id_planilha}", dependencies=[Depends(verify_proxy_secret)])
-async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(get_current_tenant)):
-    """Canal de Eventos (SSE). O frontend escuta aqui e atualiza a UI instantaneamente"""
+@router.get("/stream/{id_planilha}")
+async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(verify_stream_token)):
+    """Canal de Eventos (SSE). O frontend escuta aqui DIRETAMENTE e atualiza a UI instantaneamente"""
     async def event_generator():
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
@@ -128,11 +134,10 @@ async def sse_stream(id_planilha: str, last_event_id: str = Header(default="0-0"
                     yield ": ping\n\n"
 
         except asyncio.CancelledError:
-            print(f"SSE Streaming desconectado pelo cliente para a planilha {id_planilha}.")
+            print(f"SSE Streaming desconectado pelo cliente (Bypass Direto) para a planilha {id_planilha}.")
         except Exception as e:
+            # Captura 'max number of clients reached' e fecha com graciosidade
             print(f"Erro fatal no SSE: {e}")
-            import traceback
-            traceback.print_exc()
             yield f"data: {json.dumps({'status': 'erro', 'id': 'fatal', 'mensagem': f'ERRO INTERNO REDIS: {str(e)}'})}\n\n"
             
     headers = {

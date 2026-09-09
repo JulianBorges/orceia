@@ -12,6 +12,8 @@ interface BudgetState {
   processedItemsCount: number;
   totalItemsToProcess: number;
   currentAnalyzingItemName: string;
+  currentStreamToken: string | null;
+  setCurrentStreamToken: (val: string | null) => void;
   isDirty: boolean;
   dirtyRowIds: string[];
   lastSaveTimestamp: number;
@@ -61,6 +63,7 @@ export const useBudgetStore = create<BudgetState>()(
       processedItemsCount: 0,
       totalItemsToProcess: 0,
       currentAnalyzingItemName: '',
+      currentStreamToken: null,
       isDirty: false,
       dirtyRowIds: [],
       lastSaveTimestamp: 0,
@@ -70,6 +73,7 @@ export const useBudgetStore = create<BudgetState>()(
 
       setPlanilhaId: (id) => set({ planilhaId: id }),
       setMemorialId: (id) => set({ memorialId: id }),
+      setCurrentStreamToken: (token) => set({ currentStreamToken: token }),
       setIsDirty: (isDirty) => set({ isDirty }),
       incrementProcessedItemsCount: () => set((state) => ({ processedItemsCount: state.processedItemsCount + 1 })),
       setCurrentAnalyzingItemName: (name) => set({ currentAnalyzingItemName: name }),
@@ -377,6 +381,10 @@ export const useBudgetStore = create<BudgetState>()(
                 });
                 
                 if (res.ok) {
+                    const data = await res.json();
+                    if (data.stream_token) {
+                        set({ currentStreamToken: data.stream_token });
+                    }
                     successCount += chunk.length;
                     set({ processingStatusText: `Enviados ${successCount}/${linhasParaProcessar.length} para background...` });
                 } else {

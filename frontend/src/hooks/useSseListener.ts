@@ -8,16 +8,20 @@ import { useBudgetStore } from '../store/useBudgetStore';
  */
 export function useSseListener(planilhaId: string | null) {
   const updateRowById = useBudgetStore((state) => state.updateRowById);
+  const currentStreamToken = useBudgetStore((state) => state.currentStreamToken);
   const lastEventIdRef = useRef<string>('$');
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (!planilhaId) return;
+    // Só conecta se tivermos a planilha e o Token Efêmero (Bypass de Proxy aprovado)
+    if (!planilhaId || !currentStreamToken) return;
 
-    console.log(`[SSE] Conectando ao barramento de Eventos da Planilha: ${planilhaId}`);
+    console.log(`[SSE] Conectando ao barramento direto (Bypass Vercel) da Planilha: ${planilhaId}`);
     abortControllerRef.current = new AbortController();
 
-    fetchEventSource(`/api/proxy/orcamento/stream/${planilhaId}`, {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://127.0.0.1:8000';
+
+    fetchEventSource(`${backendUrl}/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
       signal: abortControllerRef.current.signal,
       headers: {
         'Last-Event-ID': lastEventIdRef.current,
@@ -113,5 +117,5 @@ export function useSseListener(planilhaId: string | null) {
       console.log(`[SSE] Encerrando conexao (Planilha: ${planilhaId})`);
       abortControllerRef.current?.abort();
     };
-  }, [planilhaId, updateRowById]);
+  }, [planilhaId, updateRowById, currentStreamToken]);
 }
