@@ -56,6 +56,9 @@ O `asyncio.Semaphore` é in-memory e quebra em multi-replica. A classe `RedisSem
 **Por que multi-tenancy via Header?**
 Trafegar `tenant_id` no body abre vetor de ataque. O `middleware.ts` lê o Cookie HttpOnly, injeta `X-Tenant-ID` inforjável pelo browser. FastAPI consome via `Depends(get_current_tenant)`.
 
+**Por que Teacher Model para Fine-Tuning?**
+Para treinar o `gpt-4o-mini` sem distorcer seus pesos com "raciocínios forjados" e repetitivos, o script de Fine-Tuning (`export_finetuning_dataset.py`) delega ao `gpt-4o` maior a tarefa de inferir por que o humano tomou aquela decisão no banco, criando um *Chain of Thought* orgânico e altamente pedagógico.
+
 ---
 
 ## 4. Mapa do Código (Estado Atual)
@@ -68,6 +71,7 @@ orceia_v3/
 ├── Manual_OrceIA.md              <- Blueprint completo de construcao + Post-Mortem
 │
 ├── backend/
+│   ├── scripts/                  <- Scripts de MLOps: export_finetuning_dataset.py (Teacher Model GPT-4o) e start_finetuning_job.py
 │   ├── main.py                   <- FastAPI entry point: lifespan, CORS, registro de routers
 │   │                                WEB_CONCURRENCY > 1 emite aviso (RedisSemaphore ja suporta multi-worker)
 │   ├── core/

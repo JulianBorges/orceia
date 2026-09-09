@@ -72,6 +72,12 @@ backend/modules/eap/         ← Estruturação de Lista Plana em EAP — ATIVO
 - ❌ **NUNCA** limpe formatação da IA via Regex no pós-processamento
 - ✅ Use schemas Pydantic fechados com `beta.chat.completions.parse` (Structured Outputs)
 
+### ML Pipeline & Data Labeling (RLHF / Fine-Tuning)
+- ✅ A tabela `memoria_organizacional` **deve** permitir `codigo = NULL` para armazenar rejeições de escopo (Negative Samples).
+- ✅ A `descricao_legada` é sagrada. Nunca a sobrescreva no banco quando a IA tomar uma decisão. No `ON CONFLICT`, evite atualizar a `descricao_legada`.
+- ❌ **Data Poisoning (Vazamento de Tags):** Marcadores sintéticos como `[TOLERÂNCIA: ACEITÁVEL]` devem ser injetados *apenas* no momento do Prompt. Use `copy.deepcopy()` na lista de opções para evitar vazamento da tag para a UI e o Banco de Dados.
+- ❌ **Data Poisoning (Dataset Estático):** Nunca faça mock de Raciocínio (CoT) para o Dataset. Use um *Teacher Model* (GPT-4o) para sintetizar o CoT baseado no gabarito real da Memória Organizacional.
+
 ---
 
 ## 3. Arquitetura de Comunicação
@@ -138,3 +144,7 @@ Browser → Next.js Edge Proxy (/api/proxy) → FastAPI Backend → Supabase / P
 | 31 | UI Pct achatado em 100% | Bônus de Sniper FTS rompeu o limite matemático de 1/61 | `normalizar_score` mapeia scores clássicos até 90% e reserva 90-100% EXCLUSIVAMENTE para snipers |
 | 32 | FTS cego para dimensões cruzadas | Regex separava 110mm mas ignorava 75x50 como bloco único | Adicionar Regex Lookahead `(\d+)\s*[xX]\s*(?=\d)` para garantir parsing universal no FTS |
 | 33 | Falsos Positivos no Diagnóstico | Script mandava Top 20 inteiro pra IA e passava num item rank 14 | Espelhar produção estritamente: Fatiar `opcoes_rrf[:10]` em todos os testes |
+| 34 | Rejection Blindness (RLHF Inútil) | `codigo_escolhido` configurado como `NOT NULL` no banco proibia rejeições | `DROP NOT NULL` em `codigo` na memória organizacional |
+| 35 | Data Poisoning no Cache e Banco | O marcador `[TOLERÂNCIA...]` injetado na memória da lista RRF mutava a lista e viajava pelo JSON de volta pro Frontend | `copy.deepcopy(opcoes_rrf[:10])` isola as opções apenas para a OpenAI |
+| 36 | Overwrite Histórico da Planilha | `ON CONFLICT DO UPDATE` do DB massacrava a descrição original do Excel com a descrição da IA | Adotar coluna isolada `descricao_legada` e omiti-la do `UPDATE` |
+| 37 | Dataset (Fine-Tuning) Estático | Script de Fine-Tuning gerava JSONL forjando string estática para Raciocínio (`Analisando...`) destruindo os pesos da IA | Adotar *Teacher Model* (GPT-4o) para sintetizar CoT avançado com o gabarito |

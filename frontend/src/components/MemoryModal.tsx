@@ -1,16 +1,59 @@
 import React from 'react';
-import { Brain, X } from 'lucide-react';
+import { Brain, X, Check, Ban, RefreshCw } from 'lucide-react';
 
 export interface MemoryModalProps {
     memoryModalData: { matches: any[], rowIndex: number, legado: string, codigoSelecionado?: string | null } | null;
     setMemoryModalData: (data: any) => void;
     data: any[];
     updateRow: (index: number, newRowData: any) => void;
-    memorizeHumanFeedback: (original: string, novo: string, parecer: string) => void;
+    memorizeHumanFeedback: (original: string, novo: string | null, descricaoSinapi: string | null, parecer: string) => void;
 }
 
 export function MemoryModal({ memoryModalData, setMemoryModalData, data, updateRow, memorizeHumanFeedback }: MemoryModalProps) {
     if (!memoryModalData) return null;
+
+    const handleReject = () => {
+        if (window.confirm("Deseja marcar este item como Inexistente no SINAPI (Rejeitar)?")) {
+            // Usa descricao_legada que agora vem via data
+            const originalTerm = data[memoryModalData.rowIndex].descricao_legada || data[memoryModalData.rowIndex].descricao;
+            const parecerText = 'Item rejeitado manualmente (não existe no SINAPI).';
+            
+            updateRow(memoryModalData.rowIndex, {
+                codigo: '',
+                descricao: originalTerm,
+                valorUnit: 0,
+                und: '-',
+                ai_status: 'REJEITADO',
+                ai_parecer_tecnico: parecerText,
+                base: 'SINAPI'
+            });
+            
+            memorizeHumanFeedback(originalTerm, null, null, parecerText);
+            setMemoryModalData(null);
+        }
+    };
+
+    const handleAccept = () => {
+        // Valida a escolha que a IA já fez
+        const originalTerm = data[memoryModalData.rowIndex].descricao_legada || data[memoryModalData.rowIndex].descricao;
+        const currentCode = data[memoryModalData.rowIndex].codigo;
+        const currentDesc = data[memoryModalData.rowIndex].descricao;
+        
+        if (!currentCode) {
+            alert("Não há sugestão da IA para aceitar. Escolha uma opção para substituir.");
+            return;
+        }
+
+        const parecerText = 'Sugestão da IA validada e aceita pelo usuário.';
+        
+        updateRow(memoryModalData.rowIndex, {
+            ai_status: 'CONCLUIDO',
+            ai_parecer_tecnico: parecerText
+        });
+        
+        memorizeHumanFeedback(originalTerm, currentCode, currentDesc, parecerText);
+        setMemoryModalData(null);
+    };
 
     return (
         <div 
@@ -26,12 +69,47 @@ export function MemoryModal({ memoryModalData, setMemoryModalData, data, updateR
                         <Brain className="w-5 h-5" />
                         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Memória de Cálculo da IA</h2>
                     </div>
-                    <button 
-                        onClick={() => setMemoryModalData(null)}
-                        className="p-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
+                    
+                    {/* Ações Globais: Validar (Aceitar) e Rejeitar */}
+                    <div className="flex items-center gap-3">
+                        {/* Botão Validar */}
+                        <div className="relative group">
+                            <button 
+                                onClick={handleAccept}
+                                className="p-2 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 transition-colors"
+                            >
+                                <Check className="w-5 h-5" />
+                            </button>
+                            {/* Tooltip estilo balão */}
+                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-zinc-800 text-zinc-100 text-xs font-medium px-2 py-1 rounded shadow-lg z-50">
+                                Validar Escolha
+                                <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-zinc-800" />
+                            </div>
+                        </div>
+
+                        {/* Botão Rejeitar */}
+                        <div className="relative group">
+                            <button 
+                                onClick={handleReject}
+                                className="p-2 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 transition-colors"
+                            >
+                                <Ban className="w-5 h-5" />
+                            </button>
+                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-zinc-800 text-zinc-100 text-xs font-medium px-2 py-1 rounded shadow-lg z-50">
+                                Rejeitar (Não existe)
+                                <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-zinc-800" />
+                            </div>
+                        </div>
+
+                        <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-700 mx-2" />
+
+                        <button 
+                            onClick={() => setMemoryModalData(null)}
+                            className="p-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
                 
                 <div className="p-4 overflow-y-auto custom-scrollbar flex flex-col gap-3">
@@ -61,30 +139,40 @@ export function MemoryModal({ memoryModalData, setMemoryModalData, data, updateR
                                 <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed flex-1 break-words whitespace-normal">
                                     {match.descricao}
                                 </p>
-                                <button 
-                                    onClick={() => {
-                                        if (window.confirm("Deseja substituir o item atual por esta composição do SINAPI?")) {
-                                            const originalTerm = data[memoryModalData.rowIndex].descricao;
-                                            const parecerText = 'Composição substituída manualmente pelo usuário via Memória de Cálculo.';
-                                            
-                                            updateRow(memoryModalData.rowIndex, {
-                                                codigo: match.codigo,
-                                                descricao: match.descricao,
-                                                valorUnit: Number(match.preco) || 0,
-                                                und: match.unidade,
-                                                ai_status: 'SUBSTITUIDO',
-                                                ai_parecer_tecnico: parecerText,
-                                                base: 'SINAPI'
-                                            });
-                                            
-                                            memorizeHumanFeedback(originalTerm, match.codigo, parecerText);
-                                            setMemoryModalData(null);
-                                        }
-                                    }}
-                                    className="opacity-0 group-hover/match:opacity-100 transition-opacity bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3 py-1.5 rounded shrink-0"
-                                >
-                                    Substituir
-                                </button>
+                                
+                                {/* Botão Substituir (apenas ícone com tooltip) */}
+                                <div className="relative group/btn opacity-0 group-hover/match:opacity-100 transition-opacity shrink-0">
+                                    <button 
+                                        onClick={() => {
+                                            if (window.confirm("Deseja substituir o item atual por esta composição do SINAPI?")) {
+                                                const originalTerm = data[memoryModalData.rowIndex].descricao_legada || data[memoryModalData.rowIndex].descricao;
+                                                const parecerText = 'Composição substituída manualmente pelo usuário via Memória de Cálculo.';
+                                                
+                                                updateRow(memoryModalData.rowIndex, {
+                                                    codigo: match.codigo,
+                                                    descricao: match.descricao,
+                                                    valorUnit: Number(match.preco) || 0,
+                                                    und: match.unidade,
+                                                    ai_status: 'SUBSTITUIDO',
+                                                    ai_parecer_tecnico: parecerText,
+                                                    base: 'SINAPI'
+                                                });
+                                                
+                                                memorizeHumanFeedback(originalTerm, match.codigo, match.descricao, parecerText);
+                                                setMemoryModalData(null);
+                                            }
+                                        }}
+                                        className="p-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                                    >
+                                        <RefreshCw className="w-4 h-4" />
+                                    </button>
+                                    
+                                    <div className="absolute right-0 top-full mt-2 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-zinc-800 text-zinc-100 text-xs font-medium px-2 py-1 rounded shadow-lg z-50">
+                                        Substituir
+                                        <div className="absolute -top-1 right-3 border-4 border-transparent border-b-zinc-800" />
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     ))}

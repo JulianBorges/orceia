@@ -101,9 +101,11 @@ export const CodigoCell = ({ initialValue, item, onUpdate, onOpenDetails }: Codi
                     onUpdate(val);
                     if (val !== initialValue) {
                         import('@/store/useBudgetStore').then(module => {
+                            const originalTerm = item.descricao_legada || item.descricao;
                             module.useBudgetStore.getState().memorizeHumanFeedback(
-                                item.descricao, 
+                                originalTerm, 
                                 val, 
+                                null,
                                 "Código editado manualmente pelo usuário na célula."
                             );
                         });

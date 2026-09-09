@@ -6,6 +6,7 @@ class LinhaOrcamentoBase(BaseModel):
     tenant_id: Optional[str] = Field(default=None, description="Injetado pelo Header de Auth Server-Side")
     codigo: Optional[str] = None
     descricao: str
+    descricao_legada: Optional[str] = None
     unidade: str
     quantidade: float = Field(default=0.0)
     preco_unitario: float = Field(default=0.0)
@@ -44,9 +45,10 @@ class PlanilhaLinhasResponse(BaseModel):
 
 class FeedbackRLHF(BaseModel):
     tenant_id: Optional[str] = None
-    termo_original: str
-    codigo_escolhido: str
-    parecer: str = "Aprendizado forçado via UX (RLHF)"
+    descricao_legada: str
+    codigo: Optional[str] = None
+    descricao: Optional[str] = None  # SINAPI description
+    parecer_tecnico: str = "Aprendizado forçado via UX (RLHF)"
 
 # --- ESTRUTURAS RÍGIDAS PARA A IA (Structured Outputs) ---
 

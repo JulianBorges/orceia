@@ -6,7 +6,7 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 
 ---
 
-> **Atualização de Status (Hardening Concluído):** A "Fase de Estabilização" (Sprints 6 a 9 do Refactor Plan) foi 100% concluída com sucesso. O motor e o frontend atingiram estabilidade e segurança máximas. O caminho está livre e blindado para prosseguirmos com a **Sprint 4.2 (Curva ABC)** e **Sprint 5 (AuditorIA)**.
+> **Atualização de Status (Hardening & Fine-Tuning Concluídos):** A "Fase de Estabilização" do motor e o pipeline bidirecional de ML (RLHF e Fine-Tuning com Teacher Model) foram concluídos com sucesso. O caminho está livre e blindado para prosseguirmos com a **Sprint 4.2 (Curva ABC)** e refinamentos finais.
 
 ---
 
@@ -75,9 +75,12 @@ Este roadmap reflete a decisão arquitetural de abandonarmos a base de código l
 ## 📈 SPRINT 4: Inteligência Comercial B2B (Novas Features)
 *Objetivo: Evoluir de uma ferramenta interna para um Produto SaaS de alto valor e inteligência adaptativa.*
 
-- [x] **4.1 Aprendizado por Feedback Humano (RLHF Local):**
-  - [x] Criar tabela de `memoria_organizacional`. Quando o usuário alterar o insumo escolhido pela IA manualmente no Drawer e salvar, o sistema memorizará a preferência.
-  - [x] Nos próximos orçamentos da mesma empresa, o sistema contornará a OpenAI e preencherá o item idêntico a custo zero de API.
+- [x] **4.1 Aprendizado por Feedback Humano (RLHF Local & Fine-Tuning):**
+  - [x] Tabela de `memoria_organizacional` normalizada (DDD) usando estrutura rigorosa (`tenant_id, descricao_legada, codigo, descricao, parecer_tecnico`). Aceita `codigo: NULL` para armazenar "Negative Samples" (Rejeições de escopo).
+  - [x] Motor de Upsert Massivo do Backend protegido: `descricao_legada` gravada imaculada (livre de mutações da UI ou do bot).
+  - [x] UI do `MemoryModal` atualizada para "Audit Mode": ícones interativos flutuantes de Aceitar (Validar), Substituir e Rejeitar (Não existe) com injeção automática da descrição SINAPI real ao banco.
+  - [x] Pipeline Data Labeling pronto: motor de busca RRF protegido por `copy.deepcopy` para isolar marcadores estáticos de tolerância do cache e do banco.
+  - [x] Script `export_finetuning_dataset.py` reescrito usando Arquitetura Teacher Model (GPT-4o) forjando o *Chain of Thought* para treinar LLMs menores (GPT-4o-mini via variável nativa `OPENAI_FT_MODEL`).
 
 - [x] **4.2 Multi-Tenancy (Preparação SaaS):**
   - [x] Implementação de Login Passwordless com segurança via Cookies HTTP-Only, Middleware e Headers `X-Tenant-ID`.

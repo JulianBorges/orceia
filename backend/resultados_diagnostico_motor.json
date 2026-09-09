@@ -30,20 +30,20 @@
       },
       {
         "rank": 3,
-        "codigo": "93569",
-        "descricao": "ARQUITETO JUNIOR COM ENCARGOS COMPLEMENTARES",
-        "unidade": "MES",
-        "preco": 23618.05,
-        "score_lexico": 0.20000000298023224,
-        "score_semantico": null
-      },
-      {
-        "rank": 4,
         "codigo": "95421",
         "descricao": "CURSO DE CAPACITAÇÃO PARA ARQUITETO SÊNIOR (ENCARGOS COMPLEMENTARES) - MENSALISTA",
         "unidade": "MES",
         "preco": 159.12,
         "score_lexico": 0.1318681389093399,
+        "score_semantico": null
+      },
+      {
+        "rank": 4,
+        "codigo": "93569",
+        "descricao": "ARQUITETO JUNIOR COM ENCARGOS COMPLEMENTARES",
+        "unidade": "MES",
+        "preco": 23618.05,
+        "score_lexico": 0.20000000298023224,
         "score_semantico": null
       },
       {
@@ -107,7 +107,7 @@
         "unidade": "M2",
         "preco": 136.77,
         "score_lexico": null,
-        "score_semantico": 0.502409279
+        "score_semantico": 0.502181292
       },
       {
         "rank": 12,
@@ -116,7 +116,7 @@
         "unidade": "M2",
         "preco": 192.14,
         "score_lexico": null,
-        "score_semantico": 0.494008273
+        "score_semantico": 0.493729651
       },
       {
         "rank": 13,
@@ -125,7 +125,7 @@
         "unidade": "M2",
         "preco": 150.55,
         "score_lexico": null,
-        "score_semantico": 0.492532074
+        "score_semantico": 0.492317796
       },
       {
         "rank": 14,
@@ -143,7 +143,7 @@
         "unidade": "M2",
         "preco": 152.88,
         "score_lexico": null,
-        "score_semantico": 0.488227814
+        "score_semantico": 0.487974197
       },
       {
         "rank": 16,
@@ -152,7 +152,7 @@
         "unidade": "M2",
         "preco": 205.92,
         "score_lexico": null,
-        "score_semantico": 0.483352661
+        "score_semantico": 0.483118445
       },
       {
         "rank": 17,
@@ -170,7 +170,7 @@
         "unidade": "M2",
         "preco": 143.31,
         "score_lexico": null,
-        "score_semantico": 0.481546789
+        "score_semantico": 0.481281489
       },
       {
         "rank": 19,
@@ -188,17 +188,17 @@
         "unidade": "M2",
         "preco": 208.25,
         "score_lexico": null,
-        "score_semantico": 0.477904141
+        "score_semantico": 0.477601558
       }
     ],
     "esperado_no_rrf": null,
     "codigos_esperados_encontrados_no_rrf": [],
     "llm": {
       "codigo_selecionado": null,
-      "categoria_rigor": "BAIXO",
+      "categoria_rigor": "ALTO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original ''PROJETO ''AS BUILT'' ARQUITETURA'' é claramente um entregável intelectual relacionado a um projeto arquitetônico, que não é uma composição de mão de obra ou um produto físico. Examino as opções apresentadas e todas se referem a serviços de arquitetos, sejam eles pleno, junior ou senior, porém são trabalho de mão de obra e não podem ser assimilados a entregáveis intelectuais. Além disso, não existe uma composição no SINAPI que corresponda especificamente a um projeto arquitetônico como um documento ou relatório. Portanto, não há uma composição SINAPI aplicável das opções apresentadas.",
-      "parecer": "Nenhuma opção apresentada refere-se a uma composição SINAPI para o entregável ''PROJETO ''AS BUILT'' ARQUITETURA''. Todas as opções se referem a mão de obra (arquitetos), o que não é compatível com o tipo de produto solicitado."
+      "raciocinio": "O item original é um projeto, especificamente um \"PROJETO AS BUILT\" na área de arquitetura. Os candidatos apresentados são todos relacionados a mão de obra (arquiteto em diferentes níveis), mas não existe nenhuma opção que represente COMPETENTEMENTE o tipo de entrega que é um projeto arquitetônico. Assim, não é apropriado mapear qualquer uma dessas opções a um produto/entregável intelectual como um projeto. Portanto, apesar de os candidatos serem arquitetos qualificados, não se pode realizar a associação com o item original.",
+      "parecer": "Não há composições SINAPI apropriadas para o item original, que se refere a um produto intangível (projeto) e não pode ser associado a cargos de mão de obra. Portanto, todas as opções de arquitetos não são adequadas."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -404,8 +404,8 @@
       "codigo_selecionado": "103689",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original se refere a uma \"PLACA DE OBRA-PINTADA/FIXADA ESTRUTURA DE MADEIRA\", que compreende uma placa que é pintada e fixada em uma estrutura de madeira. Ao analisar as opções fornecidas, percebi que a única composição que mais se aproxima desta descrição é a que menciona o \"FORNECIMENTO E INSTALAÇÃO DE PLACA DE OBRA COM CHAPA GALVANIZADA E ESTRUTURA DE MADEIRA\" (código 103689). Embora o material da chapa seja diferente, a natureza do serviço (instalação de placa) e a inclusão de uma estrutura de madeira são similares ao que o item original especifica. As demais opções referem-se a serviços ou materiais que não são diretamente aplicáveis à descrição da placa de obra. Portanto, a melhor escolha é a composição que envolve a placa de obra com estrutura de madeira.",
-      "parecer": "Escolhi a composição \"FORNECIMENTO E INSTALAÇÃO DE PLACA DE OBRA COM CHAPA GALVANIZADA E ESTRUTURA DE MADEIRA\" (código 103689) como a melhor alternativa para o item original. Embora o material da chapa seja diferente, a natureza de fornecimento e instalação de uma placa vinculada a uma estrutura de madeira se alinha com a descrição do item original. As outras opções são inadequadas, pois não correspondem à funcionalidade ou ao tipo de item solicitado."
+      "raciocinio": "O item original é uma \"PLACA DE OBRA-PINTADA/FIXADA ESTRUTURA DE MADEIRA\", o que sugere que se trata de uma placa feita de madeira fixada a uma estrutura, com o acabamento pintado. A análise das opções mostra que o primeiro candidato, \"FORNECIMENTO E INSTALAÇÃO DE PLACA DE OBRA COM CHAPA GALVANIZADA E ESTRUTURA DE MADEIRA\", parece ser o mais próximo, já que menciona a fixação em uma estrutura de madeira, embora utilize chapa galvanizada e não madeira como material principal. A descrição da chapa galvanizada ainda se encaixa na ideia de um painel externo, embora não seja exatamente a mesma coisa, mas é a única que está alinhada com a proposta de instalação de uma placa de obra. Os outros candidatos não apresentam equivalência em relação ao item original: a fita de sinalização é um item de sinalização e não uma placa, forros e assoalhos são materiais de acabamento e não placas de obra. A rejeição das demais opções é simples, pois não se relacionam com a funcionalidade da placa de obra. Portanto, o candidato selecionado será o de \"FORNECIMENTO E INSTALAÇÃO DE PLACA DE OBRA COM CHAPA GALVANIZADA E ESTRUTURA DE MADEIRA\" por ser o mais próximo ao solicitado:",
+      "parecer": "A escolha do código 103689 se justifica, pois é a única opção que menciona placas de obra fixadas a uma estrutura, embora a composição envolva chapa galvanizada em vez de madeira. Essa alternativa é a mais relevante em relação ao item original, já que os demais candidatos não apresentam ligação com o conceito de uma placa de obra."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -428,7 +428,7 @@
         "descricao": "TRANSPORTE VERTICAL MANUAL, 1 PAVIMENTO, DE BACIA SANITÁRIA, CAIXA ACOPLADA, TANQUE OU PIA (UNIDADE: UNID). AF_04/2026",
         "unidade": "UN",
         "preco": 0.95,
-        "score_lexico": 0.1846944373100996,
+        "score_lexico": 0.1907737087458372,
         "score_semantico": null
       },
       {
@@ -442,21 +442,21 @@
       },
       {
         "rank": 3,
-        "codigo": "100851",
-        "descricao": "ASSENTO SANITÁRIO INFANTIL - FORNECIMENTO E INSTALAÇÃO. AF_02/2026",
-        "unidade": "UN",
-        "preco": 75.55,
-        "score_lexico": 0.151162788271904,
-        "score_semantico": null
-      },
-      {
-        "rank": 4,
         "codigo": "100195",
         "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE SACOS DE 50 KG (UNIDADE: KGXKM). AF_04/2026",
         "unidade": "KGXKM",
         "preco": 0.98,
-        "score_lexico": 0.21098375134170055,
+        "score_lexico": 0.21706302277743816,
         "score_semantico": null
+      },
+      {
+        "rank": 4,
+        "codigo": "100851",
+        "descricao": "ASSENTO SANITÁRIO INFANTIL - FORNECIMENTO E INSTALAÇÃO. AF_02/2026",
+        "unidade": "UN",
+        "preco": 75.55,
+        "score_lexico": null,
+        "score_semantico": 0.574458301
       },
       {
         "rank": 5,
@@ -464,16 +464,16 @@
         "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE BACIA SANITÁRIA, CAIXA ACOPLADA, TANQUE OU PIA (UNIDADE: UNIDXKM). AF_04/2026",
         "unidade": "UNXKM",
         "preco": 49.85,
-        "score_lexico": 0.20431709103286266,
+        "score_lexico": 0.21039636246860027,
         "score_semantico": null
       },
       {
         "rank": 6,
-        "codigo": "100272",
-        "descricao": "TRANSPORTE VERTICAL MANUAL, 1 PAVIMENTO, DE VIDRO (UNIDADE: M2). AF_04/2026",
-        "unidade": "M2",
-        "preco": 1.54,
-        "score_lexico": 0.20053289458155632,
+        "codigo": "100197",
+        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE SACOS DE 20 KG (UNIDADE: KGXKM). AF_04/2026",
+        "unidade": "KGXKM",
+        "preco": 2.45,
+        "score_lexico": 0.2060720305889845,
         "score_semantico": null
       },
       {
@@ -483,15 +483,15 @@
         "unidade": "UN",
         "preco": 0.0,
         "score_lexico": null,
-        "score_semantico": 0.545304477
+        "score_semantico": 0.545727372
       },
       {
         "rank": 8,
-        "codigo": "100197",
-        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE SACOS DE 20 KG (UNIDADE: KGXKM). AF_04/2026",
+        "codigo": "100196",
+        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE SACOS DE 30 KG (UNIDADE: KGXKM). AF_04/2026",
         "unidade": "KGXKM",
-        "preco": 2.45,
-        "score_lexico": 0.19999275915324688,
+        "preco": 1.63,
+        "score_lexico": 0.20144899003207684,
         "score_semantico": null
       },
       {
@@ -501,15 +501,15 @@
         "unidade": "UN",
         "preco": 0.0,
         "score_lexico": null,
-        "score_semantico": 0.54267931
+        "score_semantico": 0.543403566
       },
       {
         "rank": 10,
-        "codigo": "100265",
-        "descricao": "TRANSPORTE VERTICAL MANUAL, 1 PAVIMENTO, DE JANELA (UNIDADE: M2). AF_04/2026",
-        "unidade": "M2",
-        "preco": 1.02,
-        "score_lexico": 0.19678231701254845,
+        "codigo": "100201",
+        "descricao": "TRANSPORTE HORIZONTAL COM CARRINHO DE MÃO, DE SACOS DE 50 KG (UNIDADE: KGXKM). AF_04/2026",
+        "unidade": "KGXKM",
+        "preco": 0.99,
+        "score_lexico": 0.19510224275290966,
         "score_semantico": null
       },
       {
@@ -519,15 +519,15 @@
         "unidade": "UN",
         "preco": 37.88,
         "score_lexico": null,
-        "score_semantico": 0.533344209
+        "score_semantico": 0.533624649
       },
       {
         "rank": 12,
-        "codigo": "100196",
-        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE SACOS DE 30 KG (UNIDADE: KGXKM). AF_04/2026",
-        "unidade": "KGXKM",
-        "preco": 1.63,
-        "score_lexico": 0.19536971859633923,
+        "codigo": "100271",
+        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE VIDRO (UNIDADE: M2XKM). AF_04/2026",
+        "unidade": "M2XKM",
+        "preco": 78.13,
+        "score_lexico": 0.19477991573512554,
         "score_semantico": null
       },
       {
@@ -537,15 +537,15 @@
         "unidade": "UN",
         "preco": 138.19,
         "score_lexico": null,
-        "score_semantico": 0.527874768
+        "score_semantico": 0.528314173
       },
       {
         "rank": 14,
-        "codigo": "100201",
-        "descricao": "TRANSPORTE HORIZONTAL COM CARRINHO DE MÃO, DE SACOS DE 50 KG (UNIDADE: KGXKM). AF_04/2026",
-        "unidade": "KGXKM",
-        "preco": 0.99,
-        "score_lexico": 0.18902297131717205,
+        "codigo": "100264",
+        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE JANELA (UNIDADE: M2XKM). AF_04/2026",
+        "unidade": "M2XKM",
+        "preco": 48.99,
+        "score_lexico": 0.1925585102289915,
         "score_semantico": null
       },
       {
@@ -555,24 +555,24 @@
         "unidade": "UN",
         "preco": 12.49,
         "score_lexico": null,
-        "score_semantico": 0.518771112
+        "score_semantico": 0.519306123
       },
       {
         "rank": 16,
-        "codigo": "100271",
-        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE VIDRO (UNIDADE: M2XKM). AF_04/2026",
-        "unidade": "M2XKM",
-        "preco": 78.13,
-        "score_lexico": 0.18870064429938793,
+        "codigo": "102907",
+        "descricao": "UNIDADE DOSADORA AIRLESS TIPO HOT SPRAY - JUROS. AF_05/2023",
+        "unidade": "H",
+        "preco": 0.0,
+        "score_lexico": 0.1911106389015913,
         "score_semantico": null
       },
       {
         "rank": 17,
-        "codigo": "100264",
-        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE JANELA (UNIDADE: M2XKM). AF_04/2026",
-        "unidade": "M2XKM",
-        "preco": 48.99,
-        "score_lexico": 0.1864792387932539,
+        "codigo": "100229",
+        "descricao": "TRANSPORTE VERTICAL MANUAL, 1 PAVIMENTO, DE SACOS DE 50 KG (UNIDADE: KG). AF_04/2026",
+        "unidade": "KG",
+        "preco": 0.01,
+        "score_lexico": 0.19089017622172832,
         "score_semantico": null
       },
       {
@@ -582,25 +582,25 @@
         "unidade": "M2",
         "preco": 0.0,
         "score_lexico": null,
-        "score_semantico": 0.508256257
+        "score_semantico": 0.50880152
       },
       {
         "rank": 19,
-        "codigo": "102907",
-        "descricao": "UNIDADE DOSADORA AIRLESS TIPO HOT SPRAY - JUROS. AF_05/2023",
-        "unidade": "H",
-        "preco": 0.0,
-        "score_lexico": 0.1850313674658537,
-        "score_semantico": null
-      },
-      {
-        "rank": 20,
         "codigo": "90459",
         "descricao": "QUEBRA EM ALVENARIA PARA INSTALAÇÃO DE ABRIGO PARA MANGUEIRAS (90X60 CM). AF_09/2023",
         "unidade": "UN",
         "preco": 53.19,
         "score_lexico": null,
-        "score_semantico": 0.508025467
+        "score_semantico": 0.508134842
+      },
+      {
+        "rank": 20,
+        "codigo": "100266",
+        "descricao": "TRANSPORTE HORIZONTAL MANUAL, DE PORTA (UNIDADE: UNIDXKM). AF_04/2026",
+        "unidade": "UNXKM",
+        "preco": 104.18,
+        "score_lexico": 0.18893293850123882,
+        "score_semantico": null
       }
     ],
     "esperado_no_rrf": null,
@@ -609,8 +609,8 @@
       "codigo_selecionado": null,
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original se refere a \"INSTALAÇÃO PROVISÓRIA\" de uma unidade sanitária, que envolve características de instalação e montagem de estruturas temporárias, sendo uma atividade que envolve mão de obra para configurar um ambiente de higiene. As opções extraídas referem-se à instalação de elementos sanitários, transporte e outros serviços não diretamente relacionados à instalação provisória como um todo. Entre as opções, não encontramos uma composição que refira diretamente a instalação provisória ou que compense e forneça um serviço análogo. As atividades de instalação de peças como bacia sanitária ou assento sanitário são focadas em produtos específicos, enquanto a instalação provisória se refere ao ambiente completo. Portanto, não há opção relevante que possa ser aceita como SINAPI para o item original, uma vez que não se trata de uma equivalência técnica.",
-      "parecer": "Nenhuma das opções apresentadas corresponde à atividade de instalação provisória de uma unidade sanitária. As alternativas se concentram em transporte ou instalação de itens sanitários específicos, sem abranger o conceito de uma instalação temporária completa."
+      "raciocinio": "Analisando o item original \"INSTALAÇÃO PROVISÓRIA UNIDADE SANITÁRIA - 5,0M2\", que se refere a um serviço de montagem temporária de unidades sanitárias. Ao avaliar as opções disponíveis, notamos que todos os itens listados são relacionados a transporte ou fornecimento e instalação de componentes específicos para unidades sanitárias, mas não correspondem ao serviço de instalação provisória em si. Os itens referem-se principalmente ao transporte de materiais e assentos sanitários, que não atendem a necessidade de instalação provisória. Como não há um item que represente aproximado o serviço, sigo as diretrizes.",
+      "parecer": "Nenhum dos candidatos apresenta uma composição válida que corresponda ao serviço de instalação provisória de unidade sanitária. Todos os itens estão voltados para transporte ou instalação de componentes específicos e não catálogo referência ao serviço requerido. Portanto, não é possível aceitar qualquer um dos itens."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -824,8 +824,8 @@
       "codigo_selecionado": "100577",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original refere-se ao serviço de regularização e compactação de subleito até 20 cm de espessura, que é um procedimento de preparação de terreno para pavimentação. As opções disponíveis são compostas por dois grupos principais: 1) Regularização e compactação de subleito de solo, tanto arenoso quanto argiloso, e 2) Composição de contraverga e verga, que não se aplicam ao item original, pois não são serviços de compactação de subleito. Ao analisar as informações dos candidatos, as opções de regularização de subleito se referem a solo arenoso ou argiloso, mas continuam dentro da faixa de serviço requerida. A opção com maior score é a que aborda solo arenoso para a construção de pavimentos, o que considera a condição de subleito e está em conformidade com a especificação de 20 cm de espessura. A escolha dessa opção é justificada pelo seu melhor alinhamento técnico e pelo maior score.  As composições de contraverga e verga foram descartadas, pois não atendem ao serviço requerido de compactação de subleito. Portanto, a melhor escolha é a regularização e compactação do subleito predominantemente arenoso, que é mais relevante para esse tipo de obra.",
-      "parecer": "A composição 100577 refere-se à regularização e compactação de subleito de solo predominantemente arenoso, que é o mais adequado para a especificação do serviço original, referente à compactação de subleito até 20 cm de espessura. As outras opções lidam com subs solos diferentes ou com itens não pertinentes ao serviço de compactação de subleito, como contraverga e verga."
+      "raciocinio": "A análise deve focar na composição técnica que se alinha à natureza do item original. O item original se refere à regularização e compactação de subleito de até 20 cm, o que indica um processo de preparação do solo para pavimentação. As opções fornecidas incluem composições semelhantes com identificação clara quanto ao tipo de solo (arenoso ou argiloso) e contexto de aplicação (construção e reconstrução de pavimentos).",
+      "parecer": "O item escolhido é a \"REGULARIZAÇÃO E COMPACTAÇÃO DE SUBLEITO DE SOLO PREDOMINANTEMENTE ARENOSO\", pois se alinha perfeitamente com os requisitos do item original, que especifica a regularização e compactação de subleito a uma espessura máxima de 20 cm. A composição técnica, além de estar dentro da mesma família de serviços, apresenta um score significativo, o que reforça sua relevância e adequação ao que se propõe no item original."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -848,25 +848,25 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 1,5 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 4.14,
-        "score_lexico": 0.17612169310450554,
+        "score_lexico": 0.1963859312236309,
         "score_semantico": null
       },
       {
         "rank": 2,
-        "codigo": "91929",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 4 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "101568",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 120 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 8.23,
-        "score_lexico": 0.17612169310450554,
+        "preco": 144.01,
+        "score_lexico": 0.17931122705340385,
         "score_semantico": null
       },
       {
         "rank": 3,
-        "codigo": "101562",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 25 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "codigo": "91929",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 4 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 29.08,
-        "score_lexico": 0.1599314548075199,
+        "preco": 8.23,
+        "score_lexico": 0.1963859312236309,
         "score_semantico": null
       },
       {
@@ -875,7 +875,7 @@
         "descricao": "CABO DE COBRE ISOLADO, 10 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
         "unidade": "M",
         "preco": 12.41,
-        "score_lexico": 0.154563557356596,
+        "score_lexico": 0.17482779547572136,
         "score_semantico": null
       },
       {
@@ -884,43 +884,43 @@
         "descricao": "CABO DE COBRE ISOLADO, 25 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
         "unidade": "M",
         "preco": 28.43,
-        "score_lexico": 0.15659989789128304,
+        "score_lexico": 0.1768641360104084,
         "score_semantico": null
       },
       {
         "rank": 6,
-        "codigo": "101565",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 70 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "codigo": "101562",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 25 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 84.84,
-        "score_lexico": 0.1581755317747593,
+        "preco": 29.08,
+        "score_lexico": 0.18019569292664528,
         "score_semantico": null
       },
       {
         "rank": 7,
-        "codigo": "101560",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "codigo": "101565",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 70 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 11.83,
-        "score_lexico": 0.1590469889342785,
+        "preco": 84.84,
+        "score_lexico": 0.17843976989388466,
         "score_semantico": null
       },
       {
         "rank": 8,
-        "codigo": "91931",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "101560",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 11.61,
-        "score_lexico": 0.1784595064818859,
+        "preco": 11.83,
+        "score_lexico": 0.17931122705340385,
         "score_semantico": null
       },
       {
         "rank": 9,
-        "codigo": "101564",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 50 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "codigo": "91931",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 60.67,
-        "score_lexico": 0.1581755317747593,
+        "preco": 11.61,
+        "score_lexico": 0.19872374460101128,
         "score_semantico": null
       },
       {
@@ -929,61 +929,61 @@
         "descricao": "CABO DE COBRE ISOLADO, 16 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
         "unidade": "M",
         "preco": 17.81,
-        "score_lexico": 0.154563557356596,
+        "score_lexico": 0.17482779547572136,
         "score_semantico": null
       },
       {
         "rank": 11,
-        "codigo": "91933",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "101564",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 50 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 18.54,
-        "score_lexico": 0.17612169310450554,
+        "preco": 60.67,
+        "score_lexico": 0.17843976989388466,
         "score_semantico": null
       },
       {
         "rank": 12,
-        "codigo": "101568",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 120 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
-        "unidade": "M",
-        "preco": 144.01,
-        "score_lexico": 0.1590469889342785,
-        "score_semantico": null
-      },
-      {
-        "rank": 13,
         "codigo": "101567",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 95 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 110.15,
-        "score_lexico": 0.1581755317747593,
+        "score_lexico": 0.17843976989388466,
+        "score_semantico": null
+      },
+      {
+        "rank": 13,
+        "codigo": "91933",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "unidade": "M",
+        "preco": 18.54,
+        "score_lexico": 0.1963859312236309,
         "score_semantico": null
       },
       {
         "rank": 14,
-        "codigo": "91927",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 2,5 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "98385",
+        "descricao": "INSTALAÇÃO DE DUTO FLEXÍVEL CIRCULAR PARA AR CONDICIONADO EM ALUMÍNIO ISOLADO - DN 209 MM (8\"). AF_03/2024",
         "unidade": "M",
-        "preco": 5.59,
-        "score_lexico": 0.17498226091265678,
+        "preco": 0.0,
+        "score_lexico": 0.225741159170866,
         "score_semantico": null
       },
       {
         "rank": 15,
-        "codigo": "101561",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "codigo": "91927",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 2,5 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 18.79,
-        "score_lexico": 0.1590469889342785,
+        "preco": 5.59,
+        "score_lexico": 0.19524649903178215,
         "score_semantico": null
       },
       {
         "rank": 16,
-        "codigo": "92986",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
+        "codigo": "101561",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
-        "preco": 44.11,
-        "score_lexico": 0.1590469889342785,
+        "preco": 18.79,
+        "score_lexico": 0.17931122705340385,
         "score_semantico": null
       },
       {
@@ -992,7 +992,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 41.05,
-        "score_lexico": 0.1581755317747593,
+        "score_lexico": 0.17843976989388466,
         "score_semantico": null
       },
       {
@@ -1001,25 +1001,25 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 240 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 292.5,
-        "score_lexico": 0.1590469889342785,
+        "score_lexico": 0.17931122705340385,
         "score_semantico": null
       },
       {
         "rank": 19,
-        "codigo": "91930",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "98383",
+        "descricao": "INSTALAÇÃO DE DUTO FLEXÍVEL CIRCULAR PARA AR CONDICIONADO EM ALUMÍNIO ISOLADO - DN 161 MM (6\"). AF_03/2024",
         "unidade": "M",
-        "preco": 10.74,
-        "score_lexico": 0.16552847251296043,
+        "preco": 0.0,
+        "score_lexico": 0.22240887209773064,
         "score_semantico": null
       },
       {
         "rank": 20,
-        "codigo": "92996",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 150 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
+        "codigo": "91930",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 180.24,
-        "score_lexico": 0.1590469889342785,
+        "preco": 10.74,
+        "score_lexico": 0.1857927106320858,
         "score_semantico": null
       }
     ],
@@ -1030,9 +1030,9 @@
     "llm": {
       "codigo_selecionado": "91931",
       "categoria_rigor": "BAIXO",
-      "aceito_com_tolerancia": true,
-      "raciocinio": "No item original, temos um fio isolado de 6,0 mm² (8 AWG). Ao analisar as opções de cabos disponíveis, buscamos equivalências em termos de tipo de cabo (isolado), material (cobre), e atributos técnicos que se alinhem com a especificação original. As opções oferecidas variam em bitolas, com a opção mais próxima sendo o \"CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM²\". Contudo, enquanto a bitola de 6,0 mm² é muito próxima, a descrição menciona apenas 6 mm² e não faz menção direta ao isolamento específico ou classe de tensão, mas a descrição \"FLEXÍVEL\" é compatível. Dada a semântica do termo e a natureza do cabo, esta opção se adequa ao item solicitado.",
-      "parecer": "O cabo \"CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 0,6/1,0 KV\" é a opção mais próxima do original. A slight deviation of 0.0 mm² to 6 mm² is acceptable, and the context of flexible and insulated cabling at a low voltage rating aligns with the expected use."
+      "aceito_com_tolerancia": false,
+      "raciocinio": "Comparando o item original 'FIO ISOLADO 6,0MM2 (8AWG)' com as opções dos cabos disponíveis: O fio original é um cabo isolado com 6,0mm² de seção. A opção com código '91931' apresenta as mesmas características de seção (6 mm²), é cabos de cobre flexível, e está dentro da faixa de tensão de baixa, portanto, atende aos requisitos de tensão. Outras opções disponíveis com seções diferentes (como 4 mm², 10 mm², 25 mm², etc.) não são adequadas por divergirem na seção, o que as torna inadequadas para a substituição. Portanto, a única opção válida que atende os requisitos técnicos é 'CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM²'.",
+      "parecer": "O candidato selecionado é o mais adequado tecnicamente, pois fornece um cabo flexível isolado de 6 mm², que é exatamente a especificação do item original. Outros candidatos com seções diferentes (4 mm², 10 mm², etc.) foram rejeitados devido à incompatibilidade na seção do cabo."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -1055,7 +1055,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 2,5 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 5.59,
-        "score_lexico": 0.28444676846265793,
+        "score_lexico": 0.32497524470090866,
         "score_semantico": null
       },
       {
@@ -1064,7 +1064,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 1,5 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 4.14,
-        "score_lexico": 0.2759721949696541,
+        "score_lexico": 0.3165006712079048,
         "score_semantico": null
       },
       {
@@ -1073,16 +1073,16 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 11.61,
-        "score_lexico": 0.2590230479836464,
+        "score_lexico": 0.2995515242218971,
         "score_semantico": null
       },
       {
         "rank": 4,
-        "codigo": "91929",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 4 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "91935",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 8.23,
-        "score_lexico": 0.25605694204568863,
+        "preco": 29.09,
+        "score_lexico": 0.29658541828393936,
         "score_semantico": null
       },
       {
@@ -1091,7 +1091,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 50 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 60.67,
-        "score_lexico": 0.24164088815450668,
+        "score_lexico": 0.2821693643927574,
         "score_semantico": null
       },
       {
@@ -1100,34 +1100,34 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 18.54,
-        "score_lexico": 0.25605694204568863,
+        "score_lexico": 0.29658541828393936,
         "score_semantico": null
       },
       {
         "rank": 7,
-        "codigo": "91935",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "codigo": "91929",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 4 MM², ANTI-CHAMA 0,6/1,0 KV, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
-        "preco": 29.09,
-        "score_lexico": 0.25605694204568863,
+        "preco": 8.23,
+        "score_lexico": 0.29658541828393936,
         "score_semantico": null
       },
       {
         "rank": 8,
-        "codigo": "101562",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 25 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
-        "unidade": "M",
-        "preco": 29.08,
-        "score_lexico": 0.23546870797872543,
-        "score_semantico": null
-      },
-      {
-        "rank": 9,
         "codigo": "92988",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 50 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 64.03,
-        "score_lexico": 0.24282165616750717,
+        "score_lexico": 0.2833501324057579,
+        "score_semantico": null
+      },
+      {
+        "rank": 9,
+        "codigo": "101562",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 25 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "unidade": "M",
+        "preco": 29.08,
+        "score_lexico": 0.27599718421697617,
         "score_semantico": null
       },
       {
@@ -1136,7 +1136,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 10 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 11.83,
-        "score_lexico": 0.23434161394834518,
+        "score_lexico": 0.2748700901865959,
         "score_semantico": null
       },
       {
@@ -1145,34 +1145,34 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 18.79,
-        "score_lexico": 0.23434161394834518,
+        "score_lexico": 0.2748700901865959,
         "score_semantico": null
       },
       {
         "rank": 12,
-        "codigo": "101568",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 120 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
-        "unidade": "M",
-        "preco": 144.01,
-        "score_lexico": 0.23434161394834518,
-        "score_semantico": null
-      },
-      {
-        "rank": 13,
         "codigo": "92984",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 25 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 31.9,
-        "score_lexico": 0.23546870797872543,
+        "score_lexico": 0.27599718421697617,
         "score_semantico": null
       },
       {
-        "rank": 14,
+        "rank": 13,
         "codigo": "92986",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 44.11,
-        "score_lexico": 0.23434161394834518,
+        "score_lexico": 0.2748700901865959,
+        "score_semantico": null
+      },
+      {
+        "rank": 14,
+        "codigo": "101568",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 120 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "unidade": "M",
+        "preco": 144.01,
+        "score_lexico": 0.2748700901865959,
         "score_semantico": null
       },
       {
@@ -1181,7 +1181,7 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 95 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
         "unidade": "M",
         "preco": 110.15,
-        "score_lexico": 0.2332308515906334,
+        "score_lexico": 0.2737593278288841,
         "score_semantico": null
       },
       {
@@ -1190,43 +1190,43 @@
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 120 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 148.99,
-        "score_lexico": 0.23546870797872543,
+        "score_lexico": 0.27599718421697617,
         "score_semantico": null
       },
       {
         "rank": 17,
-        "codigo": "101565",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 70 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
-        "unidade": "M",
-        "preco": 84.84,
-        "score_lexico": 0.2332308515906334,
-        "score_semantico": null
-      },
-      {
-        "rank": 18,
-        "codigo": "92998",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 185 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
-        "unidade": "M",
-        "preco": 220.91,
-        "score_lexico": 0.23434161394834518,
-        "score_semantico": null
-      },
-      {
-        "rank": 19,
         "codigo": "92992",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 95 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 114.63,
-        "score_lexico": 0.23434161394834518,
+        "score_lexico": 0.2748700901865959,
         "score_semantico": null
       },
       {
-        "rank": 20,
+        "rank": 18,
         "codigo": "92996",
         "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 150 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 180.24,
-        "score_lexico": 0.23434161394834518,
+        "score_lexico": 0.2748700901865959,
+        "score_semantico": null
+      },
+      {
+        "rank": 19,
+        "codigo": "101563",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "unidade": "M",
+        "preco": 41.05,
+        "score_lexico": 0.2737593278288841,
+        "score_semantico": null
+      },
+      {
+        "rank": 20,
+        "codigo": "101565",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 70 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "unidade": "M",
+        "preco": 84.84,
+        "score_lexico": 0.2737593278288841,
         "score_semantico": null
       }
     ],
@@ -1238,8 +1238,8 @@
       "codigo_selecionado": "91927",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica um cabo de cobre isolado com seção de 2,5 mm² e tensão nominal de 0,6/1 kV. Ao comparar com as opções disponíveis, a única composição que atende a essas especificações é a com 2,5 mm². As outras opções variam em seções, que não correspondem à exigência de 2,5 mm². A descrição do cabo também menciona que é anti-chama, o que pode ser considerado uma característica positiva, mas não diverge do item original. Assim, a única composição que atende todos os requisitos é a primeira.",
-      "parecer": "A composição escolhida é o item 91927, que corresponde exatamente ao cabo de cobre isolado de 2,5 mm² e 0,6/1 kV. As demais opções possuem seções diferentes, o que não corresponde ao item original."
+      "raciocinio": "A análise se inicia pela verificação da compatibilidade da família de serviço. O item original é um cabo elétrico, e todos os candidatos disponíveis também são cabos elétricos, especificamente cabos de cobre flexível isolado, o que garante a compatibilidade de família de serviço.\n\nEm seguida, é necessário comparar as especificações dos cabos, focando em atributos físicos e dimensões (2,5 mm²) como um dos critérios principais. A primeira opção, código 91927, apresenta exatamente a seção transversal de 2,5 mm², que é a mesma do item original.  As demais opções têm seções transversais diferentes (1,5 mm², 4 mm², 6 mm², etc.), e, portanto, não são adequadas.  \n\nPor fim, a opção 91927 tem um score elevado que reflete sua adequação e sua especificação atende totalmente os requisitos do item em questão. Assim, a escolha mais lógica é o candidato 91927.",
+      "parecer": "O código 91927 é o mais adequado porque corresponde exatamente às especificações do item original (cabo isolado, 0,6/1kV, 2,5mm²) e pertence à mesma família de produtos. As outras opções possuem seções transversais diferentes, tornando-as inadequadas para esta aplicação."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -1445,8 +1445,8 @@
       "codigo_selecionado": "91933",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original é um cabo de cobre flexível isolado de 10 mm², anti-chama, com tensão nominal de 0,6/1,0 kV. Ao avaliar as opções do RRF, a composição que mais se aproxima é a de código 91933, que oferece o mesmo tipo de cabo, isolado e anti-chama, na mesma seção transversal (10 mm²) e tensão nominal (0,6/1,0 kV), além de incluir o serviço de fornecimento e instalação, o que é crucial para a equivalência com o item original. A única ressalva é a data da tabela, que é mais recente (AF_03/2023), mas isso não compromete a equivalência técnica. Portanto, essa opção é a mais indicada e aceita em sua totalidade.",
-      "parecer": "O candidato com código 91933 é o mais adequado, pois é exatamente o mesmo tipo de cabo (cobre flexível, 10 mm², anti-chama, 0,6/1,0 kV) que o item original. As demais opções têm seções transversais diferentes, o que a torna inadequadas para substituição."
+      "raciocinio": "O item original é um cabo de cobre flexível isolado, com seção de 10 mm², com resistência a chama, tensão de 0,6/1,0 kV, destinado a circuitos terminais, e requer fornecimento e instalação. Analisando as opções, a única que é exatamente igual nas especificações e que atende completamente as condições é a opção com código 91933, que também possui as mesmas características (cabo de cobre flexível isolado, 10 mm², anti-chama, 0,6/1,0 kV, para circuitos terminais). As outras opções oferecem seções diferentes (6 mm², 4 mm², 1,5 mm², 2,5 mm²) ou tensão inferior (450/750 V), o que resultaria em uma incompatibilidade técnica.",
+      "parecer": "A opção selecionada (código 91933) é a única que possui exatamente as mesmas especificações que o item original, tornando-a a mais adequada para esta necessidade. As outras opções apresentadas possuem seções ou tensões diferentes, o que não atende aos requisitos do item original."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -1455,9 +1455,9 @@
   {
     "idx": 8,
     "descricao_legada": "TELA ARAME GALVANIZADO FIO 12 BWG 2,77mm DN 1 1/4 4x4 cm",
-    "descricao_sinapi_esperada": "ALAMBRADO PARA QUADRA POLIESPORTIVA TELA ARAME GALVANIZADO FIO 12 BWG MALHA 5X5CM AF_12/2025",
-    "codigo_esperado": "102363",
-    "expectativa": "ACEITACAO TELA ALAMBRADO variacao",
+    "descricao_sinapi_esperada": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA, PARA ALAMBRADO COM TUBOS DE AÇO, QUADRANGULAR / LOSANGULAR, FIO 2,77 MM (12 BWG), MALHA 5 X 5 CM, H = 2 M. AF_12/2025",
+    "codigo_esperado": "106464",
+    "expectativa": "ACEITACAO TELA variacao",
     "preprocessor": {
       "termo_limpo": "tela arame galvanizado fio dn 1/4",
       "caracteristicas_extras": "tela arame galvanizado fio 12 bwg 2,77mm dn 1 1/4 4x4 cm"
@@ -1469,7 +1469,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA, PARA ALAMBRADO COM TUBOS DE AÇO, QUADRANGULAR / LOSANGULAR, FIO 2,77 MM (12 BWG), MALHA 5 X 5 CM, H = 2 M. AF_12/2025",
         "unidade": "M2",
         "preco": 63.65,
-        "score_lexico": 0.4469248130917549,
+        "score_lexico": 0.467616431415081,
         "score_semantico": null
       },
       {
@@ -1478,7 +1478,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA, PARA ALAMBRADO COM TUBOS DE AÇO, QUADRANGULAR / LOSANGULAR, FIO 2,11 MM (14 BWG), MALHA 5 X 5 CM, H = 2 M. AF_12/2025",
         "unidade": "M2",
         "preco": 47.4,
-        "score_lexico": 0.4018779955804348,
+        "score_lexico": 0.42065003514289856,
         "score_semantico": null
       },
       {
@@ -1487,7 +1487,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA REVESTIDA EM PVC, PARA ALAMBRADO COM TUBOS DE AÇO, QUADRANGULAR / LOSANGULAR, FIO 2,77 MM (12 BWG), MALHA 5 X 5 CM, H = 2 M. AF_12/2025",
         "unidade": "M2",
         "preco": 0.0,
-        "score_lexico": 0.40663910657167435,
+        "score_lexico": 0.42519863694906235,
         "score_semantico": null
       },
       {
@@ -1496,7 +1496,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA, PARA ALAMBRADO COM MOURÕES DE CONCRETO, QUADRANGULAR / LOSANGULAR, FIO 2,11 MM (14 BWG), MALHA 8 X 8 CM, H = 2 M. AF_12/2025",
         "unidade": "M2",
         "preco": 23.39,
-        "score_lexico": 0.38671862706542015,
+        "score_lexico": 0.40466517210006714,
         "score_semantico": null
       },
       {
@@ -1505,7 +1505,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA REVESTIDA EM PVC, PARA ALAMBRADO COM TUBOS DE AÇO, QUADRANGULAR / LOSANGULAR, FIO 2,11 MM (14 BWG), MALHA 5 X 5 CM, H = 2 M. AF_12/2025",
         "unidade": "M2",
         "preco": 0.0,
-        "score_lexico": 0.3663482628762722,
+        "score_lexico": 0.38322073221206665,
         "score_semantico": null
       },
       {
@@ -1514,7 +1514,7 @@
         "descricao": "INSTALAÇÃO DE TELA DE ARAME GALVANIZADA, PARA ALAMBRADO COM MOURÕES DE CONCRETO, QUADRANGULAR / LOSANGULAR, FIO 2,11 MM (14 BWG), MALHA 8 X 8 CM, H = 2 M, COM REVESTIMENTO EM PVC. AF_12/2025",
         "unidade": "M2",
         "preco": 37.74,
-        "score_lexico": 0.3483744226396084,
+        "score_lexico": 0.36433255672454834,
         "score_semantico": null
       },
       {
@@ -1523,7 +1523,7 @@
         "descricao": "ALAMBRADO PARA QUADRA POLIESPORTIVA, ESTRUTURADO POR TUBOS DE AÇO GALVANIZADO, (MONTANTES COM DIÂMETRO 2\", TRAVESSAS E ESCORAS COM DIÂMETRO 1 ¼\"), COM TELA DE ARAME GALVANIZADO, FIO 12 BWG E MALHA QUADRADA 5X5CM (EXCETO MURETA). AF_12/2025",
         "unidade": "M2",
         "preco": 167.24,
-        "score_lexico": 0.3160614147782326,
+        "score_lexico": 0.32418345659971237,
         "score_semantico": null
       },
       {
@@ -1532,7 +1532,7 @@
         "descricao": "ALAMBRADO PARA QUADRA POLIESPORTIVA, ESTRUTURADO POR TUBOS DE AÇO GALVANIZADO, (MONTANTES COM DIÂMETRO 2\", TRAVESSAS E ESCORAS COM DIÂMETRO 1 ¼\"), COM TELA DE ARAME GALVANIZADO, FIO 14 BWG E MALHA QUADRADA 5X5CM (EXCETO MURETA). AF_12/2025",
         "unidade": "M2",
         "preco": 152.86,
-        "score_lexico": 0.3030918166041374,
+        "score_lexico": 0.3102590963244438,
         "score_semantico": null
       },
       {
@@ -1541,7 +1541,7 @@
         "descricao": "ALAMBRADO PARA QUADRA POLIESPORTIVA, ESTRUTURADO POR TUBOS DE AÇO GALVANIZADO, (MONTANTES COM DIÂMETRO 2\", TRAVESSAS E ESCORAS COM DIÂMETRO 1 ¼\"), COM TELA DE ARAME GALVANIZADO, FIO 10 BWG E MALHA QUADRADA 5X5CM (EXCETO MURETA). AF_12/2025",
         "unidade": "M2",
         "preco": 192.63,
-        "score_lexico": 0.3030918166041374,
+        "score_lexico": 0.3102590963244438,
         "score_semantico": null
       },
       {
@@ -1550,7 +1550,7 @@
         "descricao": "ALAMBRADO EM MOURÕES DE CONCRETO, COM TELA DE ARAME GALVANIZADO (INCLUSIVE MURETA EM CONCRETO). AF_12/2025",
         "unidade": "M",
         "preco": 177.56,
-        "score_lexico": 0.3399201761931181,
+        "score_lexico": 0.34268347918987274,
         "score_semantico": null
       },
       {
@@ -1559,7 +1559,7 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO TB, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 0.0,
-        "score_lexico": 0.25857358798384666,
+        "score_lexico": 0.25285662710666656,
         "score_semantico": null
       },
       {
@@ -1568,7 +1568,7 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO B, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 0.0,
-        "score_lexico": 0.2678012065589428,
+        "score_lexico": 0.262167289853096,
         "score_semantico": null
       },
       {
@@ -1577,7 +1577,7 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO T, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 67.71,
-        "score_lexico": 0.26022544130682945,
+        "score_lexico": 0.25453370809555054,
         "score_semantico": null
       },
       {
@@ -1586,7 +1586,7 @@
         "descricao": "INSTALAÇÃO DE ESCORAS PARA ALAMBRADO EM TUBO AÇO GALVANIZADO COM COSTURA, CLASSE MÉDIA, DN 1.1/4\", E = *3,25* MM, PESO *3,14* KG/M. AF_12/2025",
         "unidade": "M",
         "preco": 63.89,
-        "score_lexico": 0.2517704050987959,
+        "score_lexico": 0.24518336541950703,
         "score_semantico": null
       },
       {
@@ -1595,7 +1595,7 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO LL, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 0.0,
-        "score_lexico": 0.2569463811814785,
+        "score_lexico": 0.2512047737836838,
         "score_semantico": null
       },
       {
@@ -1604,7 +1604,7 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO E, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 44.51,
-        "score_lexico": 0.2619025222957134,
+        "score_lexico": 0.25623658299446106,
         "score_semantico": null
       },
       {
@@ -1613,7 +1613,7 @@
         "descricao": "INSTALAÇÃO DE TRAVESSA PARA ALAMBRADO EM TUBO AÇO GALVANIZADO COM COSTURA, CLASSE MÉDIA, DN 1 1/4\", E = *3,25* MM, PESO *3,14* KG/M, COM ESPAÇAMENTO DE 2,0 A 2,5 M. AF_12/2025",
         "unidade": "M",
         "preco": 60.32,
-        "score_lexico": 0.251412820070982,
+        "score_lexico": 0.24548842012882233,
         "score_semantico": null
       },
       {
@@ -1622,41 +1622,41 @@
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO LB, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 0.0,
-        "score_lexico": 0.2569463811814785,
+        "score_lexico": 0.2512047737836838,
         "score_semantico": null
       },
       {
         "rank": 19,
-        "codigo": "95791",
-        "descricao": "CONDULETE DE ALUMÍNIO, TIPO LR, PARA ELETRODUTO DE AÇO GALVANIZADO DN 32 MM (1 1/4''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
-        "unidade": "UN",
-        "preco": 58.88,
-        "score_lexico": 0.2569463811814785,
-        "score_semantico": null
-      },
-      {
-        "rank": 20,
         "codigo": "95780",
         "descricao": "CONDULETE DE ALUMÍNIO, TIPO B, PARA ELETRODUTO DE AÇO GALVANIZADO DN 25 MM (1''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "UN",
         "preco": 35.62,
-        "score_lexico": 0.25481418892741203,
+        "score_lexico": 0.24854427576065063,
+        "score_semantico": null
+      },
+      {
+        "rank": 20,
+        "codigo": "95796",
+        "descricao": "CONDULETE DE ALUMÍNIO, TIPO T, PARA ELETRODUTO DE AÇO GALVANIZADO DN 25 MM (1''), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
+        "unidade": "UN",
+        "preco": 52.56,
+        "score_lexico": 0.2408519685268402,
         "score_semantico": null
       }
     ],
     "esperado_no_rrf": true,
     "codigos_esperados_encontrados_no_rrf": [
-      "102363"
+      "106464"
     ],
     "llm": {
       "codigo_selecionado": "106464",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": true,
-      "raciocinio": "O item original especifica uma tela de arame galvanizado, fio 12 BWG, com malha de 4x4 cm. Ao analisar as opções disponíveis, a que possui o fio de 2,77 mm (12 BWG) e uma malha de 5x5 cm é a mais próxima. Embora a malha seja diferente, a composição técnica do fio e o material galvanizado são compatíveis. Outras opções variam em diâmetro do fio (14 BWG) ou passam a ser revestidas com PVC, além de não serem da mesma malha desejada. Considerando a flexibilidade e a aceitação da malha de 5x5 cm sobre 4x4 cm em aplicações semelhantes, o item \"106464\" é tecnicamente o mais adequado.",
-      "parecer": "A opção 106464 é a única que apresenta o fio 2,77 mm (12 BWG) que é idêntico ao especificado no item original e a malha 5x5 cm é uma variação aceitável em comparação à malha de 4x4 cm, considerando que as normas de instalação para alambrados permitem essa flexibilidade. As demais opções possuem fios mais finos ou são revestidas em PVC, o que as torna menos adequadas."
+      "raciocinio": "Passo 1: O item original especifica uma \"tela arame galvanizado fio 12 BWG 2,77mm DN 1 1/4 4x4 cm\". Precisamos avaliar as opções fornecidas para encontrar a melhor equivalência.  \n\nPasso 2: Avaliando as composições disponíveis:\n- \"106464\": Fio 2,77 mm (12 BWG), mas malha 5 x 5 cm, que não atende aos 4 x 4 cm especificados. \n- \"106466\": Fio 2,11 mm (14 BWG), divergente em bitola e malha.\n- \"106465\": Fio 2,77 mm (12 BWG), mas malha é 5 x 5 cm, e ainda é revestida em PVC, o que altera a natureza do produto.\n- \"106468\": Difere em fio (2,11 mm) e malha (8 x 8 cm).\n- \"106467\": Fio 2,11 mm e malha 5 x 5 cm, com revestimento em PVC.\n- \"106469\": Difere em fio (2,11 mm) e malha (8 x 8 cm), com revestimento.\n- \"102363\": Fio 12 BWG, mas possui a malha quadrada de 5 x 5 cm e é uma composição de alambrado complexo, não diretamente comparável.\n- \"102362\" e \"102364\": Todos têm fios 14 BWG ou 10 BWG, divergentes na bitola, e malha de 5 x 5 cm.\n- \"98522\": Tela de arame galvanizado mas não tem especificação de malha padrão 4x4 cm. \n\nPasso 3: Considerando que somente o item \"106464\" e \"106465\" trazem a precisão da bitola (fio 12 BWG) e estão dentro da descrição da tela galvanizada. A única diferença notável seria a malha, que não está em conformidade com a especificação original (4 x 4 cm versus 5 x 5 cm).\n\nConclusão: A falta de correspondência exata em malha torna o item 106464 como a melhor escolha, por conter as especificações de fio; contudo, a divergência na malha não cria um critério irrefutável de rejeição. Portanto, opto pela composição que mais se aproxima da original (106464) por sua alta taxa de compatibilidade (score 96.2) com relação ao que foi especificado no item de referência, mesmo frente à divergência da malha.",
+      "parecer": "O item selecionado é a melhor equivalência técnica disponível, com alinhamento em relação ao tipo de fio (12 BWG) e a estrutura da tela. Apesar da divergência na malha, a conexão mais próxima às especificações do item original faz dele a escolha mais apropriada."
     },
-    "acertou": false,
-    "veredicto": "ERRADO selecionou=106464 esperado=102363",
+    "acertou": true,
+    "veredicto": "OK_CORRETO",
     "erro": null
   },
   {
@@ -1857,8 +1857,8 @@
       "codigo_selecionado": null,
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "A busca inicial foi por uma abraçadeira galvanizada, mas as opções extraídas são muito variadas, erroneamente listando produtos como cortadeiras hidráulicas e composições elétricas. Entre as opções, as únicas que podem, de forma geral, estar na mesma família de serviços são as que incluem componentes de eletroduto de aço galvanizado. No entanto, nenhum item encontrado refere-se diretamente a uma abraçadeira, que é um componente específico para fixação, e não há informações que justifiquem essa seleção. Dentre as opções, há apenas \"CURVA\", \"LUVA DE EMENDA\", que pertencem à mesma família de eletrodutos mas não são equivalentes à abraçadeira. Portanto, nenhuma das composições apresentadas atende ao item original de forma adequada e rigorosa, levando a decidir pela rejeição.",
-      "parecer": "Nenhum candidato se relaciona diretamente com o item original \"ABRACADEIRA GALVANIZADA ELETROLÍTICA CUNHA 3/4\". As opções encontradas estão mais relacionadas a eletrodutos e suas conexões, não há composições que representem a abraçadeira. Assim, a decisão foi por rejeitar todas as opções apresentadas."
+      "raciocinio": "O item original é uma abraçadeira galvanizada eletrolítica, que pertence à categoria de fixação e suporte para elementos elétricos ou de estrutura. As opções extraídas incluem produtos variados que não se encaixam nesta categoria específica de abraçadeiras, pois muitos itens referem-se a curvas e luvas de eletroduto, que não são equivalentes a abraçadeiras. Os dois principais candidatos que se aproximam são as curvas para eletroduto, que possuem características de aço galvanizado e estão na dimensão DN 20 mm (3/4\"). No entanto, não há opção de abraçadeira galvanizada NA lista, o que é essencial para a seleção do item. Assim, não há composição SINAPI que corresponda precisamente ao item de abraçadeira. Portanto, a decisão é pelo retorno de `null`, conforme as diretrizes para situações onde nenhuma opção se aproxima suficientemente do item original.",
+      "parecer": "Nenhuma das opções apresentadas corresponde a uma abraçadeira galvanizada ou similar. As ofertas incluem apenas curvas para eletrodutos ou cortadeiras, que tornam essas opções inadequadas para substituir o item especificado na planilha."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -1881,7 +1881,7 @@
         "descricao": "ELETRODUTO RÍGIDO SOLDÁVEL, PVC, DN 25 MM (3/4\"), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "M",
         "preco": 18.71,
-        "score_lexico": 0.3494524918496609,
+        "score_lexico": 0.3407678194344044,
         "score_semantico": null
       },
       {
@@ -1890,7 +1890,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 13.8,
-        "score_lexico": 0.3257499895989895,
+        "score_lexico": 0.317065317183733,
         "score_semantico": null
       },
       {
@@ -1899,7 +1899,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM LAJE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 12.36,
-        "score_lexico": 0.32129692658782005,
+        "score_lexico": 0.31261225417256355,
         "score_semantico": null
       },
       {
@@ -1908,7 +1908,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM PAREDE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 17.21,
-        "score_lexico": 0.32350456342101097,
+        "score_lexico": 0.31481989100575447,
         "score_semantico": null
       },
       {
@@ -1917,7 +1917,7 @@
         "descricao": "ELETRODUTO RÍGIDO SOLDÁVEL, PVC, DN 32 MM (1\"), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "M",
         "preco": 21.59,
-        "score_lexico": 0.32609882578253746,
+        "score_lexico": 0.31741415336728096,
         "score_semantico": null
       },
       {
@@ -1926,7 +1926,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 40 MM (1 1/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 23.72,
-        "score_lexico": 0.3150300048291683,
+        "score_lexico": 0.3063453324139118,
         "score_semantico": null
       },
       {
@@ -1935,7 +1935,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 40 MM (1 1/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM PAREDE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 27.06,
-        "score_lexico": 0.3128935657441616,
+        "score_lexico": 0.3042088933289051,
         "score_semantico": null
       },
       {
@@ -1944,7 +1944,7 @@
         "descricao": "ELETRODUTO RÍGIDO SOLDÁVEL, PVC, DN 20 MM (1/2\"), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "M",
         "preco": 17.43,
-        "score_lexico": 0.3158947490155697,
+        "score_lexico": 0.3072100766003132,
         "score_semantico": null
       },
       {
@@ -1953,7 +1953,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 40 MM (1 1/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM LAJE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 22.23,
-        "score_lexico": 0.3107927106320858,
+        "score_lexico": 0.3021080382168293,
         "score_semantico": null
       },
       {
@@ -1962,7 +1962,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 32 MM (1\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 18.82,
-        "score_lexico": 0.3065554164350033,
+        "score_lexico": 0.2978707440197468,
         "score_semantico": null
       },
       {
@@ -1971,7 +1971,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 20 MM (1/2\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 11.64,
-        "score_lexico": 0.29808084294199944,
+        "score_lexico": 0.28939617052674294,
         "score_semantico": null
       },
       {
@@ -1980,7 +1980,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 32 MM (1\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM PAREDE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 22.23,
-        "score_lexico": 0.30449018999934196,
+        "score_lexico": 0.29580551758408546,
         "score_semantico": null
       },
       {
@@ -1989,7 +1989,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 32 MM (1\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM LAJE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 17.4,
-        "score_lexico": 0.30245937034487724,
+        "score_lexico": 0.29377469792962074,
         "score_semantico": null
       },
       {
@@ -1998,7 +1998,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 20 MM (1/2\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM PAREDE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 15.05,
-        "score_lexico": 0.2960868291556835,
+        "score_lexico": 0.287402156740427,
         "score_semantico": null
       },
       {
@@ -2007,7 +2007,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 20 MM (1/2\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM LAJE - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "M",
         "preco": 10.2,
-        "score_lexico": 0.2941260449588299,
+        "score_lexico": 0.2854413725435734,
         "score_semantico": null
       },
       {
@@ -2016,7 +2016,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 110 MM (4\"), PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 92.17,
-        "score_lexico": 0.30079270526766777,
+        "score_lexico": 0.29210803285241127,
         "score_semantico": null
       },
       {
@@ -2025,7 +2025,7 @@
         "descricao": "ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 85 MM (3\"), PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
         "unidade": "M",
         "preco": 60.59,
-        "score_lexico": 0.30079270526766777,
+        "score_lexico": 0.29210803285241127,
         "score_semantico": null
       },
       {
@@ -2034,7 +2034,7 @@
         "descricao": "ELETRODUTO PVC RÍGIDO, DIÂMETRO 40MM, COM 3 METROS, PARA SPDA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "UN",
         "preco": 69.05,
-        "score_lexico": 0.2832469157874584,
+        "score_lexico": 0.2774571366608143,
         "score_semantico": null
       },
       {
@@ -2043,7 +2043,7 @@
         "descricao": "CURVA 180 GRAUS PARA ELETRODUTO, PVC, ROSCÁVEL, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADA EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "UN",
         "preco": 18.13,
-        "score_lexico": 0.28559891507029533,
+        "score_lexico": 0.27691424265503883,
         "score_semantico": null
       },
       {
@@ -2052,7 +2052,7 @@
         "descricao": "CURVA 135 GRAUS PARA ELETRODUTO, PVC, ROSCÁVEL, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADA EM FORRO - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
         "unidade": "UN",
         "preco": 15.32,
-        "score_lexico": 0.28559891507029533,
+        "score_lexico": 0.27691424265503883,
         "score_semantico": null
       }
     ],
@@ -2064,8 +2064,8 @@
       "codigo_selecionado": "91863",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "A descrição do item original é \"ELETRODUTO PVC RIGIDO ROSCAVEL 3/4 19MM\". Analisando as opções disponíveis, observei que todos os candidatos possuem a característica de serem eletrodutos rígidos e rosqueáveis, que são compatíveis com a família de serviço do item original.  Os dois principais atributos que devem ser verificados são: a rigidez do eletroduto e o tipo de conexão, que neste caso deve ser rosqueável, ambos atendidos por todos os candidatos. \n\n1. As dimensões do item original são 3/4\", equivalentes a DN 25 mm. \n2. As várias opções apresentadas também citam DN 25 mm (3/4\"), então não há divergência nesta questão.  \n3. Quanto ao contexto de instalação, as opções incluem diferentes locais de instalação, como forro, laje e parede.\n\nDe acordo com a análise, a escolha da descrição que reteve a mesma conexão por rosca e dimensão é que se trata de um item \"roscável, DN 25 mm (3/4\")\". Todos os candidatos estão apropriadamente dentro dos padrões de aceitabilidade de dimensionamento, uma vez que não divergem em atributos que seriam considerados críticos.",
-      "parecer": "O candidato selecionado é o \"ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO - FORNECIMENTO E INSTALAÇÃO\", pois atende todos os critérios de compatibilidade de família e especificação técnica com o item original. Ele também preserva as características e funções do produto em questão, sendo o mais próximo entre as opções oferecidas."
+      "raciocinio": "O item original é um eletroduto PVC rígido rosqueável de 3/4\" (19mm). A primeira análise a ser feita é sobre a família do item, que é de eletrodutos. Dentre as opções apresentadas, todas as descrições referem-se a eletrodutos rígidos, portanto pertencem à mesma família. O próximo passo é a verificação das especificações técnicas. O diâmetro nominal que temos é DN 25mm, que é equivalente a 3/4\", o que corresponde exatamente ao que está sendo buscado. Agora precisamos analisar o tipo de instalação: as opções oferecem instalação em forro, laje e parede. O item original não especifica o local de instalação, portanto, podemos aceitar qualquer uma destas opções como válidas. Dentro das opções, as melhores opções a considerar são as que mencionam especificamente que são rosqueáveis, pois isso atende ao requisito do item original. Assim, todas as opções de DN 25mm rosqueáveis são aceitáveis, com pequenos detalhes sobre o local de instalação (forro, laje ou parede).",
+      "parecer": "A opção escolhida é o 'ELETRODUTO RÍGIDO ROSCÁVEL, PVC, DN 25 MM (3/4\"), PARA CIRCUITOS TERMINAIS, INSTALADO EM FORRO'. Esta opção é a mais adequada, pois é rosqueável, possui o diâmetro correto de 3/4\" (DN 25 mm) e atende ao requisito de ser um eletroduto rígido. Apesar de especificar instalação em forro, o item original não limita o local, permitindo assim esta escolha."
     },
     "acertou": false,
     "veredicto": "ERRADO selecionou=91863 esperado=91871",
@@ -2271,8 +2271,8 @@
       "codigo_selecionado": null,
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica \"PINTURA ACRÍLICA SOBRE REBOCO - 2 DEMÃOS\". A família de serviço é de pintura e refere-se a aplicações de tinta acrílica. Vamos analisar as opções extraídas: As alternativas que envolvem tinta acrílica e especificam duas demãos devem ser priorizadas. As opções 'PINTURA DE PISO COM TINTA ACRÍLICA' são descartadas, pois o contexto de aplicação não corresponde a reboco, e a aplicação é sobre piso. As opções de pintura látex acrílica também diferem em tipo de tinta, pois o item original pede especificamente por pintura acrílica. Entre as opções de pintura com tinta acrílica, a \"PINTURA LÁTEX ACRÍLICA STANDARD, APLICAÇÃO MANUAL EM PAREDES, DUAS DEMÃOS\" pareceu próxima, mas utiliza látex em vez de acrílico. As opções de pintura acrílica de metal e piso também não são compatíveis. Portanto, a falta de opções que atendem à descrição do item original é evidente.",
-      "parecer": "Nenhuma opção disponível atende aos requisitos de pintura acrílica sobre reboco. As opções disponíveis referem-se a pinturas em pisos ou sobre superfícies metálicas, não sendo relevantes para a solicitação. Portanto, não é possível selecionar uma composição compatível."
+      "raciocinio": "O item original especifica \"PINTURA ACRILICA SOBRE REBOCO - 2 DEMAOS\". Para encontrar a composição mais adequada no SINAPI, precisamos considerar o tipo de pintura, a superfície a ser pintada e o número de demãos. Entre as opções: 1. \"PINTURA DE PISO COM TINTA ACRÍLICA...\" (códigos 102491 e 102804) não se aplica, pois a superfície não é piso. 2. A opção 4 e 5 com \"PINTURA LÁTEX ACRÍLICA...\" (códigos 104640 e 104642) descrevem a pintura em tetos e paredes, respectivamente, mas são baseadas em látex, que é um tipo diferente de pintura em relação à acrílica. 3. As opções 6, 7 e 9 têm \"PINTURA COM TINTA ACRÍLICA...\" (códigos 100733, 100754 e 100753) referindo-se a superfícies metálicas, o que também é incompatível. 4. A opção 8 \"PINTURA LÁTEX ACRÍLICA PREMIUM...\" (código 88488) novamente se refere a látex, que não é o especificado. Após análise completa, constato que não há nenhuma composição adequada que atenda ao item original, e todas as opções têm incompatibilidades claras, principalmente quanto à superfície de aplicação (reboco x metálico ou piso) e tipo de tinta (lástico x acrílico).",
+      "parecer": "Não há composições no SINAPI que atendam ao item \"PINTURA ACRILICA SOBRE REBOCO - 2 DEMAOS\", pois todas as opções apresentadas estão relacionadas a superfícies inadequadas (piso ou metálicas) ou utilizam tinta látex ao invés de tinta acrílica."
     },
     "acertou": false,
     "veredicto": "ERRADO selecionou=None esperado=104642",
@@ -2291,182 +2291,182 @@
     "rrf_results": [
       {
         "rank": 1,
-        "codigo": "101563",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
-        "unidade": "M",
-        "preco": 41.05,
-        "score_lexico": 0.22600474208593369,
-        "score_semantico": null
-      },
-      {
-        "rank": 2,
-        "codigo": "92986",
-        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
-        "unidade": "M",
-        "preco": 44.11,
-        "score_lexico": 0.22577916085720062,
-        "score_semantico": null
-      },
-      {
-        "rank": 3,
         "codigo": "104743",
         "descricao": "CORDOALHA DE COBRE NU 35 MM², NÃO ENTERRADA, COM PRESILHA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 0.0,
-        "score_lexico": 0.28837401419878006,
+        "score_lexico": 0.2802683189511299,
         "score_semantico": null
       },
       {
-        "rank": 4,
+        "rank": 2,
         "codigo": "96973",
         "descricao": "CORDOALHA DE COBRE NU 35 MM², NÃO ENTERRADA, COM ISOLADOR - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 79.0,
-        "score_lexico": 0.28587622195482254,
+        "score_lexico": 0.2777705267071724,
         "score_semantico": null
       },
       {
-        "rank": 5,
+        "rank": 3,
         "codigo": "96979",
         "descricao": "CORDOALHA DE COBRE NU 95 MM², ENTERRADA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 124.88,
-        "score_lexico": 0.24998190626502037,
+        "score_lexico": 0.2621404454112053,
         "score_semantico": null
       },
       {
-        "rank": 6,
+        "rank": 4,
         "codigo": "96977",
         "descricao": "CORDOALHA DE COBRE NU 50 MM², ENTERRADA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 66.24,
-        "score_lexico": 0.24998190626502037,
+        "score_lexico": 0.2621404454112053,
         "score_semantico": null
       },
       {
-        "rank": 7,
+        "rank": 5,
         "codigo": "96978",
         "descricao": "CORDOALHA DE COBRE NU 70 MM², ENTERRADA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 87.27,
-        "score_lexico": 0.24998190626502037,
+        "score_lexico": 0.2621404454112053,
         "score_semantico": null
       },
       {
-        "rank": 8,
-        "codigo": "101508",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, TRIFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2725.02,
-        "score_lexico": 0.2453787997364998,
-        "score_semantico": null
-      },
-      {
-        "rank": 9,
-        "codigo": "101500",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, BIFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2457.08,
-        "score_lexico": 0.2453787997364998,
-        "score_semantico": null
-      },
-      {
-        "rank": 10,
-        "codigo": "101888",
-        "descricao": "CABO DE COBRE ISOLADO, 25 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
-        "unidade": "M",
-        "preco": 28.43,
-        "score_lexico": 0.199681606143713,
-        "score_semantico": null
-      },
-      {
-        "rank": 11,
-        "codigo": "101492",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, MONOFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2039.16,
-        "score_lexico": 0.24411264806985855,
-        "score_semantico": null
-      },
-      {
-        "rank": 12,
+        "rank": 6,
         "codigo": "101884",
         "descricao": "CABO DE COBRE ISOLADO, 10 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
         "unidade": "M",
         "preco": 12.41,
-        "score_lexico": 0.19715635105967522,
+        "score_lexico": 0.20931489020586014,
         "score_semantico": null
       },
       {
-        "rank": 13,
+        "rank": 7,
+        "codigo": "101888",
+        "descricao": "CABO DE COBRE ISOLADO, 25 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
+        "unidade": "M",
+        "preco": 28.43,
+        "score_lexico": 0.21184014528989792,
+        "score_semantico": null
+      },
+      {
+        "rank": 8,
         "codigo": "101886",
         "descricao": "CABO DE COBRE ISOLADO, 16 MM², ANTI-CHAMA 450/750 V, INSTALADO EM ELETROCALHA OU PERFILADO - FORNECIMENTO E INSTALAÇÃO. AF_07/2025",
         "unidade": "M",
         "preco": 17.81,
-        "score_lexico": 0.19715635105967522,
+        "score_lexico": 0.20931489020586014,
         "score_semantico": null
       },
       {
-        "rank": 14,
-        "codigo": "101524",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, SUBTERRÂNEA, BIFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSA MURETA DE ALVENARIA). AF_12/2025",
-        "unidade": "UN",
-        "preco": 1733.96,
-        "score_lexico": 0.2392474040389061,
+        "rank": 9,
+        "codigo": "101563",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², 0,6/1,0 KV, PARA REDE AÉREA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE BAIXA TENSÃO - FORNECIMENTO E INSTALAÇÃO. AF_12/2025",
+        "unidade": "M",
+        "preco": 41.05,
+        "score_lexico": 0.2196158766746521,
         "score_semantico": null
       },
       {
-        "rank": 15,
-        "codigo": "101532",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, SUBTERRÂNEA, TRIFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSA MURETA DE ALVENARIA). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2048.22,
-        "score_lexico": 0.2392474040389061,
+        "rank": 10,
+        "codigo": "104744",
+        "descricao": "CORDOALHA DE COBRE NU 50 MM², NÃO ENTERRADA, COM PRESILHA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
+        "unidade": "M",
+        "preco": 0.0,
+        "score_lexico": 0.23765713721513748,
         "score_semantico": null
       },
       {
-        "rank": 16,
-        "codigo": "101516",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, SUBTERRÂNEA, MONOFÁSICA, COM CAIXA DE SOBREPOR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSA MURETA DE ALVENARIA). AF_12/2025",
-        "unidade": "UN",
-        "preco": 1274.14,
-        "score_lexico": 0.23807860165834427,
-        "score_semantico": null
-      },
-      {
-        "rank": 17,
-        "codigo": "101504",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, BIFÁSICA, COM CAIXA DE EMBUTIR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2447.9,
-        "score_lexico": 0.2278524860739708,
-        "score_semantico": null
-      },
-      {
-        "rank": 18,
-        "codigo": "101512",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, TRIFÁSICA, COM CAIXA DE EMBUTIR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2756.68,
-        "score_lexico": 0.2278524860739708,
-        "score_semantico": null
-      },
-      {
-        "rank": 19,
-        "codigo": "101496",
-        "descricao": "ENTRADA DE ENERGIA ELÉTRICA, AÉREA, MONOFÁSICA, COM CAIXA DE EMBUTIR, CABO DE 35 MM2 E DISJUNTOR DIN 50A (NÃO INCLUSO O POSTE DE CONCRETO). AF_12/2025",
-        "unidade": "UN",
-        "preco": 2021.2,
-        "score_lexico": 0.226737879216671,
-        "score_semantico": null
-      },
-      {
-        "rank": 20,
+        "rank": 11,
         "codigo": "104745",
         "descricao": "CORDOALHA DE COBRE NU 70 MM², NÃO ENTERRADA, COM PRESILHA - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
         "unidade": "M",
         "preco": 0.0,
-        "score_lexico": 0.22549859806895256,
+        "score_lexico": 0.23765713721513748,
+        "score_semantico": null
+      },
+      {
+        "rank": 12,
+        "codigo": "91928",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 4 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "unidade": "M",
+        "preco": 7.69,
+        "score_lexico": 0.201156385242939,
+        "score_semantico": null
+      },
+      {
+        "rank": 13,
+        "codigo": "96976",
+        "descricao": "CORDOALHA DE COBRE NU 95 MM², NÃO ENTERRADA, COM ISOLADOR - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
+        "unidade": "M",
+        "preco": 167.61,
+        "score_lexico": 0.23574195057153702,
+        "score_semantico": null
+      },
+      {
+        "rank": 14,
+        "codigo": "92986",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 35 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
+        "unidade": "M",
+        "preco": 44.11,
+        "score_lexico": 0.21913699805736542,
+        "score_semantico": null
+      },
+      {
+        "rank": 15,
+        "codigo": "96974",
+        "descricao": "CORDOALHA DE COBRE NU 50 MM², NÃO ENTERRADA, COM ISOLADOR - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
+        "unidade": "M",
+        "preco": 102.31,
+        "score_lexico": 0.23574195057153702,
+        "score_semantico": null
+      },
+      {
+        "rank": 16,
+        "codigo": "96975",
+        "descricao": "CORDOALHA DE COBRE NU 70 MM², NÃO ENTERRADA, COM ISOLADOR - FORNECIMENTO E INSTALAÇÃO. AF_08/2023",
+        "unidade": "M",
+        "preco": 126.83,
+        "score_lexico": 0.23574195057153702,
+        "score_semantico": null
+      },
+      {
+        "rank": 17,
+        "codigo": "93002",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 300 MM², ANTI-CHAMA 0,6/1,0 KV, PARA REDE ENTERRADA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - FORNECIMENTO E INSTALAÇÃO. AF_12/2021",
+        "unidade": "M",
+        "preco": 378.23,
+        "score_lexico": 0.20113540440797806,
+        "score_semantico": null
+      },
+      {
+        "rank": 18,
+        "codigo": "91930",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 6 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "unidade": "M",
+        "preco": 10.74,
+        "score_lexico": 0.20006989687681198,
+        "score_semantico": null
+      },
+      {
+        "rank": 19,
+        "codigo": "91934",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 16 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "unidade": "M",
+        "preco": 27.77,
+        "score_lexico": 0.19900167733430862,
+        "score_semantico": null
+      },
+      {
+        "rank": 20,
+        "codigo": "91926",
+        "descricao": "CABO DE COBRE FLEXÍVEL ISOLADO, 2,5 MM², ANTI-CHAMA 450/750 V, PARA CIRCUITOS TERMINAIS - FORNECIMENTO E INSTALAÇÃO. AF_03/2023",
+        "unidade": "M",
+        "preco": 4.98,
+        "score_lexico": 0.19900167733430862,
         "score_semantico": null
       }
     ],
@@ -2475,14 +2475,14 @@
       "96973"
     ],
     "llm": {
-      "codigo_selecionado": null,
+      "codigo_selecionado": "104743",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original refere-se a um CABO DE COBRE NU 35MM2, sem isolamento, especificamente para fornecimento e instalação. A única composição que se aproxima do que é requerido é a \"CORDOALHA DE COBRE NU 35 MM², NÃO ENTERRADA, COM PRESILHA - FORNECIMENTO E INSTALAÇÃO\" e a \"CORDOALHA DE COBRE NU 35 MM², NÃO ENTERRADA, COM ISOLADOR - FORNECIMENTO E INSTALAÇÃO\". Entretanto, a CORDOALHA não é equivalente a um cabo de cobre nu no contexto de instalação e uso. Os cabos de cobre flexível isolados também não se encaixam, pois possuem características adicionais de isolamento que não foram mencionadas no item original. Assim, a única opção que se aproxima e é pertinente, a CORDOALHA, não atende ao requisito técnico do item original, pois se trata de um produto diferente: a CORDOALHA em si.",
-      "parecer": "As opções apresentadas incluem cabos de cobre flexíveis isolados e cordoalhas de cobre nu. No entanto, nenhuma delas é equivalente ao CABO DE COBRE NU 35MM2 especificado na planilha, que não possui isolamento. Portanto, todas as opções foram descartadas por não representarem o mesmo tipo de produto requerido."
+      "raciocinio": "Ao avaliar as opções apresentadas, todas elas estão relacionadas a fios e cabos de cobre, no entanto, a composição do item original \"CABO DE COBRE NU 35MM2\" precisa ser corretamente correspondida. A análise das opções mostra que as três primeiras opções estão relacionadas a cordoalhas, que embora sejam cabos também, têm características técnicas que as separam do CABO DE COBRE NU especificado. Importante destacar que o atributo de 35 mm² é diretamente mencionado nas duas primeiras composições, mas elas se referem a cordoalhas, não cabos. As outras opções não atendem ao requisito de diâmetro adequado ou são cabos de cobre com características diferentes (isolados, enterrados). Portanto, a opção que mais se aproxima, a CORDOALHA DE COBRE NU 35 MM² com presilha (codigo 104743), é a que mais se aproxima no contexto de preços, mas, ainda assim, é um tipo de condutor diferente do solicitado.",
+      "parecer": "Escolhi a CORDOALHA DE COBRE NU 35 MM², NÃO ENTERRADA, COM PRESILHA - FORNECIMENTO E INSTALAÇÃO (codigo 104743), pois é a opção mais próxima em termos de bitola e tipo de metal, apesar de representar um componente ligeiramente diferente (cordoalha). As demais opções disponíveis não foram aceitas por divergir significativamente da especificação do item original ou por serem de outras bitolas e tipos de cabos."
     },
     "acertou": false,
-    "veredicto": "ERRADO selecionou=None esperado=96973",
+    "veredicto": "ERRADO selecionou=104743 esperado=96973",
     "erro": null
   },
   {
@@ -2498,146 +2498,146 @@
     "rrf_results": [
       {
         "rank": 1,
-        "codigo": "89357",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 36.7,
-        "score_lexico": 0.22332417592406273,
-        "score_semantico": null
-      },
-      {
-        "rank": 2,
         "codigo": "89355",
         "descricao": "TUBO, PVC, SOLDÁVEL, DE 20MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "M",
         "preco": 23.02,
-        "score_lexico": 0.2273416630923748,
+        "score_lexico": 0.22155188396573067,
         "score_semantico": null
       },
       {
-        "rank": 3,
-        "codigo": "89356",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 26.55,
-        "score_lexico": 0.22531108185648918,
-        "score_semantico": null
-      },
-      {
-        "rank": 4,
-        "codigo": "89447",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 12.58,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 5,
-        "codigo": "89446",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 6.31,
-        "score_lexico": 0.22234665974974632,
-        "score_semantico": null
-      },
-      {
-        "rank": 6,
-        "codigo": "89452",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 85MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 76.76,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 7,
+        "rank": 2,
         "codigo": "102705",
         "descricao": "TUBO DE PVC CORRUGADO RÍGIDO PERFURADO, DN 100 MM, PARA DRENO - FORNECIMENTO E ASSENTAMENTO. AF_07/2021",
         "unidade": "M",
         "preco": 82.55,
-        "score_lexico": 0.2291095368564129,
+        "score_lexico": 0.2204248644411564,
         "score_semantico": null
       },
       {
-        "rank": 8,
-        "codigo": "89449",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 21.31,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 9,
-        "codigo": "89448",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 40MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 19.28,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 10,
-        "codigo": "89451",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 75MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 55.7,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 11,
-        "codigo": "89450",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 60MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "M",
-        "preco": 34.18,
-        "score_lexico": 0.2203037552535534,
-        "score_semantico": null
-      },
-      {
-        "rank": 12,
-        "codigo": "94701",
-        "descricao": "TÊ, PVC, SOLDÁVEL, DN 110 MM INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
-        "unidade": "UN",
-        "preco": 261.06,
-        "score_lexico": 0.25687114521861076,
-        "score_semantico": null
-      },
-      {
-        "rank": 13,
-        "codigo": "94671",
-        "descricao": "LUVA, PVC, SOLDÁVEL, DN 110 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
-        "unidade": "UN",
-        "preco": 122.33,
-        "score_lexico": 0.2507927082479,
-        "score_semantico": null
-      },
-      {
-        "rank": 14,
+        "rank": 3,
         "codigo": "94655",
         "descricao": "TUBO, PVC, SOLDÁVEL, DE 110MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "M",
         "preco": 140.55,
-        "score_lexico": 0.2505284659564495,
+        "score_lexico": 0.2621080316603184,
         "score_semantico": null
       },
       {
-        "rank": 15,
+        "rank": 4,
+        "codigo": "89357",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 36.7,
+        "score_lexico": 0.2175343967974186,
+        "score_semantico": null
+      },
+      {
+        "rank": 5,
+        "codigo": "94701",
+        "descricao": "TÊ, PVC, SOLDÁVEL, DN 110 MM INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
+        "unidade": "UN",
+        "preco": 261.06,
+        "score_lexico": 0.24818647280335426,
+        "score_semantico": null
+      },
+      {
+        "rank": 6,
+        "codigo": "89356",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 26.55,
+        "score_lexico": 0.21952130272984505,
+        "score_semantico": null
+      },
+      {
+        "rank": 7,
+        "codigo": "94671",
+        "descricao": "LUVA, PVC, SOLDÁVEL, DN 110 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
+        "unidade": "UN",
+        "preco": 122.33,
+        "score_lexico": 0.2421080358326435,
+        "score_semantico": null
+      },
+      {
+        "rank": 8,
+        "codigo": "89447",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 12.58,
+        "score_lexico": 0.21451397612690926,
+        "score_semantico": null
+      },
+      {
+        "rank": 9,
         "codigo": "94702",
         "descricao": "TÊ DE REDUÇÃO, PVC, SOLDÁVEL, DN 110 MM X 60 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 217.84,
-        "score_lexico": 0.24767696112394333,
+        "score_lexico": 0.23826856166124344,
         "score_semantico": null
       },
       {
-        "rank": 16,
+        "rank": 10,
+        "codigo": "89446",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 6.31,
+        "score_lexico": 0.2165568806231022,
+        "score_semantico": null
+      },
+      {
+        "rank": 11,
         "codigo": "94723",
         "descricao": "TUBO, CPVC, SOLDÁVEL, DN 114 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "M",
         "preco": 632.55,
-        "score_lexico": 0.24052847549319267,
+        "score_lexico": 0.23473869636654854,
+        "score_semantico": null
+      },
+      {
+        "rank": 12,
+        "codigo": "89448",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 40MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 19.28,
+        "score_lexico": 0.21451397612690926,
+        "score_semantico": null
+      },
+      {
+        "rank": 13,
+        "codigo": "89452",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 85MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 76.76,
+        "score_lexico": 0.21451397612690926,
+        "score_semantico": null
+      },
+      {
+        "rank": 14,
+        "codigo": "104315",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 20MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "unidade": "M",
+        "preco": 18.16,
+        "score_lexico": 0.20678170397877693,
+        "score_semantico": null
+      },
+      {
+        "rank": 15,
+        "codigo": "89449",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "M",
+        "preco": 21.31,
+        "score_lexico": 0.21451397612690926,
+        "score_semantico": null
+      },
+      {
+        "rank": 16,
+        "codigo": "104316",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "unidade": "M",
+        "preco": 26.53,
+        "score_lexico": 0.20315975323319435,
         "score_semantico": null
       },
       {
@@ -2646,48 +2646,50 @@
         "descricao": "ELETRODUTO RÍGIDO SOLDÁVEL, PVC, DN 20 MM (1/2\"), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
         "unidade": "M",
         "preco": 17.43,
-        "score_lexico": 0.2361806444823742,
+        "score_lexico": 0.23039086535573006,
         "score_semantico": null
       },
       {
         "rank": 18,
-        "codigo": "94687",
-        "descricao": "CURVA 90 GRAUS, PVC, SOLDÁVEL, DN 110 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
-        "unidade": "UN",
-        "preco": 263.61,
-        "score_lexico": 0.23510463163256645,
+        "codigo": "89865",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM DRENO DE AR-CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "unidade": "M",
+        "preco": 19.47,
+        "score_lexico": 0.2049514539539814,
         "score_semantico": null
       },
       {
         "rank": 19,
-        "codigo": "104315",
-        "descricao": "TUBO, PVC, SOLDÁVEL, DE 20MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "codigo": "89403",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 32MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "M",
-        "preco": 18.16,
-        "score_lexico": 0.21257148310542107,
+        "preco": 21.88,
+        "score_lexico": 0.20999642089009285,
         "score_semantico": null
       },
       {
         "rank": 20,
-        "codigo": "95728",
-        "descricao": "ELETRODUTO RÍGIDO SOLDÁVEL, PVC, DN 32 MM (1\"), APARENTE - FORNECIMENTO E INSTALAÇÃO. AF_01/2026",
+        "codigo": "89402",
+        "descricao": "TUBO, PVC, SOLDÁVEL, DE 25MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "M",
-        "preco": 21.59,
-        "score_lexico": 0.2340768538415432,
+        "preco": 14.11,
+        "score_lexico": 0.2118220217525959,
         "score_semantico": null
       }
     ],
-    "esperado_no_rrf": false,
-    "codigos_esperados_encontrados_no_rrf": [],
+    "esperado_no_rrf": true,
+    "codigos_esperados_encontrados_no_rrf": [
+      "94655"
+    ],
     "llm": {
-      "codigo_selecionado": null,
-      "categoria_rigor": "ALTO",
+      "codigo_selecionado": "94655",
+      "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica um tubo PVC rígido soldável com diâmetro de 110 mm. Vamos analisar as opções disponíveis: Todas são tubos PVC soldáveis, então a natureza construtiva é compatível (R1). No entanto, precisamos focar nas dimensões críticas, que incluem a rigidez e o tipo de encaixe, além do diâmetro do tubo.\n\nAtributos inegociáveis para a aceitação são: \n- O diâmetro de 110 mm do item original não está presente em nenhuma das opções (32mm, 25mm, 20mm, 50mm, 40mm, 75mm, 85mm), o que representa uma incompatibilidade técnica clara. Todas essas opções possuem diâmetros menores que 110mm e não podem ser usados como substituições diretas.\n\nO contexto também exige que o tubo seja soldável e rígido, o que é verdade para todos os candidatos, mas a divergência quanto ao diâmetro é definitivamente inegociável em termos de aplicação e utilização efetiva. Portanto, não podemos aceitar nenhum dos candidatos apresentados.",
-      "parecer": "Não há opção que represente o tubo PVC rígido soldável de 110mm, pois todos os candidatos têm diâmetros inferiores (25mm, 32mm, 50mm, etc.). Divergências de dimensão são inaceitáveis para este tipo de material, portanto não é possível mapear para nenhuma composição do SINAPI."
+      "raciocinio": "O item original especifica um \"TUBO PVC RÍGIDO SOLDÁVEL 110MM\", o que indica que estamos lidando com um tubo de PVC rígido, que necessita ser soldável e deve ter um diâmetro de 110mm. Dentre as opções, precisamos buscar itens que claramente indicam a mesma família de serviço; neste caso, tubulação de PVC. Ao analisar as opções: \n\n1. **Candidatos relevantes:**\n   - O item \"Código 94655\", que descreve \"TUBO, PVC, SOLDÁVEL, DE 110MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO\", é exatamente o que estamos buscando. Este candidato atende todos os requisitos técnicos especificados no item original, pois é de PVC, soldável e tem o diâmetro correto de 110 mm.\n\nOutras opções, como o \"Código 89355\", são de diâmetro 20 mm, o que os torna inadequados. A opção \"Código 102705\" menciona um tubo corrugado e não rígido, o que não é válido. Itens como \"TÊ\" e \"LUVA\" não são tubos e também não são adequados. Portanto, após análise minuciosa, o código 94655 é a composição mais apropriada.",
+      "parecer": "O tubo de código 94655 é o único candidato que atende todos os critérios do item original, pois especifica um tubo rígido soldável de 110 mm, cumprindo a especificação técnica necessária."
     },
-    "acertou": false,
-    "veredicto": "ERRADO selecionou=None esperado=94655",
+    "acertou": true,
+    "veredicto": "OK_CORRETO",
     "erro": null
   },
   {
@@ -2890,8 +2892,8 @@
       "codigo_selecionado": "89482",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "Oitemoriginal esboça uma caixa sifonada em PVC, com dimensões específicas de DN 100 x 100 x 50 mm, que deve ser fornecida e instalada em ramais de encaminhamento de água pluvial. Ao analisar as opções extraídas do RRF: \n\n- O candidato 89482 fornece a mesma caixa sifonada em PVC, com as mesmas dimensões e contexto de instalação, diferindo apenas na data de referência. Qualquer discrepância em datas de atualização não afeta a compatibilidade técnica do produto. \n\n- O candidato 89491 apresenta uma caixa sifonada diferente, com dimensões de DN 150 x 185 x 75 mm, portanto não é compatível. \n\n- O candidato 89495 oferece um ralo sifonado, o que não representa o item solicitado. \n\n- O candidato 89512 menciona um tubo PVC, que não é a caixa sifonada requerida. \n\n- O candidato 89707 apresenta outra caixa sifonada, mas com uma junta elástica e contexto de instalação para esgoto, o que não se aplica à caixa sifonada em água pluvial, caracterizando uma incompatibilidade. \n\n- Os outros candidatos (89509, 89571, 104175, 104166, 89573) descrevem tubos ou conexões e não caixas sifonadas, sendo assim irrelevantes.\n\nApós análise, o candidato 89482 é o mais adequado tecnicamente, pois atende a todas as especificações do item original.",
-      "parecer": "O candidato 89482 é o mais adequado, pois apresenta a caixa sifonada em PVC com as mesmas dimensões e descrição para instalação em ramais de água pluvial. Os demais itens ou não são equivalentes ou se referem a produtos diferentes."
+      "raciocinio": "A análise inicial mostra que estamos tratando de uma CAIXA SIFONADA feita em PVC, com dimensões específicas (DN 100 x 100 x 50 mm) e que deve ser fornecida e instalada em ramais de encaminhamento de água pluvial. Ao comparar as opções disponíveis da lista extraída, notamos que: \n\n- A opção com código 89482 apresenta as mesmas dimensões e descrição, apenas mudando a data de referência de AF (de 12/2014 para 06/2022), mas isso não afeta a sua natureza. \n- A opção com código 89707, embora se refira a uma caixa sifonada de PVC, menciona junta elástica e é destinada a ramal de descarga ou esgoto sanitário, o que a torna incompatible com o item original, que se refere a água pluvial.\n- As outras opções se referem a itens diferentes, como tubos e tês, que não são adequados como substitutos diretos para a caixa sifonada original.\n\nPortanto, a melhor escolha tecnicamente é a opção com código 89482, que é exatamente o que se busca.",
+      "parecer": "A opção 89482 é exatamente equivalente ao item original em termos de dimensões (DN 100 x 100 x 50 mm) e função (fornecida e instalada em ramais de encaminhamento de água pluvial). As demais opções não são compatíveis, pois ou não atendem a dimensão exata ou não são do mesmo tipo de produto necessário."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -2914,25 +2916,25 @@
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 50 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 20.41,
-        "score_lexico": 0.3413921743631363,
+        "score_lexico": 0.3305363357067108,
         "score_semantico": null
       },
       {
         "rank": 2,
-        "codigo": "105184",
-        "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 85 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
-        "unidade": "UN",
-        "preco": 124.99,
-        "score_lexico": 0.290716327726841,
-        "score_semantico": null
-      },
-      {
-        "rank": 3,
         "codigo": "105170",
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 25 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 6.42,
-        "score_lexico": 0.292691670358181,
+        "score_lexico": 0.2840069942176342,
+        "score_semantico": null
+      },
+      {
+        "rank": 3,
+        "codigo": "105184",
+        "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 85 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
+        "unidade": "UN",
+        "preco": 124.99,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
@@ -2941,7 +2943,7 @@
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 40 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 15.16,
-        "score_lexico": 0.292691670358181,
+        "score_lexico": 0.2840069942176342,
         "score_semantico": null
       },
       {
@@ -2950,7 +2952,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 20 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
         "unidade": "UN",
         "preco": 8.31,
-        "score_lexico": 0.2876592054963112,
+        "score_lexico": 0.2789745293557644,
         "score_semantico": null
       },
       {
@@ -2959,25 +2961,25 @@
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 60 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 47.95,
-        "score_lexico": 0.290716327726841,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
         "rank": 7,
-        "codigo": "105183",
-        "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 75 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
-        "unidade": "UN",
-        "preco": 100.92,
-        "score_lexico": 0.290716327726841,
-        "score_semantico": null
-      },
-      {
-        "rank": 8,
         "codigo": "105179",
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 32 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 11.06,
-        "score_lexico": 0.290716327726841,
+        "score_lexico": 0.2820316515862942,
+        "score_semantico": null
+      },
+      {
+        "rank": 8,
+        "codigo": "105183",
+        "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 75 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
+        "unidade": "UN",
+        "preco": 100.92,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
@@ -2986,7 +2988,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 32 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
         "unidade": "UN",
         "preco": 13.46,
-        "score_lexico": 0.2837631031870842,
+        "score_lexico": 0.2750784270465374,
         "score_semantico": null
       },
       {
@@ -2995,7 +2997,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 19.7,
-        "score_lexico": 0.28067946806550026,
+        "score_lexico": 0.28936414048075676,
         "score_semantico": null
       },
       {
@@ -3004,7 +3006,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 25.46,
-        "score_lexico": 0.2733469791710377,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
@@ -3013,7 +3015,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM DRENO DE AR-CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
         "unidade": "UN",
         "preco": 9.36,
-        "score_lexico": 0.2485366053879261,
+        "score_lexico": 0.24202309921383858,
         "score_semantico": null
       },
       {
@@ -3022,7 +3024,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 7.15,
-        "score_lexico": 0.26002882793545723,
+        "score_lexico": 0.2535153217613697,
         "score_semantico": null
       },
       {
@@ -3031,7 +3033,7 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 85MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 117.13,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3040,25 +3042,25 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 40MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 15.41,
-        "score_lexico": 0.26002882793545723,
+        "score_lexico": 0.2535153217613697,
         "score_semantico": null
       },
       {
         "rank": 16,
-        "codigo": "89493",
-        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "89501",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
-        "preco": 11.67,
-        "score_lexico": 0.25799039378762245,
+        "preco": 16.71,
+        "score_lexico": 0.24003897979855537,
         "score_semantico": null
       },
       {
         "rank": 17,
-        "codigo": "89515",
-        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 75MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "89493",
+        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
-        "preco": 95.75,
-        "score_lexico": 0.25799039378762245,
+        "preco": 11.67,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3067,25 +3069,25 @@
         "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 60MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 45.86,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
         "rank": 19,
-        "codigo": "89409",
-        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "89515",
+        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 75MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
-        "preco": 10.83,
-        "score_lexico": 0.25394289568066597,
+        "preco": 95.75,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
         "rank": 20,
-        "codigo": "89414",
-        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "89409",
+        "descricao": "JOELHO 45 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
-        "preco": 15.96,
-        "score_lexico": 0.25210804119706154,
+        "preco": 10.83,
+        "score_lexico": 0.24742938950657845,
         "score_semantico": null
       }
     ],
@@ -3095,8 +3097,8 @@
       "codigo_selecionado": "105181",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original é um joelho 45 PVC rígido soldável de 50mm. Vamos analisar as opções fornecidas. A família de serviço (tubulação) é a mesma para todas as opções, já que todas referem-se a joelhos de PVC soldáveis. Precisamos focar principais atributos físicos, que são os ângulos e diâmetros. As opções que possuem precisão no ângulo de 45 graus são válidas, e precisamos verificar os diâmetros. O número DN (Diâmetro Nominal) indicado em milímetros nas opções é importante: DN 50mm é exatamente o correspondente ao item original. Entre as opções, a melhor combinação é a que tem DN 50mm, que está claramente especificada e menciona o ângulo de 45 graus. Além disso, as opções com DN diferentes são descartadas, pois estão fora da especificação requerida.",
-      "parecer": "A opção selecionada é o \"JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 50 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA\". Esta composição é a mais adequada porque atende exatamente ao especificado, com o diâmetro nominal de 50mm e o ângulo de 45 graus, garantindo a compatibilidade necessária para instalação em sistemas hidráulicos."
+      "raciocinio": "O item original é um \"JOELHO 45 PVC RIGIDO SOLDAVEL 50MM\". A análise das opções disponíveis se concentra na correspondência entre a descrição do item e as características técnicas.\\n\\n1. Analisando a primeira opção: \"JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 50 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA\" – apresenta a mesma especificação (45 graus, DN 50mm), e embora inclua um contexto de instalação, essa é a opção mais próxima e funcionalmente equivalente.\\n2. A segunda opção refere-se a um DN 25mm, o que representa uma divergência significativa na dimensão.\\n3. A terceira opção é um DN 85mm, que também diverge.\\n4. As demais opções apresentam diâmetros ainda menores que 50mm, ou contextos específicos que não se aplicam diretamente a um joelho para tubulação de água.\\n\\nDiante disso, a melhor correspondência é a primeira opção, que tem uma descrição totalmente compatível em termos de formato e dimensões.",
+      "parecer": "A opção escolhida, com código 105181, apresenta a especificação correta de 45 graus e DN 50mm em PVC soldável, tornando-se a composição mais adequada em comparação com as demais que divergem em diâmetro ou em contexto de instalação."
     },
     "acertou": false,
     "veredicto": "ERRADO selecionou=105181 esperado=103985",
@@ -3115,11 +3117,11 @@
     "rrf_results": [
       {
         "rank": 1,
-        "codigo": "104317",
-        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 20 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "codigo": "89501",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
-        "preco": 7.66,
-        "score_lexico": 0.2876592054963112,
+        "preco": 16.71,
+        "score_lexico": 0.28936414048075676,
         "score_semantico": null
       },
       {
@@ -3128,25 +3130,25 @@
         "descricao": "JOELHO PVC, SOLDÁVEL, 45 GRAUS, DN 50 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 20.41,
-        "score_lexico": 0.290716327726841,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
         "rank": 3,
-        "codigo": "104319",
-        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 32 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
+        "codigo": "104317",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 20 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
         "unidade": "UN",
-        "preco": 11.4,
-        "score_lexico": 0.2837631031870842,
+        "preco": 7.66,
+        "score_lexico": 0.2789745293557644,
         "score_semantico": null
       },
       {
         "rank": 4,
-        "codigo": "89501",
-        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "104319",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 32 MM, INSTALADO EM DRENO DE AR CONDICIONADO - FORNECIMENTO E INSTALAÇÃO. AF_08/2022",
         "unidade": "UN",
-        "preco": 16.71,
-        "score_lexico": 0.28067946806550026,
+        "preco": 11.4,
+        "score_lexico": 0.2750784270465374,
         "score_semantico": null
       },
       {
@@ -3155,7 +3157,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 22.47,
-        "score_lexico": 0.2733469791710377,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       },
       {
@@ -3164,7 +3166,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50 MM INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
         "preco": 17.42,
-        "score_lexico": 0.3413921743631363,
+        "score_lexico": 0.3305363357067108,
         "score_semantico": null
       },
       {
@@ -3173,7 +3175,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 6.22,
-        "score_lexico": 0.26002882793545723,
+        "score_lexico": 0.2535153217613697,
         "score_semantico": null
       },
       {
@@ -3182,34 +3184,34 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 10.79,
-        "score_lexico": 0.2616318501532078,
+        "score_lexico": 0.25511834397912025,
         "score_semantico": null
       },
       {
         "rank": 9,
-        "codigo": "89358",
-        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 20MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
-        "unidade": "UN",
-        "preco": 9.05,
-        "score_lexico": 0.2636465020477772,
-        "score_semantico": null
-      },
-      {
-        "rank": 10,
         "codigo": "89492",
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 9.61,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
-        "rank": 11,
+        "rank": 10,
         "codigo": "89367",
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 14.98,
-        "score_lexico": 0.2596552111208439,
+        "score_lexico": 0.25314170494675636,
+        "score_semantico": null
+      },
+      {
+        "rank": 11,
+        "codigo": "89358",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 20MM, INSTALADO EM RAMAL OU SUB-RAMAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "unidade": "UN",
+        "preco": 9.05,
+        "score_lexico": 0.25713299587368965,
         "score_semantico": null
       },
       {
@@ -3218,7 +3220,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 40MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 15.34,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3227,7 +3229,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 85MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 143.01,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3236,7 +3238,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 75MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 119.92,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3245,7 +3247,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 60MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 47.95,
-        "score_lexico": 0.25799039378762245,
+        "score_lexico": 0.2514768876135349,
         "score_semantico": null
       },
       {
@@ -3254,7 +3256,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 25MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 9.9,
-        "score_lexico": 0.25394289568066597,
+        "score_lexico": 0.24742938950657845,
         "score_semantico": null
       },
       {
@@ -3263,7 +3265,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 32MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 13.9,
-        "score_lexico": 0.25210804119706154,
+        "score_lexico": 0.24559453502297401,
         "score_semantico": null
       },
       {
@@ -3272,7 +3274,7 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 20MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 8.28,
-        "score_lexico": 0.25581173971295357,
+        "score_lexico": 0.24929823353886604,
         "score_semantico": null
       },
       {
@@ -3281,16 +3283,16 @@
         "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 40MM, INSTALADO EM RAMAL DE DISTRIBUIÇÃO DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
         "unidade": "UN",
         "preco": 20.25,
-        "score_lexico": 0.25210804119706154,
+        "score_lexico": 0.24559453502297401,
         "score_semantico": null
       },
       {
         "rank": 20,
-        "codigo": "103974",
-        "descricao": "JOELHO DE REDUÇÃO, 90 GRAUS, PVC, SOLDÁVEL, DN 32 MM X 25 MM, INSTALADO EM PRUMADA DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_06/2022",
+        "codigo": "94676",
+        "descricao": "JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 40 MM INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA - FORNECIMENTO E INSTALAÇÃO. AF_04/2024",
         "unidade": "UN",
-        "preco": 12.22,
-        "score_lexico": 0.29121100902557373,
+        "preco": 15.09,
+        "score_lexico": 0.2820316515862942,
         "score_semantico": null
       }
     ],
@@ -3302,8 +3304,8 @@
       "codigo_selecionado": "89501",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica um 'joelho 90 PVC rígido soldável 50mm'. Vamos analisar as composições disponíveis nas opções do RRF. Todas as opções referem-se a joelhos de PVC, sendo que devem ter características compatíveis com o joelho original. A importância da angulação de 90 graus deve ser mantida e o diâmetro nominal (DN) precisa ser o correto. \n\n1. **Opção 1 (DN 20 mm)** - Inadequado, pois o diâmetro é menor que o especificado.\n2. **Opção 2 (DN 50 mm, 45 graus)** - Embora o diâmetro esteja correto, a angulação de 45 graus não atende ao requisito de 90 graus.\n3. **Opção 3 (DN 32 mm)** - Inadequado, pois não atende ao diâmetro de 50mm.\n4. **Opção 4 (DN 50 mm, instalação em prumada)** - Adequado, pois atende ao diâmetro e ângulo de 90 graus. \n5. **Opção 5 (DN 50 mm, instalado em ramal)** - Também atende aos critérios de diâmetro e ângulo.\n6. **Opção 6 (DN 50 mm, instalação em reservatório)** - Correto, também atende aos critérios.\n7. **Opção 7 (DN 25 mm)** - Inadequado, pois o diâmetro é menor que o especificado.\n8. **Opção 8 (DN 25 mm)** - Inadequado, pelo mesmo motivo da anterior.\n9. **Opção 9 (DN 20 mm)** - Inadequado, pelo mesmo motivo.\n10. **Opção 10 (DN 32 mm)** - Inadequado, pois não atende ao diâmetro de 50mm.\n\nAs melhores opções são a 4, a 5 e a 6, todas compatíveis com o item original. Entretanto, entre elas, a escolha deverá ser feita por critério de instalação ou aplicações específicas, sendo elas todas válidas.",
-      "parecer": "A opção 4 (codigo 89501) foi escolhida, pois é a que possui o diâmetro adequado de 50mm e um ângulo de 90 graus, conforme o especificado no item original. Ela é designada para instalação em prumada de água, que é um contexto compatível para aplicação de joelhos PVC em sistemas hidráulicos."
+      "raciocinio": "Analisando o item original, \"JOELHO 90 PVC RIGIDO SOLDAVEL 50MM\", a sua composição é de um joelho de PVC rígido soldável de 50mm. Comparando com as opções disponíveis:  \n\n1. A primeira opção, \"JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA\", é a mais apropriada. A descrição indica que o diâmetro nominal (DN) é 50mm e se refere ao mesmo ângulo (90 graus), além de estar na mesma família de serviço, que é tubulação de PVC para água.  \n2. A segunda opção apresenta um joelho de 45 graus, o que diverge estruturalmente; portanto, não é adequada.  \n3. As demais opções têm diâmetros menores (DN 20mm e DN 32mm), o que claramente não atende às especificações do item original.  \n4. A maioria das opções restantes se refere a aplicações específicas (dreno de ar condicionado ou instalação em reservação), mas não são relevantes para o contexto do item original, que não impõe essa restrição. Portanto, focamos em equivalência em tamanho e design.  \n\nDessa forma, a opção \"JOELHO 90 GRAUS, PVC, SOLDÁVEL, DN 50MM, INSTALADO EM PRUMADA DE ÁGUA\" é a melhor escolha, por ser 100% compatível com a especificação do item original.",
+      "parecer": "A escolha do código 89501 é justificada pelo fato de que ele apresenta exatamente um joelho de 90 graus de PVC soldável com diâmetro nominal de 50mm, atendendo assim aos requisitos do item original. Esta composição é a mais adequada tanto pela descrição quanto pela compatibilidade em dimensões e funcionalidade."
     },
     "acertou": false,
     "veredicto": "ERRADO selecionou=89501 esperado=103984",
@@ -3322,47 +3324,47 @@
     "rrf_results": [
       {
         "rank": 1,
-        "codigo": "89795",
-        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 48.78,
-        "score_lexico": 0.3169054538011551,
-        "score_semantico": null
-      },
-      {
-        "rank": 2,
-        "codigo": "104355",
-        "descricao": "JUNÇÃO DE REDUCAO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 100 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 57.56,
-        "score_lexico": 0.23276012390851974,
-        "score_semantico": null
-      },
-      {
-        "rank": 3,
-        "codigo": "104347",
-        "descricao": "JUNÇÃO DE REDUCAO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 100 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 57.32,
-        "score_lexico": 0.2370850220322609,
-        "score_semantico": null
-      },
-      {
-        "rank": 4,
-        "codigo": "89830",
-        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 45.86,
-        "score_lexico": 0.31034621596336365,
-        "score_semantico": null
-      },
-      {
-        "rank": 5,
         "codigo": "104343",
         "descricao": "JUNÇÃO DE REDUÇÃO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 75 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
         "preco": 40.11,
-        "score_lexico": 0.23244040459394455,
+        "score_lexico": 0.2768067941069603,
+        "score_semantico": null
+      },
+      {
+        "rank": 2,
+        "codigo": "104350",
+        "descricao": "JUNÇÃO DE REDUÇÃO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 75 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 35.59,
+        "score_lexico": 0.2718593552708626,
+        "score_semantico": null
+      },
+      {
+        "rank": 3,
+        "codigo": "104073",
+        "descricao": "TÊ DE REDUÇÃO, PVC OCRE, JUNTA ELÁSTICA, DN 150 X 100 MM, PARA COLETOR PREDIAL DE ESGOTO. AF_06/2022",
+        "unidade": "UN",
+        "preco": 0.0,
+        "score_lexico": 0.2531004063785076,
+        "score_semantico": null
+      },
+      {
+        "rank": 4,
+        "codigo": "89785",
+        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 50 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 31.19,
+        "score_lexico": 0.3277957886457443,
+        "score_semantico": null
+      },
+      {
+        "rank": 5,
+        "codigo": "89795",
+        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 48.78,
+        "score_lexico": 0.3277957886457443,
         "score_semantico": null
       },
       {
@@ -3371,106 +3373,106 @@
         "descricao": "TÊ DE REDUÇÃO, PVC OCRE, JUNTA ELÁSTICA, DN 300 X 150 MM, PARA COLETOR PREDIAL DE ESGOTO. AF_06/2022",
         "unidade": "UN",
         "preco": 0.0,
-        "score_lexico": 0.23306042328476906,
+        "score_lexico": 0.2512689046561718,
         "score_semantico": null
       },
       {
         "rank": 7,
-        "codigo": "104073",
-        "descricao": "TÊ DE REDUÇÃO, PVC OCRE, JUNTA ELÁSTICA, DN 150 X 100 MM, PARA COLETOR PREDIAL DE ESGOTO. AF_06/2022",
+        "codigo": "104347",
+        "descricao": "JUNÇÃO DE REDUCAO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 100 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
-        "preco": 0.0,
-        "score_lexico": 0.23480034247040749,
+        "preco": 57.32,
+        "score_lexico": 0.24985846132040024,
         "score_semantico": null
       },
       {
         "rank": 8,
-        "codigo": "104350",
-        "descricao": "JUNÇÃO DE REDUÇÃO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 75 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
+        "codigo": "104355",
+        "descricao": "JUNÇÃO DE REDUCAO INVERTIDA, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 100 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
         "unidade": "UN",
-        "preco": 35.59,
-        "score_lexico": 0.2281821295619011,
+        "preco": 57.56,
+        "score_lexico": 0.2453533485531807,
         "score_semantico": null
       },
       {
         "rank": 9,
-        "codigo": "89774",
-        "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 19.24,
-        "score_lexico": 0.3049295246601105,
-        "score_semantico": null
-      },
-      {
-        "rank": 10,
-        "codigo": "89817",
-        "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 17.74,
-        "score_lexico": 0.29556863009929657,
-        "score_semantico": null
-      },
-      {
-        "rank": 11,
-        "codigo": "89785",
-        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 50 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
-        "unidade": "UN",
-        "preco": 31.19,
-        "score_lexico": 0.27682723850011826,
-        "score_semantico": null
-      },
-      {
-        "rank": 12,
-        "codigo": "89565",
-        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE R, ÁGUA PLUVIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE ENCAMINHAMENTO. AF_06/2022",
-        "unidade": "UN",
-        "preco": 68.59,
-        "score_lexico": 0.2738197222352028,
-        "score_semantico": null
-      },
-      {
-        "rank": 13,
-        "codigo": "102710",
-        "descricao": "JUNÇÃO SIMPLES DE PVC, 45 GRAUS, SÉRIE NORMAL, PARA ESGOTO PREDIAL, DN 100 MM, INSTALADA EM DRENO - FORNECIMENTO E INSTALAÇÃO. AF_07/2021",
-        "unidade": "UN",
-        "preco": 72.06,
-        "score_lexico": 0.27272941917181015,
-        "score_semantico": null
-      },
-      {
-        "rank": 14,
         "codigo": "89827",
         "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 50 X 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
         "unidade": "UN",
         "preco": 23.51,
-        "score_lexico": 0.27090001851320267,
+        "score_lexico": 0.32101038098335266,
         "score_semantico": null
       },
       {
-        "rank": 15,
+        "rank": 10,
+        "codigo": "89830",
+        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 45.86,
+        "score_lexico": 0.32101038098335266,
+        "score_semantico": null
+      },
+      {
+        "rank": 11,
+        "codigo": "104074",
+        "descricao": "TÊ DE REDUÇÃO, PVC OCRE, JUNTA ELÁSTICA, DN 300 X 100 MM, PARA COLETOR PREDIAL DE ESGOTO. AF_06/2022",
+        "unidade": "UN",
+        "preco": 0.0,
+        "score_lexico": 0.24174509570002556,
+        "score_semantico": null
+      },
+      {
+        "rank": 12,
         "codigo": "89753",
         "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
         "preco": 11.34,
-        "score_lexico": 0.269308440387249,
+        "score_lexico": 0.29191165417432785,
+        "score_semantico": null
+      },
+      {
+        "rank": 13,
+        "codigo": "89774",
+        "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 19.24,
+        "score_lexico": 0.29191165417432785,
+        "score_semantico": null
+      },
+      {
+        "rank": 14,
+        "codigo": "89565",
+        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE R, ÁGUA PLUVIAL, DN 75 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE ENCAMINHAMENTO. AF_06/2022",
+        "unidade": "UN",
+        "preco": 68.59,
+        "score_lexico": 0.2881237640976906,
+        "score_semantico": null
+      },
+      {
+        "rank": 15,
+        "codigo": "89817",
+        "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
+        "unidade": "UN",
+        "preco": 17.74,
+        "score_lexico": 0.2826889827847481,
         "score_semantico": null
       },
       {
         "rank": 16,
-        "codigo": "89797",
-        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 100 X 100 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
+        "codigo": "89813",
+        "descricao": "LUVA SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 50 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM PRUMADA DE ESGOTO SANITÁRIO OU VENTILAÇÃO. AF_08/2022",
         "unidade": "UN",
-        "preco": 61.67,
-        "score_lexico": 0.26641231030225754,
+        "preco": 7.42,
+        "score_lexico": 0.2826889827847481,
         "score_semantico": null
       },
       {
         "rank": 17,
-        "codigo": "95693",
-        "descricao": "LUVA SIMPLES, PVC, SÉRIE NORMAL, ESGOTO PREDIAL, DN 150 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM SUBCOLETOR AÉREO DE ESGOTO SANITÁRIO. AF_08/2022",
+        "codigo": "89797",
+        "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 100 X 100 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE DESCARGA OU RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
-        "preco": 64.94,
-        "score_lexico": 0.26641231030225754,
+        "preco": 61.67,
+        "score_lexico": 0.2797904387116432,
         "score_semantico": null
       },
       {
@@ -3479,7 +3481,7 @@
         "descricao": "JUNÇÃO SIMPLES, PVC, SERIE NORMAL, ESGOTO PREDIAL, DN 100 X 100 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM SUBCOLETOR AÉREO DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
         "preco": 67.96,
-        "score_lexico": 0.2649961933493614,
+        "score_lexico": 0.2783198431134224,
         "score_semantico": null
       },
       {
@@ -3488,16 +3490,16 @@
         "descricao": "JUNÇÃO SIMPLES, PVC, SERIE R, ÁGUA PLUVIAL, DN 100 X 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE ENCAMINHAMENTO. AF_06/2022",
         "unidade": "UN",
         "preco": 116.77,
-        "score_lexico": 0.2632758393883705,
+        "score_lexico": 0.27760379016399384,
         "score_semantico": null
       },
       {
         "rank": 20,
-        "codigo": "89547",
-        "descricao": "LUVA SIMPLES, PVC, SERIE R, ÁGUA PLUVIAL, DN 75 MM, JUNTA ELÁSTICA, FORNECIDO E INSTALADO EM RAMAL DE ENCAMINHAMENTO. AF_06/2022",
+        "codigo": "89708",
+        "descricao": "CAIXA SIFONADA, PVC, DN 150 X 185 X 75 MM, JUNTA ELÁSTICA, FORNECIDA E INSTALADA EM RAMAL DE DESCARGA OU EM RAMAL DE ESGOTO SANITÁRIO. AF_08/2022",
         "unidade": "UN",
-        "preco": 27.45,
-        "score_lexico": 0.26302576810121536,
+        "preco": 141.16,
+        "score_lexico": 0.2751029282808304,
         "score_semantico": null
       }
     ],
@@ -3506,14 +3508,14 @@
       "104343"
     ],
     "llm": {
-      "codigo_selecionado": "104350",
+      "codigo_selecionado": "104343",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": true,
-      "raciocinio": "Analisei a família do item original, que é uma junção simples de PVC para esgoto. As opções apresentadas variam entre junção simples e junção de redução, sendo que a descrição do item original especifica que se trata de uma junção simples de PVC com dimensões de 75x50 mm. Excluí as opções que não se encaixam nessa família ou que não são junções simples. A opção 104350 se destaca como a mais próxima, pois especifica a dimensão 75x50 mm e é claramente uma junção de redução invertida, mantendo a compatibilidade funcional para a aplicação em esgoto.",
-      "parecer": "A opção 104350 é a junção de redução invertida em PVC com dimensões 75x50 mm, que atende ao requisito de funcionalidade para o esgoto. Apesar de ser uma junção de redução, a compatibilidade técnica do PVC e a aplicação em esgoto tornam-a uma escolha adequada. Outras opções, como a 89795 e a 89830, falham em atender diretamente a dimensão solicitada (75x50 mm), e apenas são junções 75x75 mm, o que não atende a especificação do item original."
+      "raciocinio": "Analisando o item original, que é uma junção simples de PVC com dimensões 75x50 mm destinada ao esgoto, devemos focar nas opções disponíveis que se alinhem com essa especificação. As opções 104343 e 104350 são junções de redução, e enquanto a 104350 também apresenta o mesmo diâmetro nas dimensões (DN 75 x 50 mm), elas se referem a um tipo de junção diferente, que não é a junção simples que precisamos. A junção simples 89795 apresenta a mesma série (normal) e destina-se a esgoto, mas as dimensões não são exatamente 75x50 mm, sendo 75x75 mm. Portanto, essa opção também não é ideal. Além disso, somando outros candidatos, como a opção 89785, que tem dimensões 50x50 mm, também não se adequa à especificação.",
+      "parecer": "A opção 104343 é a mais adequada, já que é uma junção de redução invertida em PVC, que é compatível com o uso em esgoto e apresenta as dimensões DN 75 x 50 mm. Apesar de ser uma junção de redução, possui uma compatibilidade funcional com a junção simples PVC requerida. Sendo assim, aceita-se com tolerância a especificação não exata na forma, além de um escore elevado, indicando alta relevância técnica. Outras opções não atendem aos requisitos operacionais ou dimensionais requeridos."
     },
-    "acertou": false,
-    "veredicto": "ERRADO selecionou=104350 esperado=104343",
+    "acertou": true,
+    "veredicto": "OK_CORRETO",
     "erro": null
   },
   {
@@ -3716,8 +3718,8 @@
       "codigo_selecionado": "94694",
       "categoria_rigor": "BAIXO",
       "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica um TÊ de PVC soldável, DN 50mm, para instalação em reservatório de água de edificações. Ao analisar as opções fornececidas, a primeira opção descreve exatamente um TÊ de PVC soldável, DN 50mm instalado em reservação predial de água, o que se alinha diretamente com a descrição do item original. Portanto, essa opção é a mais adequada, atendendo todos os requisitos técnicos especificados. As demais opções apresentam divergências em dimensões (DN), sendo assim, não são compatíveis. As composições com DN diferentes não são aceitáveis sem uma justificativa clara sobre a possibilidade de uso de adaptadores ou juntas.",
-      "parecer": "A composição selecionada é a mais adequada, pois atende a todos os critérios técnicos do item original, especificamente o material (PVC), tipo de conexão (soldável) e dimensão (DN 50mm), além do contexto de instalação em reservação de água em edificações."
+      "raciocinio": "A análise considera que o item original é um TÊ de PVC, soldável, DN 50 mm, para instalação em reservatório de água de edificações. As opções disponíveis no RRF precisam ser comparadas com este item em termos de família de serviço, material, dimensões, e contexto de instalação. Dentre as opções, a que mais se aproxima é a opção com código 94694 (TÊ, PVC, SOLDÁVEL, DN 50 MM INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA), que corresponde exatamente em material e dimensões, além de estar dentro do mesmo contexto de instalação. As outras opções ou têm diâmetros diferentes ou são de outro material, como CPVC, que não se adequam.",
+      "parecer": "A composição selecionada (código 94694) é a mais adequada, pois apresenta a mesma especificação de material (PVC), tipo (TÊ soldável) e diâmetro (DN 50 mm) do item original. Estão ambos no contexto de reservação de água e ambos incluem fornecimento e instalação, tornando esta a escolha perfeita em termos técnicos."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",
@@ -3922,9 +3924,9 @@
     "llm": {
       "codigo_selecionado": "94695",
       "categoria_rigor": "BAIXO",
-      "aceito_com_tolerancia": false,
-      "raciocinio": "O item original especifica um \"TÊ DE REDUÇÃO, PVC, SOLDÁVEL, DN 50 MM X 40 MM\". Vamos analisar as opções disponíveis no RRF para identificar a mais adequada. Primeiramente, devemos verificar a compatibilidade da família de serviço, que é PVC e referindo-se a uma peça de tubulação. Todas as opções apresentadas pertencem à mesma família de serviço (tê de redução em PVC), portanto, são compatíveis nesse aspecto.\n\nDepois, analisamos as dimensões e suas compatibilidades:\n- Opção 1 (94695): DN 50 mm x 40 mm (exata, aceita)\n- Opção 2 (105189): DN 50 mm x 25 mm (não aceito por diferir no DN 40 mm)\n- Opção 3 (94698): DN 75 mm x 50 mm (não aceito por divergir completamente)\n- Opção 4 (105190): DN 50 mm x 32 mm (não aceito por divergir no DN 40 mm)\n- Opção 5 (94693): DN 40 mm x 32 mm (não aceito, que diverge no DN 50 mm)\n- Opção 6 (94694): DN 50 mm (não aceito, falta o DN 40 mm)\n- Opção 7 (105143): Luva de redução (não aceito, item não correspondente)\n- Opção 8 (105234): Bucha de redução (não aceito, item não correspondente)\n- Opção 9 (94692): DN 40 mm (não aceito, falta o DN 50 mm)\n- Opção 10 (105228): Bucha de redução (não aceito, item não correspondente)\n\nA única opção que preserva as dimensões corretas e é do mesmo tipo de produto (TÊ DE REDUÇÃO, PVC, SOLDÁVEL) é a opção 1 (94695).  Ele atende a todas as características do item original sem incompatibilidades técnicas.",
-      "parecer": "A opção mais adequada é a de código 94695, que é um TÊ DE REDUÇÃO, PVC, SOLDÁVEL, DN 50 MM X 40 MM, exatamente como especificado no item original. Não há divergência nas especificações técnicas que comprometam a escolha."
+      "aceito_com_tolerancia": true,
+      "raciocinio": "No item original, temos um \"TÊ DE REDUÇÃO, PVC, SOLDÁVEL, DN 50 MM X 40 MM\" para instalação em reservatório de água. A análise das opções mostra que a maioria das ofertas tem DN 50 mm para um dos lados, mas se diferem em relação ao segundo DN. A melhor opção deve ter também a mesma forma de instalação e material.",
+      "parecer": "Escolhi o item com código 94695, que é um \"TÊ DE REDUÇÃO, PVC, SOLDÁVEL, DN 50 MM X 40 MM, INSTALADO EM RESERVAÇÃO PREDIAL DE ÁGUA\". Apesar de a composição ter um DN para o segundo lado igual ao da proposta original (40 mm), a descrição do item original é atendida em sua totalidade. Não existem opções melhores que se encaixem nas suas especificações de forma mais clara."
     },
     "acertou": true,
     "veredicto": "OK_CORRETO",

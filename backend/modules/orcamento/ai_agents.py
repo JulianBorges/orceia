@@ -1,17 +1,9 @@
 import json
+import os
 from core.ai_client import openai_client as client
 from modules.orcamento.schemas import AnaliseIA
 
-async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict]) -> AnaliseIA:
-    """
-    Agente Mapeador e Revisor em Cascata.
-    Obriga a OpenAI a cuspir um JSON perfeitamente compatível com o Schema Pydantic.
-    """
-    
-    # Mascara dados não sensíveis para jogar no Prompt (A memória do Pinecone)
-    contexto = json.dumps(opcoes_banco, indent=2, ensure_ascii=False)
-    
-    prompt_sistema = """Você é um Engenheiro de Orçamentos Sênior especialista em SINAPI.
+PROMPT_SISTEMA_ORCAMENTO = """Você é um Engenheiro de Orçamentos Sênior especialista em SINAPI.
 Missão: identificar a composição SINAPI mais equivalente ao item da planilha.
 PADRÃO DE COMPORTAMENTO: PRIORIZE ENCONTRAR UMA EQUIVALÊNCIA. Rejeite apenas quando houver incompatibilidade técnica CLARA e OBJETIVA. Em caso de dúvida, prefira aceitar o candidato mais próximo.
 
@@ -66,13 +58,23 @@ ALTO: concreto estrutural (fck/resistência), aço de armadura, impermeabilizaç
 BAIXO: tubulações hidráulicas prediais, eletrodutos, condutores elétricos de BAIXA tensão (≤ 1kV — incluindo 0,6/1,0kV e 450/750V), revestimentos, pinturas, terraplanagem, serviços provisórios, esquadrias.
 Na dúvida: BAIXO."""
 
+async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict]) -> AnaliseIA:
+    """
+    Agente Mapeador e Revisor em Cascata.
+    Obriga a OpenAI a cuspir um JSON perfeitamente compatível com o Schema Pydantic.
+    """
+    
+    # Mascara dados não sensíveis para jogar no Prompt (A memória do Pinecone)
+    contexto = json.dumps(opcoes_banco, indent=2, ensure_ascii=False)
+
     prompt_usuario = f"Item original da planilha: {termo_busca}\nOpções extraídas do RRF:\n{contexto}"
 
     try:
+        model_name = os.getenv("OPENAI_FT_MODEL", "gpt-4o-mini")
         completion = await client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model=model_name,
             messages=[
-                {"role": "system", "content": prompt_sistema},
+                {"role": "system", "content": PROMPT_SISTEMA_ORCAMENTO},
                 {"role": "user", "content": prompt_usuario}
             ],
             response_format=AnaliseIA,

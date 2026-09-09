@@ -36,8 +36,7 @@ interface BudgetState {
   updateItemPosition: (oldIndex: number, newNumberText: string) => void;
   addRow: (index: number, newRow: BudgetItem) => void;
   deleteRow: (id: string) => void;
-  clearBudget: () => void;
-  memorizeHumanFeedback: (termoOriginal: string, codigoEscolhido: string, parecer: string) => Promise<void>;
+  memorizeHumanFeedback: (descricaoLegada: string, codigo: string | null, descricaoSinapi: string | null, parecerTecnico: string) => Promise<void>;
   
   // Novos métodos de Integração Funcional e Upload
   planilhaId: string | null;
@@ -301,15 +300,16 @@ export const useBudgetStore = create<BudgetState>()(
         memorialId: null,
       }),
 
-      memorizeHumanFeedback: async (termoOriginal: string, codigoEscolhido: string, parecer: string) => {
+      memorizeHumanFeedback: async (descricaoLegada: string, codigo: string | null, descricaoSinapi: string | null, parecerTecnico: string) => {
         try {
             await fetch('/api/proxy/orcamento/feedback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    termo_original: termoOriginal,
-                    codigo_escolhido: codigoEscolhido,
-                    parecer: parecer
+                    descricao_legada: descricaoLegada,
+                    codigo: codigo,
+                    descricao: descricaoSinapi,
+                    parecer_tecnico: parecerTecnico
                 })
             });
             console.log('[RLHF] Feedback humano salvo com sucesso.');

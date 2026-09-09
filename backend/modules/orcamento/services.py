@@ -106,11 +106,14 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
             print(f"[MEMORIAL] Contexto injetado para: '{linha.descricao[:60]}'")
 
     # --- Lógica Determinística de Tolerância Dimensional ---
+    import copy
     from modules.orcamento.preprocessor import injetar_tolerancia_dimensional
-    injetar_tolerancia_dimensional(linha.descricao, opcoes_rrf)
+    
+    # Criamos uma cópia para o cérebro da IA para NÃO vazar os marcadores [TOLERÂNCIA...] 
+    # de volta para a Memória de Cálculo da UI e para o Banco de Dados
+    opcoes_para_ia = copy.deepcopy(opcoes_rrf[:10])
+    injetar_tolerancia_dimensional(linha.descricao, opcoes_para_ia)
 
-    # A IA performa melhor (63% vs 58%) focando apenas no Top 10, mas a UI precisa exibir os 20
-    opcoes_para_ia = opcoes_rrf[:10]
     analise = await consultar_agente_engenheiro(termo_ctx, opcoes_para_ia)
     
     # 4. Observabilidade do CoT e Formatação do resultado final
@@ -204,12 +207,13 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
     """
     
     query_filhas = """
-        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico, memoria_calculo)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        INSERT INTO planilhas_linhas (id, id_planilha, tenant_id, codigo, descricao, descricao_legada, unidade, quantidade, preco_unitario, ordem, ai_status, ai_parecer_tecnico, memoria_calculo)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         ON CONFLICT (id) 
         DO UPDATE SET 
             codigo = EXCLUDED.codigo,
             descricao = EXCLUDED.descricao,
+            -- descricao_legada intencionalmente omitida do UPDATE para preservar o legado
             unidade = EXCLUDED.unidade,
             quantidade = EXCLUDED.quantidade,
             preco_unitario = EXCLUDED.preco_unitario,
@@ -231,6 +235,7 @@ async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenan
             tenant_id,
             linha.codigo, 
             linha.descricao, 
+            linha.descricao_legada or linha.descricao, # Fallback seguro no momento zero
             linha.unidade, 
             linha.quantidade, 
             linha.preco_unitario,

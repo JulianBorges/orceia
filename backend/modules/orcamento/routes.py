@@ -27,18 +27,18 @@ async def save_rlhf_feedback(feedback: FeedbackRLHF, tenant_id: str = Depends(ge
     # Blindagem: Ignora o que o cliente mandou no JSON e força o uso do Tenant Autenticado no Cookie
     feedback.tenant_id = tenant_id
     query = """
-        INSERT INTO memoria_organizacional (tenant_id, termo_original, codigo_escolhido, parecer)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (tenant_id, termo_original) 
-        DO UPDATE SET codigo_escolhido = $3, parecer = $4, updated_at = CURRENT_TIMESTAMP
+        INSERT INTO memoria_organizacional (tenant_id, descricao_legada, codigo, descricao, parecer_tecnico)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (tenant_id, descricao_legada) 
+        DO UPDATE SET codigo = $3, descricao = $4, parecer_tecnico = $5, updated_at = CURRENT_TIMESTAMP
     """
     try:
         pool = get_db_pool()
         async with pool.acquire() as conn:
-            await conn.execute(query, feedback.tenant_id, normalizar_chave(feedback.termo_original), feedback.codigo_escolhido, feedback.parecer)
+            await conn.execute(query, feedback.tenant_id, normalizar_chave(feedback.descricao_legada), feedback.codigo, feedback.descricao, feedback.parecer_tecnico)
         # Invalida o cache Redis para o termo corrigido pelo humano
-        await delete_ai_cache(feedback.termo_original)
-        print(f"[RLHF] Cache invalidado para: '{feedback.termo_original[:50]}'")
+        await delete_ai_cache(feedback.descricao_legada)
+        print(f"[RLHF] Cache invalidado para: '{feedback.descricao_legada[:50]}'")
         return {"status": "success", "message": "Feedback memorizado para o Tenant"}
     except Exception as e:
         print(f"[ERRO RLHF] Falha ao salvar feedback: {e}")
