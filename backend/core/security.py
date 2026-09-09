@@ -25,8 +25,12 @@ async def verify_stream_token(token: str = Query(...)):
     if not tenant_id:
         raise HTTPException(status_code=401, detail="Token de Streaming Invalido ou Expirado")
     
-    # decode porque o aioredis retorna bytes as vezes
     if isinstance(tenant_id, bytes):
         tenant_id = tenant_id.decode('utf-8')
         
-    return tenant_id
+    if "::" in tenant_id:
+        tenant_id, start_id = tenant_id.split("::", 1)
+    else:
+        start_id = None
+        
+    return tenant_id, start_id

@@ -55,10 +55,15 @@ async def upsert_linhas(lote: LoteUpsertRequest, background_tasks: BackgroundTas
     for linha in lote.linhas:
         linha.tenant_id = tenant_id
         
-    # Gera um Token Efemero de Leitura para autorizar a conexao direta SSE
     stream_token = secrets.token_urlsafe(32)
     if rc.redis_client:
-        await rc.redis_client.setex(f"sse_token:{stream_token}", 7200, tenant_id) # Valido por 2h
+        start_id = "0-0"
+        try:
+            info = await rc.redis_client.xinfo_stream(f"stream:{tenant_id}:planilha:{planilha_id}")
+            start_id = info.get("last-generated-id", "0-0")
+        except Exception:
+            pass # Stream nao existe ainda
+        await rc.redis_client.setex(f"sse_token:{stream_token}", 7200, f"{tenant_id}::{start_id}") # Valido por 2h
         
     # Despacha a bomba para o background. O Frontend fica livre instantaneamente (0 latência)
     background_tasks.add_task(iniciar_processamento_lote_em_background, lote.linhas, planilha_id)
@@ -105,9 +110,15 @@ from fastapi import APIRouter, Depends, HTTPException, Header, BackgroundTasks, 
 # ... skips to sse_stream ...
 
 @router.get("/stream/{id_planilha}")
-async def sse_stream(request: Request, id_planilha: str, last_event_id: str = Header(default="0-0"), tenant_id: str = Depends(verify_stream_token)):
+async def sse_stream(request: Request, id_planilha: str, last_event_id: str = Header(default="0-0"), token_data: tuple = Depends(verify_stream_token)):
     """Canal de Eventos (SSE). O frontend escuta aqui DIRETAMENTE e atualiza a UI instantaneamente"""
+    tenant_id, token_start_id = token_data
+    
     async def event_generator():
+        # Padding inicial de 2KB: Força proxies governamentais (Fortinet/Squid/McAfee) 
+        # a liberarem o buffer de Deep Packet Inspection e transmitirem em tempo real.
+        yield f": {' ' * 2048}\n\n"
+        
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id
         if last_id and "," in last_id:
@@ -115,6 +126,10 @@ async def sse_stream(request: Request, id_planilha: str, last_event_id: str = He
             
         if not last_id or last_id in ("null", "undefined", ""):
             last_id = "0-0"
+            
+        if last_id == "$":
+            # Se for uma nova conexao do frontend ($), começa exatamente do ponto em que o POST /upsert-linhas ocorreu
+            last_id = token_start_id if token_start_id else "0-0"
 
         try:
             while True:
@@ -126,12 +141,10 @@ async def sse_stream(request: Request, id_planilha: str, last_event_id: str = He
                 if rc.redis_client is None:
                     break
 
-                # Usamos asyncio.wait_for para que o xread nao segure a Thread e deixe checar is_disconnected a cada tick
-                try:
-                    streams = await asyncio.wait_for(rc.redis_client.xread({stream_key: last_id}, count=2), timeout=2.0)
-                except asyncio.TimeoutError:
-                    streams = None
-
+                # IMPORTANTE: Lemos sem dar block. Isso devolve a conexao pro pool instantaneamente!
+                # Com limite estrito no Redis Cloud (30 conexões), nao podemos reter a conexão em block=2000.
+                streams = await rc.redis_client.xread({stream_key: last_id}, count=2)
+                
                 if streams:
                     for stream_name, messages in streams:
                         for message_id, message_data in messages:
@@ -143,6 +156,7 @@ async def sse_stream(request: Request, id_planilha: str, last_event_id: str = He
                                 payload = payload.decode("utf-8")
                             yield f"id: {message_id}\ndata: {payload}\n\n"
                 else:
+                    await asyncio.sleep(1.0)
                     yield ": ping\n\n"
 
         except asyncio.CancelledError:
