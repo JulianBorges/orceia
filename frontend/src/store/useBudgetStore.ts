@@ -363,8 +363,8 @@ export const useBudgetStore = create<BudgetState>()(
             isProcessing: true, 
             processedItemsCount: 0, 
             totalItemsToProcess: linhasParaProcessar.length,
-            currentAnalyzingItemName: 'Iniciando lote...',
-            processingStatusText: 'Iniciando inteligência...' 
+            currentAnalyzingItemName: linhasParaProcessar[0]?.descricao || 'Preparando lote...',
+            processingStatusText: 'Analisando itens na Inteligência Artificial...' 
         });
 
         const CHUNK_SIZE = 100;

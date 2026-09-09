@@ -154,6 +154,15 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
 async def processar_linha_com_semaforo(linha: LinhaOrcamentoUpsert, id_planilha: str):
     """Estrangula a requisição usando Semaphore e publica o resultado no Redis Stream"""
     async with RedisSemaphore(MAX_CONCURRENT_TASKS):
+        stream_key = f"stream:{linha.tenant_id}:planilha:{id_planilha}"
+        
+        # Feedback instantâneo para a UI: avisa que este item entrou na esteira da IA
+        await publish_sse_event(stream_key, {
+            "id": linha.id,
+            "status": "processando",
+            "descricao": linha.descricao
+        })
+        
         try:
             # Roda a inteligência brutal em cascata
             resultado = await processar_linha_inteligente(linha, id_planilha)

@@ -52,7 +52,9 @@ export function useSseListener(planilhaId: string | null) {
             }
           };
           
-          if (payload.status === 'sucesso' && payload.dados_ia) {
+          if (payload.status === 'processando') {
+            useBudgetStore.getState().setCurrentAnalyzingItemName(payload.descricao || 'Processando item...');
+          } else if (payload.status === 'sucesso' && payload.dados_ia) {
             const { id, status_ia, parecer, codigo_novo, memoria_calculo } = payload.dados_ia;
             console.log(`[SSE] Linha processada pela IA (ID: ${id})`);
 
@@ -76,11 +78,6 @@ export function useSseListener(planilhaId: string | null) {
             updateRowById(id, updatePayload);
             useBudgetStore.getState().incrementProcessedItemsCount();
             
-            const currentItem = useBudgetStore.getState().tableData.find(r => r.id === id);
-            if (currentItem) {
-                useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
-            }
-            
             checkCompletion();
 
           } else if (payload.status === 'erro') {
@@ -91,11 +88,6 @@ export function useSseListener(planilhaId: string | null) {
             });
             useBudgetStore.getState().incrementProcessedItemsCount();
 
-            const currentItem = useBudgetStore.getState().tableData.find(r => r.id === payload.id);
-            if (currentItem) {
-                useBudgetStore.getState().setCurrentAnalyzingItemName(currentItem.descricao);
-            }
-            
             checkCompletion();
 
           } else if (payload.status === 'lote_concluido') {
