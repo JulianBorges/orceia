@@ -16,8 +16,10 @@ async def get_current_tenant(x_tenant_id: str = Header(None)):
 from fastapi import Query
 import core.redis_client as rc
 
-async def verify_stream_token(token: str = Query(...)):
+async def verify_stream_token(token: str = Query(None)):
     """Valida Token Efêmero de Streaming (Bypass Proxy)"""
+    if not token:
+        raise HTTPException(status_code=401, detail="Token ausente")
     if not rc.redis_client:
         raise HTTPException(status_code=500, detail="Redis offline")
     

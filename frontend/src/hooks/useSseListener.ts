@@ -30,6 +30,9 @@ export function useSseListener(planilhaId: string | null) {
       onopen: async (response) => {
         if (!response.ok) {
           console.error(`[SSE] Falha ao abrir conexao: HTTP ${response.status}`);
+          if (response.status === 401) {
+            throw new Error("Token SSE expirado ou inválido (401). Abortando reconexão.");
+          }
         }
       },
 
@@ -100,8 +103,12 @@ export function useSseListener(planilhaId: string | null) {
         }
       },
 
-      onerror: () => {
-        console.warn('[SSE] Desconexao/Erro. fetch-event-source fara retry automatico...');
+      onerror: (err) => {
+        if (err && err.message && err.message.includes("401")) {
+            console.error('[SSE] Token rejeitado pelo servidor (401). Abortando retries.');
+            throw err; // Cancela os retries automáticos
+        }
+        console.warn('[SSE] Desconexao/Erro. fetch-event-source fara retry automatico...', err);
       },
     });
 
