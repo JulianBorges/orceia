@@ -223,7 +223,7 @@ export const AutocompleteDescricaoCell = ({ initialValue, rowIndex, onUpdateRow,
         }
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/proxy?endpoint=/sinapi/search&q=${encodeURIComponent(query)}`);
+            const res = await fetch(`/api/proxy/sinapi/search?q=${encodeURIComponent(query)}`);
             if (res.ok) {
                 const data = await res.json();
                 setResults(data.results || []);

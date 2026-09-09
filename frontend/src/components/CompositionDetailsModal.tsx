@@ -40,7 +40,7 @@ export function CompositionDetailsModal({ isOpen, item, onClose, onSave }: Compo
         } else {
             // Busca do SINAPI
             setIsLoading(true);
-            fetch(`/api/proxy?endpoint=/composicao/${item.codigo}`)
+            fetch(`/api/proxy/composicao/${item.codigo}`)
                 .then(res => {
                     if (!res.ok) throw new Error('Falha ao buscar detalhes da composição no banco de dados.');
                     return res.json();

@@ -41,7 +41,8 @@ export async function PUT(
 async function handleProxy(request: NextRequest, pathArray: string[]) {
   const path = pathArray.join("/");
   const backendUrl = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
-  const apiUrl = `${backendUrl}/${path}`;
+  const searchParams = request.nextUrl.search; // includes the '?' prefix if there are params
+  const apiUrl = `${backendUrl}/${path}${searchParams}`;
 
   try {
     const apiSecret = process.env.API_SECRET_KEY;

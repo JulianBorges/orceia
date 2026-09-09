@@ -53,7 +53,7 @@ export function CompositionCreatorModal({ isOpen, initialQuery = '', onClose, on
         setResult(null);
 
         try {
-            const res = await fetch('/api/proxy?endpoint=/orcamento/gerar-composicao-ia', {
+            const res = await fetch('/api/proxy/orcamento/gerar-composicao-ia', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json'
