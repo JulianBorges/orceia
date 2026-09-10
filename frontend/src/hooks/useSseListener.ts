@@ -16,12 +16,12 @@ export function useSseListener(planilhaId: string | null) {
     // Só conecta se tivermos a planilha e o Token Efêmero (Bypass de Proxy aprovado)
     if (!planilhaId || !currentStreamToken) return;
 
-    console.log(`[SSE] Conectando ao barramento direto (Bypass Vercel) da Planilha: ${planilhaId}`);
+    console.log(`[SSE] Conectando via Proxy Next.js para Planilha: ${planilhaId}`);
     abortControllerRef.current = new AbortController();
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://127.0.0.1:8000';
-
-    fetchEventSource(`${backendUrl}/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
+    // Rota relativa: passa pelo proxy server-side do Next.js (/api/proxy/...).
+    // NUNCA usar NEXT_PUBLIC_BACKEND_API_URL aqui — exporia a URL do Cloud Run no bundle JS.
+    fetchEventSource(`/api/proxy/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
       signal: abortControllerRef.current.signal,
       headers: {
         'Last-Event-ID': lastEventIdRef.current,

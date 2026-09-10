@@ -67,7 +67,7 @@ async def search_sinapi_por_trigrama(termo: str, tipo: str = "composicoes") -> l
                  + word_similarity(descricao, $1)
                ) as score_lexico
         FROM {tabela}
-        WHERE word_similarity(descricao, $1) > 0.10
+        WHERE word_similarity(descricao, $1) > 0.15
            OR to_tsvector('simple', descricao) @@ to_tsquery('simple', $2)
         ORDER BY score_lexico DESC
         LIMIT 50;
