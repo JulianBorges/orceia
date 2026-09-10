@@ -115,9 +115,10 @@ async def sse_stream(request: Request, id_planilha: str, last_event_id: str = He
     tenant_id, token_start_id = token_data
     
     async def event_generator():
-        # Padding inicial de 2KB: Força proxies governamentais (Fortinet/Squid/McAfee) 
+        # Padding inicial de 8KB: força proxies governamentais (Fortinet/Squid/BlueCoat/McAfee)
         # a liberarem o buffer de Deep Packet Inspection e transmitirem em tempo real.
-        yield f": {' ' * 2048}\n\n"
+        # 2KB era insuficiente para proxies enterprise com buffer DPI configurado para 8KB.
+        yield f": {' ' * 8192}\n\n"
         
         stream_key = f"stream:{tenant_id}:planilha:{id_planilha}"
         last_id = last_event_id

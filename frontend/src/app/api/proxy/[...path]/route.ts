@@ -64,6 +64,13 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
     
     headers.delete("host"); 
     
+    // Remove Accept-Encoding ANTES de chamar o Cloud Run.
+    // CRÍTICO para redes governamentais: se o Cloud Run receber Accept-Encoding: gzip,
+    // ele comprime a resposta SSE. O proxy corporativo (Fortinet/Squid) então bufferiza
+    // toda a stream aguardando o fim do gzip antes de liberar — resultando em 0 bytes no browser.
+    headers.delete("accept-encoding");
+    headers.delete("accept-encoding".toLowerCase());
+    
     let body = undefined;
     if (request.method !== "GET" && request.method !== "HEAD") {
       body = await request.arrayBuffer();
@@ -78,34 +85,19 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
 
     const responseHeaders = new Headers(response.headers);
     
-    // Tratamento rigoroso para SSE (Server-Sent Events) evitando Buffering do Next.js
+    // Tratamento rigoroso para SSE (Server-Sent Events) evitando Buffering
     if (responseHeaders.get("content-type")?.includes("text/event-stream") && response.body) {
         responseHeaders.set("Cache-Control", "no-cache, no-transform");
         responseHeaders.set("Connection", "keep-alive");
         responseHeaders.set("X-Accel-Buffering", "no");
+        // Identity = sem compressão: instrui qualquer proxy intermediário a não bufferizar
+        // aguardando o fim do gzip. Sem isso, proxies corporativos retornam 0 bytes ao browser.
+        responseHeaders.set("Content-Encoding", "identity");
+        responseHeaders.delete("content-length"); // SSE não tem content-length
 
-        // Cria um pipeline de transporte ativo (força o flush de cada chunk)
-        const reader = response.body.getReader();
-        const stream = new ReadableStream({
-            async start(controller) {
-                try {
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        controller.enqueue(value);
-                    }
-                } catch (e) {
-                    console.error("Erro no stream proxy:", e);
-                } finally {
-                    controller.close();
-                }
-            },
-            cancel() {
-                reader.cancel();
-            }
-        });
-
-        return new NextResponse(stream, {
+        // Usa Response nativo (não NextResponse) para passthrough direto do body do Cloud Run.
+        // NextResponse pode adicionar camadas de processamento que bufferizam o stream.
+        return new Response(response.body, {
             status: response.status,
             headers: responseHeaders
         });
