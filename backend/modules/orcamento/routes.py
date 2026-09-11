@@ -158,7 +158,7 @@ async def sse_stream(request: Request, id_planilha: str, last_event_id: str = He
                             yield f"id: {message_id}\ndata: {payload}\n\n"
                 else:
                     await asyncio.sleep(1.0)
-                    yield ": ping\n\n"
+                    yield "event: ping\ndata: \n\n"
 
         except asyncio.CancelledError:
             print(f"SSE Streaming desconectado pelo cliente (Bypass Direto) para a planilha {id_planilha}.")
