@@ -23,6 +23,7 @@ export function useSseListener(planilhaId: string | null) {
     // NUNCA usar NEXT_PUBLIC_BACKEND_API_URL aqui — exporia a URL do Cloud Run no bundle JS.
     fetchEventSource(`/api/proxy/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
       signal: abortControllerRef.current.signal,
+      credentials: 'include', // Essencial para proxies corporativos (NTLM/Negotiate) responderem ao desafio 407
       headers: {
         'Last-Event-ID': lastEventIdRef.current,
       },
