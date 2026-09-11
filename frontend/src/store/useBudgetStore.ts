@@ -14,6 +14,9 @@ interface BudgetState {
   currentAnalyzingItemName: string;
   currentStreamToken: string | null;
   setCurrentStreamToken: (val: string | null) => void;
+  isPollingFallback: boolean;
+  enablePollingFallback: () => void;
+  pollProgress: () => Promise<void>;
   isDirty: boolean;
   dirtyRowIds: string[];
   lastSaveTimestamp: number;
@@ -66,6 +69,7 @@ export const useBudgetStore = create<BudgetState>()(
       totalItemsToProcess: 0,
       currentAnalyzingItemName: '',
       currentStreamToken: null,
+      isPollingFallback: false,
       isDirty: false,
       dirtyRowIds: [],
       lastSaveTimestamp: 0,
@@ -97,6 +101,7 @@ export const useBudgetStore = create<BudgetState>()(
 
       setMemorialId: (id) => set({ memorialId: id }),
       setCurrentStreamToken: (token) => set({ currentStreamToken: token }),
+      enablePollingFallback: () => set({ isPollingFallback: true }),
       setIsDirty: (isDirty) => set({ isDirty }),
       incrementProcessedItemsCount: () => set((state) => ({ processedItemsCount: state.processedItemsCount + 1 })),
       setCurrentAnalyzingItemName: (name) => set({ currentAnalyzingItemName: name }),
@@ -140,6 +145,68 @@ export const useBudgetStore = create<BudgetState>()(
       setUploadProgress: (uploadProgress) => set({ uploadProgress }),
       setProcessingStatusText: (processingStatusText) => set({ processingStatusText }),
       setProcessedItemsCount: (processedItemsCount) => set({ processedItemsCount }),
+      
+      pollProgress: async () => {
+        const state = get();
+        if (!state.planilhaId || !state.isProcessing) return;
+        
+        try {
+            const res = await fetch(`/api/proxy/orcamento/planilhas/${state.planilhaId}/linhas`);
+            if (!res.ok) return;
+            const data = await res.json(); // { id: str, titulo: str, linhas: [...] }
+            
+            let newlyProcessedCount = 0;
+            
+            data.linhas.forEach((linhaDb: any) => {
+                const localRow = state.tableData.find(r => r.id === linhaDb.id);
+                if (!localRow) return;
+                
+                // Se o DB já processou a linha, atualiza a UI local
+                const isPendenteLocally = (!localRow.ai_status || localRow.ai_status === 'PENDENTE' || localRow.ai_status === 'PROCESSANDO');
+                const isProcessadoNoDb = (linhaDb.ai_status && linhaDb.ai_status !== 'PENDENTE');
+                
+                if (isPendenteLocally && isProcessadoNoDb) {
+                    const updatePayload: Record<string, unknown> = {
+                        ai_status: linhaDb.ai_status,
+                        ai_parecer_tecnico: linhaDb.ai_parecer_tecnico,
+                        codigo: linhaDb.codigo,
+                        memoria_calculo: linhaDb.memoria_calculo || [],
+                    };
+    
+                    if (linhaDb.codigo && linhaDb.memoria_calculo) {
+                        const match = linhaDb.memoria_calculo.find((m: any) => m.codigo === linhaDb.codigo);
+                        if (match) {
+                            updatePayload.valorUnit = Number(match.preco) || 0;
+                            updatePayload.und = match.unidade || '-';
+                            if (match.descricao) updatePayload.descricao = match.descricao;
+                            updatePayload.base = 'SINAPI';
+                        }
+                    }
+                    
+                    state.updateRowById(linhaDb.id, updatePayload);
+                    newlyProcessedCount++;
+                }
+            });
+            
+            // Incrementa o contador total
+            if (newlyProcessedCount > 0) {
+                const store = get(); // refetch state
+                const newCount = store.processedItemsCount + newlyProcessedCount;
+                set({ processedItemsCount: newCount });
+                
+                if (newCount >= store.totalItemsToProcess && store.totalItemsToProcess > 0) {
+                    set({ 
+                        isProcessing: false, 
+                        processingStatusText: 'Análise Completa (via Polling)!',
+                        isPollingFallback: false // reseta para a próxima análise
+                    });
+                }
+            }
+            
+        } catch (e) {
+            console.error('[Polling] Falha ao verificar progresso:', e);
+        }
+      },
 
       updateData: (rowIndex, columnId, value) => set((state) => {
         const newData = state.tableData.map((row, index) => {

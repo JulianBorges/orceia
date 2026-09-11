@@ -5,22 +5,67 @@ import { useBudgetStore } from '../store/useBudgetStore';
 /**
  * Consome o canal SSE do backend via fetch-event-source.
  * Vantagem sobre EventSource nativo: suporta Last-Event-ID para reconexao resiliente.
+ * ADIÇÃO: Detecta proxies corporativos que bloqueiam streams (Timeout de 5s) e aciona o Fallback de Polling.
  */
 export function useSseListener(planilhaId: string | null) {
   const updateRowById = useBudgetStore((state) => state.updateRowById);
   const currentStreamToken = useBudgetStore((state) => state.currentStreamToken);
+  
+  // Extrai as novas propriedades do Polling
+  const isPollingFallback = useBudgetStore((state) => state.isPollingFallback);
+  const isProcessing = useBudgetStore((state) => state.isProcessing);
+  const enablePollingFallback = useBudgetStore((state) => state.enablePollingFallback);
+  const pollProgress = useBudgetStore((state) => state.pollProgress);
+
   const lastEventIdRef = useRef<string>('$');
   const abortControllerRef = useRef<AbortController | null>(null);
+  const pingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // EFEITO 1: O Loop de Fallback (Polling Seguro via GET comum)
   useEffect(() => {
-    // Só conecta se tivermos a planilha e o Token Efêmero (Bypass de Proxy aprovado)
-    if (!planilhaId || !currentStreamToken) return;
+    let intervalId: ReturnType<typeof setInterval>;
+    
+    if (isPollingFallback && isProcessing) {
+      console.log('[POLLING] Modo Fallback ativado. Buscando progresso via GET HTTP comum a cada 3s...');
+      
+      // Busca imediatamente
+      pollProgress();
+      
+      // E depois a cada 3 segundos
+      intervalId = setInterval(() => {
+        if (useBudgetStore.getState().isProcessing) {
+          pollProgress();
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 3000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPollingFallback, isProcessing, pollProgress]);
+
+  // EFEITO 2: O Canal SSE (Tempo Real)
+  useEffect(() => {
+    // Só conecta se tivermos a planilha, o token, e se o fallback NÃO estiver ativo
+    if (!planilhaId || !currentStreamToken || isPollingFallback) return;
 
     console.log(`[SSE] Conectando via Proxy Next.js para Planilha: ${planilhaId}`);
     abortControllerRef.current = new AbortController();
 
-    // Rota relativa: passa pelo proxy server-side do Next.js (/api/proxy/...).
-    // NUNCA usar NEXT_PUBLIC_BACKEND_API_URL aqui — exporia a URL do Cloud Run no bundle JS.
+    // Função de Guarda do Proxy:
+    // O backend manda um ping " " a cada 1 segundo. Se ficarmos 5 segundos de silêncio absoluto,
+    // significa que o Firewall do Estado bufferizou o stream e bloqueou a comunicação.
+    const resetPingTimeout = () => {
+        if (pingTimeoutRef.current) clearTimeout(pingTimeoutRef.current);
+        pingTimeoutRef.current = setTimeout(() => {
+            console.error('[SSE] TIMEOUT: Nenhum pacote (nem ping) em 5s. Proxy corporativo detectado! Acionando Fallback...');
+            enablePollingFallback();
+            abortControllerRef.current?.abort();
+        }, 5000);
+    };
+
     fetchEventSource(`/api/proxy/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
       signal: abortControllerRef.current.signal,
       credentials: 'include', // Essencial para proxies corporativos (NTLM/Negotiate) responderem ao desafio 407
@@ -34,15 +79,23 @@ export function useSseListener(planilhaId: string | null) {
           if (response.status === 401) {
             throw new Error("Token SSE expirado ou inválido (401). Abortando reconexão.");
           }
+          // Qualquer outro erro 500/502/403/407 persistente no proxy do governo:
+          enablePollingFallback();
+          throw new Error(`Conexão rejeitada pelo proxy com status ${response.status}`);
         }
+        // Conexão abriu com sucesso. Dispara o timer contra proxies silenciosos:
+        resetPingTimeout();
       },
 
       onmessage: (event) => {
+        // Recebeu qualquer coisa (ping vazio, padding inicial, ou payload real): O canal está vivo!
+        resetPingTimeout();
+
         if (event.id) {
           lastEventIdRef.current = event.id;
         }
 
-        if (!event.data) return; // Guard clause para ignorar pings ou pacotes vazios
+        if (!event.data) return; // Ignora o conteúdo de pings ou paddings
 
         try {
           const payload = JSON.parse(event.data);
@@ -109,13 +162,16 @@ export function useSseListener(planilhaId: string | null) {
             console.error('[SSE] Token rejeitado pelo servidor (401). Abortando retries.');
             throw err; // Cancela os retries automáticos
         }
-        console.warn('[SSE] Desconexao/Erro. fetch-event-source fara retry automatico...', err);
+        console.warn('[SSE] Conexão abortada ou Erro de rede (Proxy). Acionando Polling Fallback...', err);
+        enablePollingFallback();
+        throw err; // Lança erro para abortar retries do SSE, passando a bola pro Polling.
       },
     });
 
     return () => {
       console.log(`[SSE] Encerrando conexao (Planilha: ${planilhaId})`);
+      if (pingTimeoutRef.current) clearTimeout(pingTimeoutRef.current);
       abortControllerRef.current?.abort();
     };
-  }, [planilhaId, updateRowById, currentStreamToken]);
+  }, [planilhaId, updateRowById, currentStreamToken, isPollingFallback, enablePollingFallback]);
 }
