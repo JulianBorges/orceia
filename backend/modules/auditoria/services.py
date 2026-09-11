@@ -47,6 +47,17 @@ def _extrair_texto_pdf(conteudo_bytes: bytes) -> str:
     return texto_completo
 
 
+def _chunkar_por_tamanho_fixo(texto: str, tamanho: int = 600, overlap: int = 100) -> list[str]:
+    """Fallback para PDFs sem quebra de parágrafo dupla."""
+    chunks = []
+    inicio = 0
+    while inicio < len(texto):
+        fim = inicio + tamanho
+        chunk = texto[inicio:fim]
+        chunks.append(chunk.strip())
+        inicio += (tamanho - overlap)
+    return chunks
+
 def _chunkar_por_paragrafo(texto: str, tamanho_max: int = _TAMANHO_MAX_CHUNK) -> list[str]:
     """
     Divide o texto em chunks semânticos por parágrafo.
@@ -65,6 +76,10 @@ def _chunkar_por_paragrafo(texto: str, tamanho_max: int = _TAMANHO_MAX_CHUNK) ->
 
     if acumulador:
         chunks.append(acumulador.strip())
+
+    # Fallback se o PDF for um bloco de texto gigante mal exportado
+    if len(chunks) <= 2 and len(texto) > 1000:
+        return _chunkar_por_tamanho_fixo(texto, tamanho=600, overlap=100)
 
     return chunks
 

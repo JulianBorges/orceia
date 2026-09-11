@@ -10,7 +10,8 @@ export type AIStatus =
   | 'CACHE_REDIS'
   | 'ERRO DE PROCESSAMENTO'
   | 'REJEITADO_FILTRO_MATEMATICO'
-  | 'ERRO';
+  | 'ERRO'
+  | 'SEM_REFERENCIA';
 
 export type BudgetItem = {
   id: string;

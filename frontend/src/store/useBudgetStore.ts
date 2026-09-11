@@ -48,6 +48,8 @@ interface BudgetState {
   setMemorialId: (id: string | null) => void;
   processarOrcamentoIA: () => Promise<void>;
   auditarPlanilha: () => Promise<void>;
+  auditoriaController: AbortController | null;
+  abortAuditoria: () => void;
   estruturarEAP: (data: BudgetItem[], isAppend?: boolean) => Promise<BudgetItem[]>;
 }
 
@@ -70,8 +72,29 @@ export const useBudgetStore = create<BudgetState>()(
       triggerSaveRefresh: () => set({ lastSaveTimestamp: Date.now() }),
       planilhaId: null,
       memorialId: null,
+      auditoriaController: null,
 
-      setPlanilhaId: (id) => set({ planilhaId: id }),
+      abortAuditoria: () => {
+        const { auditoriaController } = get();
+        if (auditoriaController) {
+            auditoriaController.abort();
+            set({ 
+                auditoriaController: null, 
+                isProcessing: false, 
+                processingStatusText: 'Auditoria cancelada.' 
+            });
+        }
+      },
+
+      setPlanilhaId: (id) => {
+        // Se trocar de planilha, aborta auditoria em andamento
+        const { planilhaId, abortAuditoria } = get();
+        if (planilhaId !== id) {
+            abortAuditoria();
+        }
+        set({ planilhaId: id });
+      },
+
       setMemorialId: (id) => set({ memorialId: id }),
       setCurrentStreamToken: (token) => set({ currentStreamToken: token }),
       setIsDirty: (isDirty) => set({ isDirty }),
@@ -406,8 +429,11 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       auditarPlanilha: async () => {
-        const { tableData, memorialId, updateRowById } = get();
+        const { tableData, memorialId, updateRowById, abortAuditoria } = get();
         if (!memorialId) return;
+
+        // Aborta auditoria anterior se houver
+        abortAuditoria();
 
         const linhasParaAuditar = tableData.filter(r => !r.is_macro_item && r.descricao);
 
@@ -416,12 +442,14 @@ export const useBudgetStore = create<BudgetState>()(
             return;
         }
 
+        const ctrl = new AbortController();
         set({ 
             isProcessing: true, 
             processedItemsCount: 0, 
             totalItemsToProcess: linhasParaAuditar.length,
             currentAnalyzingItemName: 'Iniciando auditoria...',
-            processingStatusText: 'Conectando ao agente auditor...' 
+            processingStatusText: 'Conectando ao agente auditor...',
+            auditoriaController: ctrl
         });
 
         const { fetchEventSource } = await import('@microsoft/fetch-event-source');
@@ -430,6 +458,7 @@ export const useBudgetStore = create<BudgetState>()(
             await fetchEventSource('/api/proxy/auditoria/auditar-planilha', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: ctrl.signal,
                 body: JSON.stringify({
                     projeto_id: memorialId,
                     linhas: linhasParaAuditar.map(l => ({
@@ -455,7 +484,7 @@ export const useBudgetStore = create<BudgetState>()(
                             let aiStatus: import('@/utils/budgetUtils').AIStatus = 'PROCESSANDO';
                             if (data.status_conformidade === 'CONFORME') aiStatus = 'ACEITO';
                             else if (data.status_conformidade === 'DIVERGENTE') aiStatus = 'RESSALVA';
-                            else if (data.status_conformidade === 'SEM_REFERENCIA') aiStatus = 'PENDENTE';
+                            else if (data.status_conformidade === 'SEM_REFERENCIA') aiStatus = 'SEM_REFERENCIA';
 
                             let just = data.justificativa;
                             if (data.trecho_memorial) {
@@ -482,7 +511,7 @@ export const useBudgetStore = create<BudgetState>()(
                             });
                             get().incrementProcessedItemsCount();
                         } else if (payload.status === 'auditoria_concluida') {
-                            set({ isProcessing: false, processingStatusText: 'Auditoria Completa!' });
+                            set({ isProcessing: false, processingStatusText: 'Auditoria Completa!', auditoriaController: null });
                         }
                     } catch (err) {
                         console.error('Erro no parse do SSE de auditoria', err);
@@ -490,7 +519,7 @@ export const useBudgetStore = create<BudgetState>()(
                 },
                 onerror: (err) => {
                     console.error('Erro na conexão SSE', err);
-                    set({ isProcessing: false, processingStatusText: 'Conexão interrompida.' });
+                    set({ isProcessing: false, processingStatusText: 'Conexão interrompida.', auditoriaController: null });
                     throw err; // Stop retrying
                 }
             });

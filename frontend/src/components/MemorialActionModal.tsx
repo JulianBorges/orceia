@@ -28,7 +28,7 @@ export function MemorialActionModal({ isOpen, onClose, onReplace, onDelete, isDe
                 </div>
                 
                 <p className="text-zinc-600 dark:text-zinc-400 mb-8 leading-relaxed">
-                    Voc jo possui um memorial descritivo vinculado a este oramento. O que deseja fazer?
+                    Você já possui um memorial descritivo vinculado a este orçamento. O que deseja fazer?
                 </p>
 
                 <div className="flex flex-col gap-3">

@@ -117,7 +117,7 @@ async def auditar_planilha(
         """Processa um item com controle de concorrência, retornando o dict de resultado."""
         async with _sem:
             trechos = await buscar_contexto_memorial(
-                linha.descricao, tenant_id, lote.projeto_id
+                linha.descricao, tenant_id, lote.projeto_id, top_k=4
             )
             if not trechos:
                 return {
@@ -144,13 +144,16 @@ async def auditar_planilha(
             for linha in lote.linhas
         ]
 
-        for task in tasks:
-            try:
-                resultado = await task
+        # Executa todas as tasks permitindo falhas individuais sem interromper as outras
+        resultados = await _asyncio.gather(*tasks, return_exceptions=True)
+
+        for i, resultado in enumerate(resultados):
+            if isinstance(resultado, Exception):
+                # Usamos a ordem garantida do gather para associar a falha à linha correta
+                linha_falha = lote.linhas[i]
+                yield f"data: {json.dumps({'status': 'erro', 'id': linha_falha.id, 'mensagem': str(resultado)}, ensure_ascii=False)}\n\n"
+            else:
                 yield f"data: {json.dumps({'status': 'sucesso', 'dados': resultado}, ensure_ascii=False)}\n\n"
-            except Exception as e:
-                # Tenta identificar qual linha falhou para notificar o frontend
-                yield f"data: {json.dumps({'status': 'erro', 'mensagem': str(e)}, ensure_ascii=False)}\n\n"
 
         # Evento de conclusão
         yield f"data: {json.dumps({'status': 'auditoria_concluida', 'total': len(lote.linhas)})}\n\n"

@@ -228,6 +228,10 @@ export function BudgetTable({
                     label = "REJEITADO";
                     tooltipLabel = "REJEITADO";
                 }
+            } else if (status === "SEM_REFERENCIA") {
+                color = "bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700/50";
+                label = "S/ REFERÊNCIA";
+                tooltipLabel = "SEM REFERÊNCIA NO MEMORIAL";
             } else if (status === "PROCESSANDO") {
                 color = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30 animate-pulse";
             }
