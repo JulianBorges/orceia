@@ -11,13 +11,9 @@ async def limpar():
     print("Conectando ao Redis...")
     await rc.init_redis()
     try:
-        # Busca todas as chaves do cache da IA
-        keys = await rc.redis_client.keys("cache_ia:*")
-        if keys:
-            await rc.redis_client.delete(*keys)
-            print(f"[OK] Sucesso! {len(keys)} registros de cache da IA foram removidos.")
-        else:
-            print("[OK] O cache ja esta limpo. Nenhuma chave encontrada.")
+        # Comando FLUSHDB apaga todas as chaves do banco de dados atual (caches, streams, tokens travados)
+        await rc.redis_client.flushdb(asynchronous=False)
+        print("[OK] Sucesso! Banco de Dados Redis (FLUSHDB) esvaziado completamente.")
     except Exception as e:
         print(f"[ERRO] Erro ao limpar o cache: {e}")
     finally:

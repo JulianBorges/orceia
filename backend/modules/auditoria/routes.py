@@ -138,22 +138,23 @@ async def auditar_planilha(
             }
 
     async def event_generator():
-        # Cria todas as tasks de auditoria de uma vez (o semáforo controla a concorrência)
+        async def processar_e_formatar(linha):
+            try:
+                resultado = await auditar_linha_com_semaforo(linha)
+                return f"data: {json.dumps({'status': 'sucesso', 'dados': resultado}, ensure_ascii=False)}\n\n"
+            except Exception as e:
+                return f"data: {json.dumps({'status': 'erro', 'id': linha.id, 'mensagem': str(e)}, ensure_ascii=False)}\n\n"
+
+        # Cria todas as tasks formatadoras de uma vez (o semáforo controla a concorrência real)
         tasks = [
-            _asyncio.create_task(auditar_linha_com_semaforo(linha))
+            _asyncio.create_task(processar_e_formatar(linha))
             for linha in lote.linhas
         ]
 
-        # Executa todas as tasks permitindo falhas individuais sem interromper as outras
-        resultados = await _asyncio.gather(*tasks, return_exceptions=True)
-
-        for i, resultado in enumerate(resultados):
-            if isinstance(resultado, Exception):
-                # Usamos a ordem garantida do gather para associar a falha à linha correta
-                linha_falha = lote.linhas[i]
-                yield f"data: {json.dumps({'status': 'erro', 'id': linha_falha.id, 'mensagem': str(resultado)}, ensure_ascii=False)}\n\n"
-            else:
-                yield f"data: {json.dumps({'status': 'sucesso', 'dados': resultado}, ensure_ascii=False)}\n\n"
+        # Executa e faz o yield das respostas conforme vão sendo concluídas (Streaming de verdade)
+        for future in _asyncio.as_completed(tasks):
+            resultado_sse = await future
+            yield resultado_sse
 
         # Evento de conclusão
         yield f"data: {json.dumps({'status': 'auditoria_concluida', 'total': len(lote.linhas)})}\n\n"

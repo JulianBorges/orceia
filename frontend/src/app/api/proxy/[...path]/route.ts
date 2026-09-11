@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 export const maxDuration = 300; // Garantir que a Vercel não corte o stream precocemente
 
 export async function GET(
