@@ -451,6 +451,7 @@ export const useBudgetStore = create<BudgetState>()(
 
         set({ 
             isProcessing: true, 
+            isPollingFallback: false, // Sempre reseta o fallback ao iniciar nova análise (Bug Fix: evita SSE ser ignorado em redes boas após uso em rede restrita)
             processedItemsCount: 0, 
             totalItemsToProcess: linhasParaProcessar.length,
             currentAnalyzingItemName: linhasParaProcessar[0]?.descricao || 'Preparando lote...',
