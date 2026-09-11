@@ -182,7 +182,41 @@ async def processar_linha_com_semaforo(linha: LinhaOrcamentoUpsert, id_planilha:
         
         # Joga a resposta de volta no barramento (Redis) para o Frontend capturar
         stream_key = f"stream:{linha.tenant_id}:planilha:{id_planilha}"
-        await publish_sse_event(stream_key, evento_sse)
+        try:
+            await publish_sse_event(stream_key, evento_sse)
+        except Exception as e:
+            print(f"[ERRO REDIS SSE] Falha ao publicar evento para {linha.id}: {e}")
+            
+        # Salva o resultado autonomamente no Banco de Dados (protege contra perda se o usuário fechar a aba)
+        if evento_sse["status"] == "sucesso":
+            try:
+                await update_ai_result_in_db(linha.id, linha.tenant_id, resultado)
+            except Exception as e:
+                print(f"[ERRO DB] Falha ao persistir resultado da IA para {linha.id} no banco de dados: {e}")
+
+async def update_ai_result_in_db(linha_id: str, tenant_id: str, resultado: dict):
+    from core.db import get_db_pool
+    import json
+    pool = get_db_pool()
+    query = """
+        UPDATE planilhas_linhas 
+        SET 
+            codigo = $1,
+            ai_status = $2,
+            ai_parecer_tecnico = $3,
+            memoria_calculo = $4,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $5 AND tenant_id = $6
+    """
+    await pool.execute(
+        query,
+        resultado.get("codigo_novo"),
+        resultado.get("status_ia"),
+        resultado.get("parecer"),
+        json.dumps(resultado.get("memoria_calculo", [])),
+        linha_id,
+        tenant_id
+    )
 
 async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUpsert], id_planilha: str):
     """Cria tasks paralelas, porém limitadas pelo semaphore local e global"""
@@ -201,7 +235,10 @@ async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUp
     finally:
         # Ao final de tudo, aconteça o que acontecer, joga um evento de conclusão para a UI destravar
         tenant_id = linhas[0].tenant_id if linhas else "default"
-        await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
+        try:
+            await publish_sse_event(f"stream:{tenant_id}:planilha:{id_planilha}", {"status": "lote_concluido", "total": len(linhas)})
+        except Exception as e:
+            print(f"[ERRO REDIS SSE] Falha ao publicar conclusão do lote para a planilha {id_planilha}: {e}")
 
 async def bulk_upsert_linhas_orcamento(linhas: list[LinhaOrcamentoUpsert], tenant_id: str, titulo: str = "Orçamento", memorial_id: str = None):
     """Executa um upsert massivo de forma atômica e em uma única viagem ao banco."""

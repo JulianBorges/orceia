@@ -60,10 +60,10 @@ export function useSseListener(planilhaId: string | null) {
     const resetPingTimeout = () => {
         if (pingTimeoutRef.current) clearTimeout(pingTimeoutRef.current);
         pingTimeoutRef.current = setTimeout(() => {
-            console.error('[SSE] TIMEOUT: Nenhum pacote (nem ping) em 5s. Proxy corporativo detectado! Acionando Fallback...');
+            console.error('[SSE] TIMEOUT: Nenhum pacote (nem ping) em 30s. Proxy corporativo detectado! Acionando Fallback...');
             enablePollingFallback();
             abortControllerRef.current?.abort();
-        }, 5000);
+        }, 30000);
     };
 
     fetchEventSource(`/api/proxy/orcamento/stream/${planilhaId}?token=${currentStreamToken}`, {
@@ -166,6 +166,8 @@ export function useSseListener(planilhaId: string | null) {
         enablePollingFallback();
         throw err; // Lança erro para abortar retries do SSE, passando a bola pro Polling.
       },
+    }).catch((err) => {
+      console.log('[SSE] fetchEventSource finalizou com erro (esperado durante fallback ou restart do servidor):', err.message || err);
     });
 
     return () => {

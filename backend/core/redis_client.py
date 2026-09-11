@@ -32,8 +32,10 @@ async def publish_sse_event(stream_key: str, event_data: dict):
     """Grava o evento no Redis Stream de uma planilha específica"""
     if redis_client is None:
         return
-    # Grava no stream com limite de tamanho (aprox 10000 mensagens) para evitar estouro de memória
-    await redis_client.xadd(stream_key, {"payload": json.dumps(event_data)}, maxlen=10000)
+    # Grava no stream com limite estrito de tamanho (maxlen=200) para evitar OutOfMemory no Redis Free (30MB)
+    await redis_client.xadd(stream_key, {"payload": json.dumps(event_data)}, maxlen=200)
+    # Define TTL de 2 horas para limpar streams órfãos e liberar RAM (dispara fire-and-forget)
+    await redis_client.expire(stream_key, 7200)
 
 async def get_ai_cache(texto_busca: str) -> dict | None:
     """Procura se a IA já calculou esse item nos últimos 15 dias usando SHA-256."""
