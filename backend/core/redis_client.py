@@ -26,7 +26,11 @@ async def init_redis():
 async def close_redis():
     global redis_client
     if redis_client:
-        await redis_client.aclose()
+        try:
+            await redis_client.connection_pool.disconnect()
+            await redis_client.aclose()
+        except Exception:
+            pass
         print("Redis connection closed.")
 
 async def publish_sse_event(stream_key: str, event_data: dict):
