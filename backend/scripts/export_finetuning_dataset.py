@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from core.db import init_db_pool, close_db_pool, get_db_pool
 from modules.orcamento.search_engine import realizar_busca_hibrida
-from modules.orcamento.dimension_parser import injetar_tolerancia_dimensional
+from modules.orcamento.preprocessor import injetar_tolerancia_dimensional
 from core.ai_client import openai_client
 from modules.orcamento.schemas import AnaliseIA
 from modules.orcamento.ai_agents import PROMPT_SISTEMA_ORCAMENTO
