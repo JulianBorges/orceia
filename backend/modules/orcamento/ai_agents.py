@@ -70,7 +70,8 @@ async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict]
     prompt_usuario = f"Item original da planilha: {termo_busca}\nOpções extraídas do RRF:\n{contexto}"
 
     try:
-        model_name = os.getenv("OPENAI_FT_MODEL", "gpt-4o-mini")
+        # Pega a variavel de ambiente. O `or` garante que string vazia "" seja descartada e o fallback assuma o controle.
+        model_name = os.getenv("OPENAI_FT_MODEL") or "gpt-4o-mini"
         completion = await client.beta.chat.completions.parse(
             model=model_name,
             messages=[
