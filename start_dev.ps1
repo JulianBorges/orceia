@@ -7,7 +7,7 @@ $rootDir = Get-Location
 
 # Inicia o Backend em uma nova janela
 Write-Host "-> Subindo Backend (FastAPI) na porta 8000..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; uvicorn main:app --reload --port 8000" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; if (Test-Path '..\.venv\Scripts\Activate.ps1') { ..\.venv\Scripts\Activate.ps1 }; python -m uvicorn main:app --reload --port 8000" -WindowStyle Normal
 
 # Aguarda 2 segundos para o backend respirar
 Start-Sleep -Seconds 2
