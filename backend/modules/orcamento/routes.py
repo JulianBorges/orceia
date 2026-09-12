@@ -63,7 +63,11 @@ async def upsert_linhas(lote: LoteUpsertRequest, background_tasks: BackgroundTas
             start_id = info.get("last-generated-id", "0-0")
         except Exception:
             pass # Stream nao existe ainda
-        await rc.redis_client.setex(f"sse_token:{stream_token}", 7200, f"{tenant_id}::{start_id}") # Valido por 2h
+            
+        try:
+            await rc.redis_client.setex(f"sse_token:{stream_token}", 7200, f"{tenant_id}::{start_id}") # Valido por 2h
+        except Exception as e:
+            print(f"[AVISO] Falha ao configurar token SSE no Redis (possível offline/rate limit): {e}")
         
     # Despacha a bomba para o background. O Frontend fica livre instantaneamente (0 latência)
     background_tasks.add_task(iniciar_processamento_lote_em_background, lote.linhas, planilha_id)

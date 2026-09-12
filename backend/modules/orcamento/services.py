@@ -220,7 +220,7 @@ async def update_ai_result_in_db(linha_id: str, tenant_id: str, resultado: dict)
 
 async def iniciar_processamento_lote_em_background(linhas: list[LinhaOrcamentoUpsert], id_planilha: str):
     """Cria tasks paralelas, porém limitadas pelo semaphore local e global"""
-    local_semaphore = asyncio.Semaphore(15) # Limita as chamadas à rede Redis locais
+    local_semaphore = asyncio.Semaphore(5) # Limita as chamadas à rede Redis locais
     
     async def processar_com_filtro_local(linha):
         async with local_semaphore:

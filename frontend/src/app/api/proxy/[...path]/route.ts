@@ -74,7 +74,14 @@ async function handleProxy(request: NextRequest, pathArray: string[]) {
     
     let body = undefined;
     if (request.method !== "GET" && request.method !== "HEAD") {
-      body = await request.arrayBuffer();
+      try {
+        const buffer = await request.arrayBuffer();
+        if (buffer.byteLength > 0) {
+          body = buffer;
+        }
+      } catch (e) {
+        console.warn("[Proxy] Requisição sem corpo (ex: DELETE) ou erro ao ler buffer.", e);
+      }
     }
 
     const response = await fetch(apiUrl, {

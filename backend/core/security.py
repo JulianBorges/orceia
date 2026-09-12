@@ -23,7 +23,12 @@ async def verify_stream_token(token: str = Query(None)):
     if not rc.redis_client:
         raise HTTPException(status_code=500, detail="Redis offline")
     
-    tenant_id = await rc.redis_client.get(f"sse_token:{token}")
+    try:
+        tenant_id = await rc.redis_client.get(f"sse_token:{token}")
+    except Exception as e:
+        print(f"[Redis] Falha ao verificar token SSE: {e}")
+        raise HTTPException(status_code=503, detail="Serviço de streaming temporariamente indisponível")
+        
     if not tenant_id:
         raise HTTPException(status_code=401, detail="Token de Streaming Invalido ou Expirado")
     
