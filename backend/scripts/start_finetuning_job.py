@@ -23,10 +23,11 @@ async def main():
     print(f"Fazendo upload do dataset ({dataset_path})...")
     
     try:
-        response = await client.files.create(
-            file=Path(dataset_path),
-            purpose="fine-tune"
-        )
+        with open(dataset_path, "rb") as file_obj:
+            response = await client.files.create(
+                file=("dataset_orceia_v1.jsonl", file_obj),
+                purpose="fine-tune"
+            )
         
         file_id = response.id
         print(f"Upload concluído! File ID: {file_id}")
