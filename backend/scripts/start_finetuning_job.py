@@ -25,7 +25,7 @@ async def main():
     try:
         with open(dataset_path, "rb") as file_obj:
             response = await client.files.create(
-                file=("dataset_orceia_v1.jsonl", file_obj),
+                file=("dataset_orceia_v1.jsonl", file_obj, "application/jsonl"),
                 purpose="fine-tune"
             )
         
