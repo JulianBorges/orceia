@@ -8,6 +8,8 @@ from openai import AsyncOpenAI
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 load_dotenv()
 
+from pathlib import Path
+
 async def main():
     client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
@@ -21,11 +23,10 @@ async def main():
     print(f"Fazendo upload do dataset ({dataset_path})...")
     
     try:
-        with open(dataset_path, "rb") as file:
-            response = await client.files.create(
-                file=file,
-                purpose="fine-tune"
-            )
+        response = await client.files.create(
+            file=Path(dataset_path),
+            purpose="fine-tune"
+        )
         
         file_id = response.id
         print(f"Upload concluído! File ID: {file_id}")
