@@ -47,6 +47,9 @@ Se o Pinecone trouxer itens genéricos, ele pode ofuscar um "Headshot" do Postgr
 **Por que o Cache Redis NUNCA pula o Motor RRF?**
 Para garantir a rastreabilidade na Engenharia Civil. O Motor RRF *sempre* roda (Custo O(1)) para buscar as 20 opções com preços atualizados do mês. O Redis é consultado *depois* do banco apenas para anexar a decisão passada da IA e poupar a chamada à OpenAI, nunca para mutilar o Top 20 visual da UI.
 
+**Por que Dynamic Few-Shot (RAG) em vez de Fine-Tuning?**
+Devido a restrições de infraestrutura e bloqueios da OpenAI (Erro 403 `training_not_available` para Tier 1), adotamos uma arquitetura In-Context (RAG). Em vez de um modelo próprio (Fine-Tuning), o sistema usa Trigramas no Postgres (`pg_trgm`) para buscar em milissegundos os 3 gabaritos históricos aprovados mais parecidos e os injeta dinamicamente como mensagens Few-Shot na chamada da OpenAI, induzindo a IA a imitar perfeitamente o comportamento passado da organização com $0 de custo de setup e instantaneidade no aprendizado.
+
 **Por que Structured Outputs?**
 `beta.chat.completions.parse` com schema Pydantic é determinístico — elimina parse de Regex, preâmbulos e campos vazios sob fadiga de contexto.
 

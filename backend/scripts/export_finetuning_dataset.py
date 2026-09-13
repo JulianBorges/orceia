@@ -132,9 +132,9 @@ async def main():
     out_path = os.path.join(os.path.dirname(__file__), "dataset_orceia_v1.jsonl")
     with open(out_path, 'w', encoding='utf-8') as f:
         for ds_item in dataset:
-            f.write(json.dumps(ds_item, ensure_ascii=False) + '\\n')
+            f.write(json.dumps(ds_item, ensure_ascii=False) + '\n')
             
-    print(f"\\n[SUCESSO] Dataset finalizado com {len(dataset)} exemplos de Ouro em: {out_path}")
+    print(f"\n[SUCESSO] Dataset finalizado com {len(dataset)} exemplos de Ouro em: {out_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -58,7 +58,7 @@ ALTO: concreto estrutural (fck/resistência), aço de armadura, impermeabilizaç
 BAIXO: tubulações hidráulicas prediais, eletrodutos, condutores elétricos de BAIXA tensão (≤ 1kV — incluindo 0,6/1,0kV e 450/750V), revestimentos, pinturas, terraplanagem, serviços provisórios, esquadrias.
 Na dúvida: BAIXO."""
 
-async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict]) -> AnaliseIA:
+async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict], exemplos_few_shot: list[dict] = None) -> AnaliseIA:
     """
     Agente Mapeador e Revisor em Cascata.
     Obriga a OpenAI a cuspir um JSON perfeitamente compatível com o Schema Pydantic.
@@ -68,16 +68,33 @@ async def consultar_agente_engenheiro(termo_busca: str, opcoes_banco: list[dict]
     contexto = json.dumps(opcoes_banco, indent=2, ensure_ascii=False)
 
     prompt_usuario = f"Item original da planilha: {termo_busca}\nOpções extraídas do RRF:\n{contexto}"
+    
+    messages = [
+        {"role": "system", "content": PROMPT_SISTEMA_ORCAMENTO}
+    ]
+    
+    # RAG / Few-Shot: Injeta histórico do banco de dados simulando interações anteriores
+    if exemplos_few_shot:
+        for ex in exemplos_few_shot:
+            ex_user = f"Item original da planilha: {ex['descricao_legada']}\nOpções extraídas do RRF:\n[Simulado pela Memória Organizacional]"
+            ex_ast = {
+                "raciocinio_step_by_step": "Conforme memória organizacional aprovada previamente, este item deve seguir a mesma lógica de classificação.",
+                "categoria_rigor": "BAIXO",
+                "aceito_com_tolerancia": False,
+                "codigo_selecionado": str(ex['codigo']) if ex['codigo'] else None,
+                "parecer_tecnico": ex['parecer_tecnico'] or "Decisão baseada no histórico de aprovações da organização."
+            }
+            messages.append({"role": "user", "content": ex_user})
+            messages.append({"role": "assistant", "content": json.dumps(ex_ast, ensure_ascii=False)})
+            
+    messages.append({"role": "user", "content": prompt_usuario})
 
     try:
         # Pega a variavel de ambiente. O `or` garante que string vazia "" seja descartada e o fallback assuma o controle.
         model_name = os.getenv("OPENAI_FT_MODEL") or "gpt-4o-mini"
         completion = await client.beta.chat.completions.parse(
             model=model_name,
-            messages=[
-                {"role": "system", "content": PROMPT_SISTEMA_ORCAMENTO},
-                {"role": "user", "content": prompt_usuario}
-            ],
+            messages=messages,
             response_format=AnaliseIA,
         )
         return completion.choices[0].message.parsed

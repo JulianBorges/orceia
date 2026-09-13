@@ -28,6 +28,21 @@ async def check_rlhf_memory(tenant_id: str, termo: str) -> dict | None:
             "origem": "RLHF_DATABASE"
         }
     return None
+    
+async def buscar_exemplos_rlhf(tenant_id: str, termo: str, limit: int = 5) -> list[dict]:
+    """Busca itens similares já aprovados pelo cliente para injeção Few-Shot na IA"""
+    query = """
+        SELECT descricao_legada, codigo, descricao, parecer_tecnico 
+        FROM memoria_organizacional 
+        WHERE tenant_id = $1 AND word_similarity(descricao_legada, $2) > 0.3
+        ORDER BY word_similarity(descricao_legada, $2) DESC 
+        LIMIT $3
+    """
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        records = await asyncio.wait_for(conn.fetch(query, tenant_id, termo, limit), timeout=5.0)
+        
+    return [dict(r) for r in records] if records else []
 
 # Essa função engloba o RRF + OpenAI e usa Tenacity para refazer a consulta se a rede cair
 @retry(
@@ -114,7 +129,10 @@ async def processar_linha_inteligente(linha: LinhaOrcamentoUpsert, id_planilha: 
     opcoes_para_ia = copy.deepcopy(opcoes_rrf[:10])
     injetar_tolerancia_dimensional(linha.descricao, opcoes_para_ia)
 
-    analise = await consultar_agente_engenheiro(termo_ctx, opcoes_para_ia)
+    # Busca Exemplos (Few-Shot/RAG) da Memória Organizacional
+    exemplos_few_shot = await buscar_exemplos_rlhf(linha.tenant_id, linha.descricao, limit=3)
+
+    analise = await consultar_agente_engenheiro(termo_ctx, opcoes_para_ia, exemplos_few_shot=exemplos_few_shot)
     
     # 4. Observabilidade do CoT e Formatação do resultado final
     print(f"[CoT] Raciocínio (ID {linha.id}): {analise.raciocinio_step_by_step}")
